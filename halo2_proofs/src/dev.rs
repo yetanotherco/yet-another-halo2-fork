@@ -348,6 +348,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         AR: Into<String>,
     {
         if !self.usable_rows.contains(&row) {
+            log::error!(
+                "enable_selector: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -372,6 +377,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         row: usize,
     ) -> Result<circuit::Value<F>, Error> {
         if !self.usable_rows.contains(&row) {
+            log::error!(
+                "query_instance: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -396,6 +406,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         AR: Into<String>,
     {
         if !self.usable_rows.contains(&row) {
+            log::error!(
+                "assign_advice: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -432,6 +447,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         AR: Into<String>,
     {
         if !self.usable_rows.contains(&row) {
+            log::error!(
+                "assign_fixed: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -462,6 +482,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         right_row: usize,
     ) -> Result<(), crate::plonk::Error> {
         if !self.usable_rows.contains(&left_row) || !self.usable_rows.contains(&right_row) {
+            log::error!(
+                "copy: rows={:?} not in usable_rows={:?}",
+                (left_row, right_row),
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -476,6 +501,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         to: circuit::Value<Assigned<F>>,
     ) -> Result<(), Error> {
         if !self.usable_rows.contains(&from_row) {
+            log::error!(
+                "fill_from_row: from_row={} not in usable_rows={:?}",
+                from_row,
+                self.usable_rows
+            );
             return Err(Error::not_enough_rows_available(self.k));
         }
 
@@ -518,6 +548,7 @@ impl<F: FieldExt> MockProver<F> {
         let cs = cs;
 
         if n < cs.minimum_rows() {
+            log::error!("run: n={} < minimum_rows={}", n, cs.minimum_rows());
             return Err(Error::not_enough_rows_available(k));
         }
 
