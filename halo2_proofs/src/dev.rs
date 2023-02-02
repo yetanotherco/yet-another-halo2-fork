@@ -309,15 +309,11 @@ pub struct MockProver<F: Group + Field> {
     usable_rows: Range<usize>,
 }
 
-impl<F: Field + Group> Assignment<F> for MockProver<F> {
-    fn enter_region<NR, N>(&mut self, name: N)
-    where
-        NR: Into<String>,
-        N: FnOnce() -> NR,
-    {
+impl<F: Field + Group> MockProver<F> {
+    fn inner_enter_region(&mut self, name: String) {
         assert!(self.current_region.is_none());
         self.current_region = Some(Region {
-            name: name().into(),
+            name,
             columns: HashSet::default(),
             rows: None,
             annotations: HashMap::default(),
@@ -325,28 +321,15 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
             cells: HashMap::default(),
         });
     }
-
-    fn exit_region(&mut self) {
-        self.regions.push(self.current_region.take().unwrap());
-    }
-
-    fn annotate_column<A, AR>(&mut self, annotation: A, column: Column<Any>)
-    where
-        A: FnOnce() -> AR,
-        AR: Into<String>,
-    {
+    fn inner_annotate_column(&mut self, annotation: String, column: Column<Any>) {
         if let Some(region) = self.current_region.as_mut() {
             region
                 .annotations
-                .insert(ColumnMetadata::from(column), annotation().into());
+                .insert(ColumnMetadata::from(column), annotation);
         }
     }
 
-    fn enable_selector<A, AR>(&mut self, _: A, selector: &Selector, row: usize) -> Result<(), Error>
-    where
-        A: FnOnce() -> AR,
-        AR: Into<String>,
-    {
+    fn inner_enable_selector(&mut self, selector: &Selector, row: usize) -> Result<(), Error> {
         if !self.usable_rows.contains(&row) {
             log::error!(
                 "enable_selector: row={} not in usable_rows={:?}",
@@ -369,6 +352,100 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         self.selectors[selector.0][row] = true;
 
         Ok(())
+    }
+    fn inner_assign_advice(
+        &mut self,
+        column: Column<Advice>,
+        row: usize,
+        to: circuit::Value<Assigned<F>>,
+    ) -> Result<(), Error> {
+        if !self.usable_rows.contains(&row) {
+            log::error!(
+                "assign_advice: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
+            return Err(Error::not_enough_rows_available(self.k));
+        }
+
+        if let Some(region) = self.current_region.as_mut() {
+            region.update_extent(column.into(), row);
+            region
+                .cells
+                .entry((column.into(), row))
+                .and_modify(|count| *count += 1)
+                .or_default();
+        }
+
+        *self
+            .advice
+            .get_mut(column.index())
+            .and_then(|v| v.get_mut(row))
+            .ok_or(Error::BoundsFailure)? = CellValue::Assigned(to.evaluate().assign()?);
+
+        Ok(())
+    }
+    fn inner_assign_fixed(
+        &mut self,
+        column: Column<Fixed>,
+        row: usize,
+        to: circuit::Value<Assigned<F>>,
+    ) -> Result<(), Error> {
+        if !self.usable_rows.contains(&row) {
+            log::error!(
+                "assign_fixed: row={} not in usable_rows={:?}",
+                row,
+                self.usable_rows
+            );
+            return Err(Error::not_enough_rows_available(self.k));
+        }
+
+        if let Some(region) = self.current_region.as_mut() {
+            region.update_extent(column.into(), row);
+            region
+                .cells
+                .entry((column.into(), row))
+                .and_modify(|count| *count += 1)
+                .or_default();
+        }
+
+        *self
+            .fixed
+            .get_mut(column.index())
+            .and_then(|v| v.get_mut(row))
+            .ok_or(Error::BoundsFailure)? = CellValue::Assigned(to.evaluate().assign()?);
+
+        Ok(())
+    }
+}
+
+impl<F: Field + Group> Assignment<F> for MockProver<F> {
+    fn enter_region<NR, N>(&mut self, name: N)
+    where
+        NR: Into<String>,
+        N: FnOnce() -> NR,
+    {
+        self.inner_enter_region(name().into())
+    }
+
+    fn exit_region(&mut self) {
+        self.regions.push(self.current_region.take().unwrap());
+    }
+
+    fn annotate_column<A, AR>(&mut self, annotation: A, column: Column<Any>)
+    where
+        A: FnOnce() -> AR,
+        AR: Into<String>,
+    {
+        self.inner_annotate_column(annotation().into(), column)
+    }
+
+    fn enable_selector<A, AR>(&mut self, _: A, selector: &Selector, row: usize) -> Result<(), Error>
+    where
+        A: FnOnce() -> AR,
+        AR: Into<String>,
+    {
+        self.inner_enable_selector(selector, row)
     }
 
     fn query_instance(
@@ -405,32 +482,7 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         A: FnOnce() -> AR,
         AR: Into<String>,
     {
-        if !self.usable_rows.contains(&row) {
-            log::error!(
-                "assign_advice: row={} not in usable_rows={:?}",
-                row,
-                self.usable_rows
-            );
-            return Err(Error::not_enough_rows_available(self.k));
-        }
-
-        if let Some(region) = self.current_region.as_mut() {
-            region.update_extent(column.into(), row);
-            region
-                .cells
-                .entry((column.into(), row))
-                .and_modify(|count| *count += 1)
-                .or_default();
-        }
-
-        *self
-            .advice
-            .get_mut(column.index())
-            .and_then(|v| v.get_mut(row))
-            .ok_or(Error::BoundsFailure)? =
-            CellValue::Assigned(to().into_field().evaluate().assign()?);
-
-        Ok(())
+        self.inner_assign_advice(column, row, to().into_field())
     }
 
     fn assign_fixed<V, VR, A, AR>(
@@ -446,32 +498,7 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         A: FnOnce() -> AR,
         AR: Into<String>,
     {
-        if !self.usable_rows.contains(&row) {
-            log::error!(
-                "assign_fixed: row={} not in usable_rows={:?}",
-                row,
-                self.usable_rows
-            );
-            return Err(Error::not_enough_rows_available(self.k));
-        }
-
-        if let Some(region) = self.current_region.as_mut() {
-            region.update_extent(column.into(), row);
-            region
-                .cells
-                .entry((column.into(), row))
-                .and_modify(|count| *count += 1)
-                .or_default();
-        }
-
-        *self
-            .fixed
-            .get_mut(column.index())
-            .and_then(|v| v.get_mut(row))
-            .ok_or(Error::BoundsFailure)? =
-            CellValue::Assigned(to().into_field().evaluate().assign()?);
-
-        Ok(())
+        self.inner_assign_fixed(column, row, to().into_field())
     }
 
     fn copy(
