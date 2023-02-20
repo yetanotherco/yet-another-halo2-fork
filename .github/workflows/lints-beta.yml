@@ -5,22 +5,39 @@ name: Beta lints
 on: push
 
 jobs:
-  clippy-beta:
-    name: Clippy (beta)
+  clippy:
+    name: Clippy
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v2
         with:
-          components: clippy
-          override: false
-      - name: Run Clippy (beta)
-        uses: actions-rs/clippy-check@v1
-        continue-on-error: true
+          persist-credentials: false
+
+      - name: Check workflow permissions
+        id: check_permissions
+        uses: scherermichael-oss/action-has-permission@1.0.6
         with:
-          name: Clippy (beta)
+          required-permission: write
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run clippy action to produce annotations
+        uses: actions-rs/clippy-check@v1.0.7
+        if: ${{ steps.check_permissions.outputs.has-permission }}
+        with:
+          # GitHub displays the clippy job and its results as separate entries
+          name: Clippy (stable) Results
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets -- -W clippy::all
+          args: --all-features --all-targets -- -D warnings
+
+      - uses: actions-rs/toolchain@v1.0.1
+        if: ${{ !steps.check_permissions.outputs.has-permission }}
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Run clippy manually without annotations
+        if: ${{ !steps.check_permissions.outputs.has-permission }}
+        run: cargo clippy --all-features --all-targets -- -D warnings
