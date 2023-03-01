@@ -321,19 +321,15 @@ impl<F: Field + Group> MockProver<F> {
     }
 }
 
-impl<F: Field + Group> Assignment<F> for MockProver<F> {
-    fn enter_region<NR, N>(&mut self, name: N)
-    where
-        NR: Into<String>,
-        N: FnOnce() -> NR,
-    {
+impl<F: Field + Group> MockProver<F> {
+    fn inner_enter_region(&mut self, name: String) {
         if !self.in_phase(FirstPhase) {
             return;
         }
 
         assert!(self.current_region.is_none());
         self.current_region = Some(Region {
-            name: name().into(),
+            name,
             columns: HashSet::default(),
             rows: None,
             annotations: HashMap::default(),
@@ -341,20 +337,7 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
             cells: HashMap::default(),
         });
     }
-
-    fn exit_region(&mut self) {
-        if !self.in_phase(FirstPhase) {
-            return;
-        }
-
-        self.regions.push(self.current_region.take().unwrap());
-    }
-
-    fn annotate_column<A, AR>(&mut self, annotation: A, column: Column<Any>)
-    where
-        A: FnOnce() -> AR,
-        AR: Into<String>,
-    {
+    fn inner_annotate_column(&mut self, annotation: String, column: Column<Any>) {
         if !self.in_phase(FirstPhase) {
             return;
         }
@@ -362,15 +345,11 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         if let Some(region) = self.current_region.as_mut() {
             region
                 .annotations
-                .insert(ColumnMetadata::from(column), annotation().into());
+                .insert(ColumnMetadata::from(column), annotation);
         }
     }
 
-    fn enable_selector<A, AR>(&mut self, _: A, selector: &Selector, row: usize) -> Result<(), Error>
-    where
-        A: FnOnce() -> AR,
-        AR: Into<String>,
-    {
+    fn inner_enable_selector(&mut self, selector: &Selector, row: usize) -> Result<(), Error> {
         if !self.in_phase(FirstPhase) {
             return Ok(());
         }
@@ -396,6 +375,124 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         self.selectors[selector.0][row] = true;
 
         Ok(())
+    }
+    fn inner_assign_advice(
+        &mut self,
+        column: Column<Advice>,
+        row: usize,
+        to: circuit::Value<Assigned<F>>,
+    ) -> Result<(), Error> {
+        if self.in_phase(FirstPhase) {
+            assert!(
+                self.usable_rows.contains(&row),
+                "row={}, usable_rows={:?}, k={}",
+                row,
+                self.usable_rows,
+                self.k,
+            );
+
+            if let Some(region) = self.current_region.as_mut() {
+                region.update_extent(column.into(), row);
+                region
+                    .cells
+                    .entry((column.into(), row))
+                    .and_modify(|count| *count += 1)
+                    .or_default();
+            }
+        }
+
+        match to.evaluate().assign() {
+            Ok(to) => {
+                let value = self
+                    .advice
+                    .get_mut(column.index())
+                    .and_then(|v| v.get_mut(row))
+                    .expect("bounds failure");
+                if let CellValue::Assigned(value) = value {
+                    // Inconsistent assignment between different phases.
+                    assert_eq!(value, &to, "value={:?}, to={:?}", value, &to);
+                } else {
+                    *value = CellValue::Assigned(to);
+                }
+            }
+            Err(err) => {
+                // Propagate `assign` error if the column is in current phase.
+                if self.in_phase(column.column_type().phase) {
+                    return Err(err);
+                }
+            }
+        }
+
+        Ok(())
+    }
+    fn inner_assign_fixed(
+        &mut self,
+        column: Column<Fixed>,
+        row: usize,
+        to: circuit::Value<Assigned<F>>,
+    ) -> Result<(), Error> {
+        if !self.in_phase(FirstPhase) {
+            return Ok(());
+        }
+
+        assert!(
+            self.usable_rows.contains(&row),
+            "row={}, usable_rows={:?}, k={}",
+            row,
+            self.usable_rows,
+            self.k,
+        );
+
+        if let Some(region) = self.current_region.as_mut() {
+            region.update_extent(column.into(), row);
+            region
+                .cells
+                .entry((column.into(), row))
+                .and_modify(|count| *count += 1)
+                .or_default();
+        }
+
+        *self
+            .fixed
+            .get_mut(column.index())
+            .and_then(|v| v.get_mut(row))
+            .expect("bounds failure") = CellValue::Assigned(to.evaluate().assign()?);
+
+        Ok(())
+    }
+}
+
+impl<F: Field + Group> Assignment<F> for MockProver<F> {
+    fn enter_region<NR, N>(&mut self, name: N)
+    where
+        NR: Into<String>,
+        N: FnOnce() -> NR,
+    {
+        self.inner_enter_region(name().into())
+    }
+
+    fn exit_region(&mut self) {
+        if !self.in_phase(FirstPhase) {
+            return;
+        }
+
+        self.regions.push(self.current_region.take().unwrap());
+    }
+
+    fn annotate_column<A, AR>(&mut self, annotation: A, column: Column<Any>)
+    where
+        A: FnOnce() -> AR,
+        AR: Into<String>,
+    {
+        self.inner_annotate_column(annotation().into(), column)
+    }
+
+    fn enable_selector<A, AR>(&mut self, _: A, selector: &Selector, row: usize) -> Result<(), Error>
+    where
+        A: FnOnce() -> AR,
+        AR: Into<String>,
+    {
+        self.inner_enable_selector(selector, row)
     }
 
     fn query_instance(
@@ -432,48 +529,7 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         A: FnOnce() -> AR,
         AR: Into<String>,
     {
-        if self.in_phase(FirstPhase) {
-            assert!(
-                self.usable_rows.contains(&row),
-                "row={}, usable_rows={:?}, k={}",
-                row,
-                self.usable_rows,
-                self.k,
-            );
-
-            if let Some(region) = self.current_region.as_mut() {
-                region.update_extent(column.into(), row);
-                region
-                    .cells
-                    .entry((column.into(), row))
-                    .and_modify(|count| *count += 1)
-                    .or_default();
-            }
-        }
-
-        match to().into_field().evaluate().assign() {
-            Ok(to) => {
-                let value = self
-                    .advice
-                    .get_mut(column.index())
-                    .and_then(|v| v.get_mut(row))
-                    .expect("bounds failure");
-                if let CellValue::Assigned(value) = value {
-                    // Inconsistent assignment between different phases.
-                    assert_eq!(value, &to, "value={:?}, to={:?}", value, &to);
-                } else {
-                    *value = CellValue::Assigned(to);
-                }
-            }
-            Err(err) => {
-                // Propagate `assign` error if the column is in current phase.
-                if self.in_phase(column.column_type().phase) {
-                    return Err(err);
-                }
-            }
-        }
-
-        Ok(())
+        self.inner_assign_advice(column, row, to().into_field())
     }
 
     fn assign_fixed<V, VR, A, AR>(
@@ -489,34 +545,7 @@ impl<F: Field + Group> Assignment<F> for MockProver<F> {
         A: FnOnce() -> AR,
         AR: Into<String>,
     {
-        if !self.in_phase(FirstPhase) {
-            return Ok(());
-        }
-
-        assert!(
-            self.usable_rows.contains(&row),
-            "row={}, usable_rows={:?}, k={}",
-            row,
-            self.usable_rows,
-            self.k,
-        );
-
-        if let Some(region) = self.current_region.as_mut() {
-            region.update_extent(column.into(), row);
-            region
-                .cells
-                .entry((column.into(), row))
-                .and_modify(|count| *count += 1)
-                .or_default();
-        }
-
-        *self
-            .fixed
-            .get_mut(column.index())
-            .and_then(|v| v.get_mut(row))
-            .expect("bounds failure") = CellValue::Assigned(to().into_field().evaluate().assign()?);
-
-        Ok(())
+        self.inner_assign_fixed(column, row, to().into_field())
     }
 
     fn copy(
