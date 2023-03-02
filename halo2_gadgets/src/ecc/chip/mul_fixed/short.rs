@@ -228,9 +228,9 @@ impl<Fixed: FixedPoints<pallas::Affine>> Config<Fixed> {
                             let magnitude = pallas::Scalar::from_repr(magnitude.to_repr()).unwrap();
 
                             let sign = if sign == &&pallas::Base::one() {
-                                pallas::Scalar::one()
+                                pallas::Scalar::ONE
                             } else {
-                                -pallas::Scalar::one()
+                                -pallas::Scalar::ONE
                             };
 
                             magnitude * sign
@@ -254,7 +254,7 @@ pub mod tests {
         circuit::{AssignedCell, Chip, Layouter, Value},
         plonk::{Any, Error},
     };
-    use halo2curves::{pasta::pallas, FieldExt};
+    use halo2curves::{pasta::pallas, Field};
 
     use crate::{
         ecc::{
@@ -359,9 +359,9 @@ pub mod tests {
             let scalar = {
                 let magnitude = pallas::Scalar::from_repr(magnitude.to_repr()).unwrap();
                 let sign = if *sign == pallas::Base::one() {
-                    pallas::Scalar::one()
+                    pallas::Scalar::ONE
                 } else {
-                    -pallas::Scalar::one()
+                    -pallas::Scalar::ONE
                 };
                 magnitude * sign
             };

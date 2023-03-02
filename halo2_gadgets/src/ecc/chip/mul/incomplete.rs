@@ -8,7 +8,7 @@ use halo2_proofs::{
     },
     poly::Rotation,
 };
-use halo2curves::{pasta::pallas, FieldExt};
+use halo2curves::{pasta::pallas, Field};
 
 /// A helper struct for implementing single-row double-and-add using incomplete addition.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

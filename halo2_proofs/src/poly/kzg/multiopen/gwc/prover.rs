@@ -1,5 +1,5 @@
 use super::{construct_intermediate_sets, ChallengeV, Query};
-use crate::arithmetic::{eval_polynomial, kate_division, powers, CurveAffine, FieldExt};
+use crate::arithmetic::{eval_polynomial, kate_division, powers, CurveAffine};
 use crate::helpers::SerdeCurveAffine;
 use crate::poly::commitment::ParamsProver;
 use crate::poly::commitment::Prover;

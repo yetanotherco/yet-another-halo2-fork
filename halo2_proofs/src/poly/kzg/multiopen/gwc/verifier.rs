@@ -3,7 +3,7 @@ use std::io::Read;
 use std::marker::PhantomData;
 
 use super::{construct_intermediate_sets, ChallengeU, ChallengeV};
-use crate::arithmetic::{eval_polynomial, lagrange_interpolate, powers, CurveAffine, FieldExt};
+use crate::arithmetic::{eval_polynomial, lagrange_interpolate, powers, CurveAffine};
 use crate::helpers::SerdeCurveAffine;
 use crate::poly::commitment::Verifier;
 use crate::poly::commitment::MSM;
@@ -70,7 +70,7 @@ where
         let u: ChallengeU<_> = transcript.squeeze_challenge_scalar();
 
         let mut commitment_multi = MSMKZG::<E>::new();
-        let mut eval_multi = E::Scalar::zero();
+        let mut eval_multi = E::Scalar::ZERO;
 
         let mut witness = MSMKZG::<E>::new();
         let mut witness_with_aux = MSMKZG::<E>::new();

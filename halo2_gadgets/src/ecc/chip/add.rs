@@ -4,7 +4,7 @@ use halo2_proofs::{
     plonk::{Advice, Assigned, Column, ConstraintSystem, Constraints, Error, Expression, Selector},
     poly::Rotation,
 };
-use halo2curves::{pasta::pallas, FieldExt};
+use halo2curves::{pasta::pallas, Field};
 use std::collections::HashSet;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

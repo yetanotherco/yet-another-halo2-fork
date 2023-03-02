@@ -18,7 +18,7 @@ use halo2_proofs::{
     },
     poly::Rotation,
 };
-use halo2curves::{pasta::pallas, CurveAffine, FieldExt};
+use halo2curves::{pasta::pallas, CurveAffine, Field};
 use lazy_static::lazy_static;
 
 pub mod base_field_elem;

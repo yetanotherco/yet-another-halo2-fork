@@ -6,11 +6,11 @@ use halo2_proofs::{
     plonk::{Advice, Column, ConstraintSystem, Constraints, Error, Selector},
     poly::Rotation,
 };
-use halo2curves::FieldExt;
+use halo2curves::Field;
 use std::marker::PhantomData;
 
 /// Instructions for a conditional swap gadget.
-pub trait CondSwapInstructions<F: FieldExt>: UtilitiesInstructions<F> {
+pub trait CondSwapInstructions<F: Field>: UtilitiesInstructions<F> {
     #[allow(clippy::type_complexity)]
     /// Given an input pair (a,b) and a `swap` boolean flag, returns
     /// (b,a) if `swap` is set, else (a,b) if `swap` is not set.
@@ -32,7 +32,7 @@ pub struct CondSwapChip<F> {
     _marker: PhantomData<F>,
 }
 
-impl<F: FieldExt> Chip<F> for CondSwapChip<F> {
+impl<F: Field> Chip<F> for CondSwapChip<F> {
     type Config = CondSwapConfig;
     type Loaded = ();
 
@@ -63,11 +63,11 @@ impl CondSwapConfig {
     }
 }
 
-impl<F: FieldExt> UtilitiesInstructions<F> for CondSwapChip<F> {
+impl<F: Field> UtilitiesInstructions<F> for CondSwapChip<F> {
     type Var = AssignedCell<F, F>;
 }
 
-impl<F: FieldExt> CondSwapInstructions<F> for CondSwapChip<F> {
+impl<F: Field> CondSwapInstructions<F> for CondSwapChip<F> {
     #[allow(clippy::type_complexity)]
     fn swap(
         &self,
@@ -122,7 +122,7 @@ impl<F: FieldExt> CondSwapInstructions<F> for CondSwapChip<F> {
     }
 }
 
-impl<F: FieldExt> CondSwapChip<F> {
+impl<F: Field> CondSwapChip<F> {
     /// Configures this chip for use in a circuit.
     ///
     /// # Side-effects
@@ -201,19 +201,19 @@ mod tests {
         dev::MockProver,
         plonk::{Circuit, ConstraintSystem, Error},
     };
-    use halo2curves::{pasta::pallas::Base, FieldExt};
+    use halo2curves::{pasta::pallas::Base, Field};
     use rand::rngs::OsRng;
 
     #[test]
     fn cond_swap() {
         #[derive(Default)]
-        struct MyCircuit<F: FieldExt> {
+        struct MyCircuit<F: Field> {
             a: Value<F>,
             b: Value<F>,
             swap: Value<bool>,
         }
 
-        impl<F: FieldExt> Circuit<F> for MyCircuit<F> {
+        impl<F: Field> Circuit<F> for MyCircuit<F> {
             type Config = CondSwapConfig;
             type FloorPlanner = SimpleFloorPlanner;
 
