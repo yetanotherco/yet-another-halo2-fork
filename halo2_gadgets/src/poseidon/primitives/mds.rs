@@ -1,8 +1,8 @@
-use halo2_proofs::arithmetic::Field;
+use ff::FromUniformBytes;
 
 use super::{grain::Grain, Mds};
 
-pub(super) fn generate_mds<F: Field, const T: usize>(
+pub(super) fn generate_mds<F: FromUniformBytes<64> + Ord, const T: usize>(
     grain: &mut Grain<F>,
     mut select: usize,
 ) -> (Mds<F, T>, Mds<F, T>) {

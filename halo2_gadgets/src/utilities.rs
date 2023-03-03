@@ -5,7 +5,6 @@ use halo2_proofs::{
     circuit::{AssignedCell, Cell, Layouter, Value},
     plonk::{Advice, Column, Error, Expression},
 };
-use halo2curves::Field;
 use std::marker::PhantomData;
 use std::ops::Range;
 
@@ -247,7 +246,7 @@ mod tests {
         plonk::{Any, Circuit, ConstraintSystem, Constraints, Error, Selector},
         poly::Rotation,
     };
-    use halo2curves::{pasta::pallas, Field};
+    use halo2curves::pasta::pallas;
     use proptest::prelude::*;
     use rand::rngs::OsRng;
     use std::convert::TryInto;

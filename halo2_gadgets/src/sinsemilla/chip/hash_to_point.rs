@@ -10,8 +10,8 @@ use halo2_proofs::{
     plonk::{Assigned, Error},
 };
 
-use group::ff::{PrimeField, PrimeFieldBits};
-use halo2curves::{pasta::pallas, CurveAffine, Field};
+use group::ff::{Field, PrimeField, PrimeFieldBits};
+use halo2curves::{pasta::pallas, CurveAffine};
 
 use std::ops::Deref;
 

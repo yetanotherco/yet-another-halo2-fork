@@ -5,6 +5,7 @@ use std::fmt;
 use std::iter;
 use std::marker::PhantomData;
 
+use ff::PrimeField;
 use halo2_proofs::arithmetic::Field;
 
 pub(crate) mod fp;
@@ -295,7 +296,7 @@ pub trait Domain<F: Field, const RATE: usize> {
 #[derive(Clone, Copy, Debug)]
 pub struct ConstantLength<const L: usize>;
 
-impl<F: Field, const RATE: usize, const L: usize> Domain<F, RATE> for ConstantLength<L> {
+impl<F: PrimeField, const RATE: usize, const L: usize> Domain<F, RATE> for ConstantLength<L> {
     type Padding = iter::Take<iter::Repeat<F>>;
 
     fn name() -> String {
@@ -357,7 +358,7 @@ impl<F: Field, S: Spec<F, T, RATE>, D: Domain<F, RATE>, const T: usize, const RA
     }
 }
 
-impl<F: Field, S: Spec<F, T, RATE>, const T: usize, const RATE: usize, const L: usize>
+impl<F: PrimeField, S: Spec<F, T, RATE>, const T: usize, const RATE: usize, const L: usize>
     Hash<F, S, ConstantLength<L>, T, RATE>
 {
     /// Hashes the given input.
@@ -374,9 +375,9 @@ impl<F: Field, S: Spec<F, T, RATE>, const T: usize, const RATE: usize, const L: 
 
 #[cfg(test)]
 mod tests {
-    use halo2curves::{pasta::pallas, Field};
-
     use super::{permute, ConstantLength, Hash, P128Pow5T3 as OrchardNullifier, Spec};
+    use ff::PrimeField;
+    use halo2curves::pasta::pallas;
 
     #[test]
     fn orchard_spec_equivalence() {

@@ -209,6 +209,7 @@ impl<Fixed: FixedPoints<pallas::Affine>> Config<Fixed> {
         // tested at the circuit-level.
         {
             use super::super::FixedPoint;
+            use ff::Field;
             use group::{ff::PrimeField, Curve};
 
             scalar
@@ -248,13 +249,16 @@ impl<Fixed: FixedPoints<pallas::Affine>> Config<Fixed> {
 
 #[cfg(test)]
 pub mod tests {
-    use group::{ff::PrimeField, Curve};
+    use group::{
+        ff::{Field, PrimeField},
+        Curve,
+    };
     use halo2_proofs::{
         arithmetic::CurveAffine,
         circuit::{AssignedCell, Chip, Layouter, Value},
         plonk::{Any, Error},
     };
-    use halo2curves::{pasta::pallas, Field};
+    use halo2curves::pasta::pallas;
 
     use crate::{
         ecc::{

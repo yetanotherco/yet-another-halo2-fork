@@ -1,12 +1,12 @@
 //! Gadget and chip for a conditional swap utility.
 
 use super::{bool_check, ternary, UtilitiesInstructions};
+use ff::Field;
 use halo2_proofs::{
     circuit::{AssignedCell, Chip, Layouter, Value},
     plonk::{Advice, Column, ConstraintSystem, Constraints, Error, Selector},
     poly::Rotation,
 };
-use halo2curves::Field;
 use std::marker::PhantomData;
 
 /// Instructions for a conditional swap gadget.
@@ -201,7 +201,7 @@ mod tests {
         dev::MockProver,
         plonk::{Circuit, ConstraintSystem, Error},
     };
-    use halo2curves::{pasta::pallas::Base, Field};
+    use halo2curves::pasta::pallas::Base;
     use rand::rngs::OsRng;
 
     #[test]

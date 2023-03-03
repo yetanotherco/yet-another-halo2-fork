@@ -10,8 +10,8 @@ use std::fmt::Debug;
 #[derive(Clone, Debug)]
 pub struct Message<F: Field, const K: usize, const MAX_WORDS: usize>(Vec<MessagePiece<F, K>>);
 
-impl<F: Field + PrimeFieldBits, const K: usize, const MAX_WORDS: usize>
-    From<Vec<MessagePiece<F, K>>> for Message<F, K, MAX_WORDS>
+impl<F: PrimeFieldBits, const K: usize, const MAX_WORDS: usize> From<Vec<MessagePiece<F, K>>>
+    for Message<F, K, MAX_WORDS>
 {
     fn from(pieces: Vec<MessagePiece<F, K>>) -> Self {
         // A message cannot contain more than `MAX_WORDS` words.
@@ -20,7 +20,7 @@ impl<F: Field + PrimeFieldBits, const K: usize, const MAX_WORDS: usize>
     }
 }
 
-impl<F: Field + PrimeFieldBits, const K: usize, const MAX_WORDS: usize> std::ops::Deref
+impl<F: PrimeFieldBits, const K: usize, const MAX_WORDS: usize> std::ops::Deref
     for Message<F, K, MAX_WORDS>
 {
     type Target = [MessagePiece<F, K>];
@@ -41,7 +41,7 @@ pub struct MessagePiece<F: Field, const K: usize> {
     num_words: usize,
 }
 
-impl<F: Field + PrimeFieldBits, const K: usize> MessagePiece<F, K> {
+impl<F: PrimeFieldBits, const K: usize> MessagePiece<F, K> {
     pub fn new(cell_value: AssignedCell<F, F>, num_words: usize) -> Self {
         assert!(num_words * K < F::NUM_BITS as usize);
         Self {

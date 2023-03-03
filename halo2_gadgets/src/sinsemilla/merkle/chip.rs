@@ -5,7 +5,7 @@ use halo2_proofs::{
     plonk::{Advice, Column, ConstraintSystem, Constraints, Error, Selector},
     poly::Rotation,
 };
-use halo2curves::{pasta::pallas, Field};
+use halo2curves::pasta::pallas;
 
 use super::MerkleInstructions;
 
@@ -24,7 +24,7 @@ use crate::{
         },
     },
 };
-use group::ff::PrimeField;
+use group::ff::{Field, PrimeField};
 
 /// Configuration for the `MerkleChip` implementation.
 #[derive(Clone, Debug, PartialEq, Eq)]

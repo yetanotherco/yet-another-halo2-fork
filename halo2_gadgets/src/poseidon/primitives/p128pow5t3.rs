@@ -66,16 +66,14 @@ impl Spec<Fq, 3, 2> for P128Pow5T3 {
 
 #[cfg(test)]
 mod tests {
-    use ff::PrimeField;
-    use std::marker::PhantomData;
-
-    use halo2curves::Field;
-
     use super::{
         super::{fp, fq},
         Fp, Fq,
     };
     use crate::poseidon::primitives::{permute, ConstantLength, Hash, Spec};
+    use ff::Field;
+    use ff::PrimeField;
+    use std::marker::PhantomData;
 
     /// The same Poseidon specification as poseidon::P128Pow5T3, but constructed
     /// such that its constants will be generated at runtime.

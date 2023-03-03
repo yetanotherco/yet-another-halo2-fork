@@ -8,16 +8,15 @@ use std::{
     ops::{Deref, Range},
 };
 
-use ff::PrimeField;
 use halo2_proofs::{
     arithmetic::Field,
     circuit::{AssignedCell, Layouter, Region, Value},
     plonk::{Advice, Assigned, Column, ConstraintSystem, Constraints, Error, Selector},
     poly::Rotation,
 };
-use uint::construct_uint;
-
+use halo2curves::group::ff::PrimeField;
 use halo2curves::pasta::pallas;
+use uint::construct_uint;
 
 mod complete;
 pub(super) mod incomplete;
