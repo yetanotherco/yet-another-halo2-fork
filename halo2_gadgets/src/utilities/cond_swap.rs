@@ -1,7 +1,7 @@
 //! Gadget and chip for a conditional swap utility.
 
 use super::{bool_check, ternary, UtilitiesInstructions};
-use ff::Field;
+use ff::{Field, PrimeField};
 use halo2_proofs::{
     circuit::{AssignedCell, Chip, Layouter, Value},
     plonk::{Advice, Column, ConstraintSystem, Constraints, Error, Selector},
@@ -67,7 +67,7 @@ impl<F: Field> UtilitiesInstructions<F> for CondSwapChip<F> {
     type Var = AssignedCell<F, F>;
 }
 
-impl<F: Field> CondSwapInstructions<F> for CondSwapChip<F> {
+impl<F: PrimeField> CondSwapInstructions<F> for CondSwapChip<F> {
     #[allow(clippy::type_complexity)]
     fn swap(
         &self,
@@ -122,7 +122,7 @@ impl<F: Field> CondSwapInstructions<F> for CondSwapChip<F> {
     }
 }
 
-impl<F: Field> CondSwapChip<F> {
+impl<F: PrimeField> CondSwapChip<F> {
     /// Configures this chip for use in a circuit.
     ///
     /// # Side-effects
@@ -195,6 +195,7 @@ impl<F: Field> CondSwapChip<F> {
 mod tests {
     use super::super::UtilitiesInstructions;
     use super::{CondSwapChip, CondSwapConfig, CondSwapInstructions};
+    use ff::PrimeField;
     use group::ff::Field;
     use halo2_proofs::{
         circuit::{Layouter, SimpleFloorPlanner, Value},
@@ -213,7 +214,7 @@ mod tests {
             swap: Value<bool>,
         }
 
-        impl<F: Field> Circuit<F> for MyCircuit<F> {
+        impl<F: PrimeField> Circuit<F> for MyCircuit<F> {
             type Config = CondSwapConfig;
             type FloorPlanner = SimpleFloorPlanner;
 

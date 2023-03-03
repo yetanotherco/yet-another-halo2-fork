@@ -70,9 +70,11 @@ mod tests {
         super::{fp, fq},
         Fp, Fq,
     };
-    use crate::poseidon::primitives::{permute, ConstantLength, Hash, Spec};
-    use ff::Field;
+    use crate::poseidon::primitives::{
+        generate_constants, permute, ConstantLength, Hash, Mds, Spec,
+    };
     use ff::PrimeField;
+    use ff::{Field, FromUniformBytes};
     use std::marker::PhantomData;
 
     /// The same Poseidon specification as poseidon::P128Pow5T3, but constructed
@@ -86,7 +88,9 @@ mod tests {
         }
     }
 
-    impl<F: Field, const SECURE_MDS: usize> Spec<F, 3, 2> for P128Pow5T3Gen<F, SECURE_MDS> {
+    impl<F: FromUniformBytes<64> + Ord, const SECURE_MDS: usize> Spec<F, 3, 2>
+        for P128Pow5T3Gen<F, SECURE_MDS>
+    {
         fn full_rounds() -> usize {
             8
         }
@@ -96,17 +100,21 @@ mod tests {
         }
 
         fn sbox(val: F) -> F {
-            val.pow_vartime(&[5])
+            val.pow_vartime([5])
         }
 
         fn secure_mds() -> usize {
             SECURE_MDS
         }
+
+        fn constants() -> (Vec<[F; 3]>, Mds<F, 3>, Mds<F, 3>) {
+            generate_constants::<_, Self, 3, 2>()
+        }
     }
 
     #[test]
     fn verify_constants() {
-        fn verify_constants_helper<F: Field>(
+        fn verify_constants_helper<F: FromUniformBytes<64> + Ord>(
             expected_round_constants: [[F; 3]; 64],
             expected_mds: [[F; 3]; 3],
             expected_mds_inv: [[F; 3]; 3],

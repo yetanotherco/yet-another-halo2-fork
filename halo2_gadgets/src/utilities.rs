@@ -1,6 +1,6 @@
 //! Utility gadgets.
 
-use ff::{Field, PrimeFieldBits};
+use ff::{Field, PrimeField, PrimeFieldBits};
 use halo2_proofs::{
     circuit::{AssignedCell, Cell, Layouter, Value},
     plonk::{Advice, Column, Error, Expression},
@@ -129,7 +129,7 @@ impl<F: Field> RangeConstrained<F, AssignedCell<F, F>> {
 }
 
 /// Checks that an expression is either 1 or 0.
-pub fn bool_check<F: Field>(value: Expression<F>) -> Expression<F> {
+pub fn bool_check<F: PrimeField>(value: Expression<F>) -> Expression<F> {
     range_check(value, 2)
 }
 
@@ -166,7 +166,7 @@ pub fn bitrange_subset<F: PrimeFieldBits>(field_elem: &F, bitrange: Range<usize>
 
 /// Check that an expression is in the small range [0..range),
 /// i.e. 0 ≤ word < range.
-pub fn range_check<F: Field>(word: Expression<F>, range: usize) -> Expression<F> {
+pub fn range_check<F: PrimeField>(word: Expression<F>, range: usize) -> Expression<F> {
     (1..range).fold(word.clone(), |acc, i| {
         acc * (Expression::Constant(F::from(i as u64)) - word.clone())
     })
@@ -239,6 +239,7 @@ pub fn i2lebsp<const NUM_BITS: usize>(int: u64) -> [bool; NUM_BITS] {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ff::FromUniformBytes;
     use group::ff::{Field, PrimeField};
     use halo2_proofs::{
         circuit::{Layouter, SimpleFloorPlanner},
@@ -419,7 +420,7 @@ mod tests {
             // Instead of rejecting out-of-range bytes, let's reduce them.
             let mut buf = [0; 64];
             buf[..32].copy_from_slice(&bytes);
-            pallas::Scalar::from_bytes_wide(&buf)
+            pallas::Scalar::from_uniform_bytes(&buf)
         }
     }
 

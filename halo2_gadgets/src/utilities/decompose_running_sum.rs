@@ -22,7 +22,7 @@
 //! This means that $2^K$ has to be at most `degree_bound - 1` in order for
 //! the range check constraint to stay within the degree bound.
 
-use ff::{Field, PrimeFieldBits};
+use ff::PrimeFieldBits;
 use halo2_proofs::{
     circuit::{AssignedCell, Region, Value},
     plonk::{Advice, Column, ConstraintSystem, Constraints, Error, Selector},

@@ -4,6 +4,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::marker::PhantomData;
 
+use ff::PrimeField;
 use group::ff::Field;
 use halo2_proofs::{
     circuit::{AssignedCell, Chip, Layouter},
@@ -266,7 +267,7 @@ impl<
 }
 
 impl<
-        F: Field,
+        F: PrimeField,
         PoseidonChip: PoseidonSpongeInstructions<F, S, ConstantLength<L>, T, RATE>,
         S: Spec<F, T, RATE>,
         const T: usize,

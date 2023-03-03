@@ -24,7 +24,7 @@ use crate::{
         },
     },
 };
-use group::ff::{Field, PrimeField};
+use group::ff::PrimeField;
 
 /// Configuration for the `MerkleChip` implementation.
 #[derive(Clone, Debug, PartialEq, Eq)]
