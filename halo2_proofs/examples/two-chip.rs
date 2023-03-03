@@ -496,7 +496,6 @@ impl<F: Field> Circuit<F> for MyCircuit<F> {
 
 #[allow(clippy::many_single_char_names)]
 fn main() {
-    use group::ff::Field;
     use halo2_proofs::dev::MockProver;
     use halo2curves::pasta::Fp;
     use rand_core::OsRng;

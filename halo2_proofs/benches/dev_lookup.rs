@@ -25,7 +25,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         advice: Column<Advice>,
     }
 
-    impl<F: Field> Circuit<F> for MyCircuit<F> {
+    impl<F: Field + From<u64>> Circuit<F> for MyCircuit<F> {
         type Config = MyConfig;
         type FloorPlanner = SimpleFloorPlanner;
 

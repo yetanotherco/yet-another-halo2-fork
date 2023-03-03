@@ -1,4 +1,4 @@
-use ff::BatchInvert;
+use ff::{BatchInvert, FromUniformBytes};
 use halo2_proofs::{
     arithmetic::{CurveAffine, Field},
     circuit::{floor_planner::V1, Layouter, Value},
@@ -251,12 +251,12 @@ impl<F: Field, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W, H>
     }
 }
 
-fn test_mock_prover<F: Field, const W: usize, const H: usize>(
+fn test_mock_prover<F: Field + Ord + FromUniformBytes<64>, const W: usize, const H: usize>(
     k: u32,
     circuit: MyCircuit<F, W, H>,
     expected: Result<(), Vec<(metadata::Constraint, FailureLocation)>>,
 ) {
-    let prover = MockProver::run::<_>(k, &circuit, vec![]).unwrap();
+    let prover = MockProver::run(k, &circuit, vec![]).unwrap();
     match (prover.verify(), expected) {
         (Ok(_), Ok(_)) => {}
         (Err(err), Err(expected)) => {
@@ -282,7 +282,9 @@ fn test_prover<C: CurveAffine, const W: usize, const H: usize>(
     k: u32,
     circuit: MyCircuit<C::Scalar, W, H>,
     expected: bool,
-) {
+) where
+    C::Scalar: FromUniformBytes<64>,
+{
     let params = ParamsIPA::<C>::new(k);
     let vk = keygen_vk(&params, &circuit).unwrap();
     let pk = keygen_pk(&params, vk, &circuit).unwrap();

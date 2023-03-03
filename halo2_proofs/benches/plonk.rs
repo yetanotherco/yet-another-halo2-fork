@@ -2,7 +2,6 @@
 extern crate criterion;
 
 use group::ff::Field;
-use halo2_proofs::arithmetic::Field;
 use halo2_proofs::circuit::{Cell, Layouter, SimpleFloorPlanner, Value};
 use halo2_proofs::plonk::*;
 use halo2_proofs::poly::{commitment::ParamsProver, Rotation};
