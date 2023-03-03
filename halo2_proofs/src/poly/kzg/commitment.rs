@@ -37,6 +37,7 @@ pub struct KZGCommitmentScheme<E: Engine> {
 
 impl<E: Engine + Debug> CommitmentScheme for KZGCommitmentScheme<E>
 where
+    E::Scalar: PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {
@@ -55,7 +56,10 @@ where
     }
 }
 
-impl<E: Engine + Debug> ParamsKZG<E> {
+impl<E: Engine + Debug> ParamsKZG<E>
+where
+    E::Scalar: PrimeField,
+{
     /// Initializes parameters for the curve, draws toxic secret from given rng.
     /// MUST NOT be used in production.
     pub fn setup<R: RngCore>(k: u32, rng: R) -> Self {
@@ -251,6 +255,7 @@ pub type ParamsVerifierKZG<C> = ParamsKZG<C>;
 
 impl<'params, E: Engine + Debug> Params<'params, E::G1Affine> for ParamsKZG<E>
 where
+    E::Scalar: PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {
@@ -304,6 +309,7 @@ where
 
 impl<'params, E: Engine + Debug> ParamsVerifier<'params, E::G1Affine> for ParamsKZG<E>
 where
+    E::Scalar: PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {
@@ -311,6 +317,7 @@ where
 
 impl<'params, E: Engine + Debug> ParamsProver<'params, E::G1Affine> for ParamsKZG<E>
 where
+    E::Scalar: PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {

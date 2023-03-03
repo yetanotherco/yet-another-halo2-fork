@@ -21,7 +21,7 @@ use crate::poly::{
     Error,
 };
 use crate::transcript::{EncodedChallenge, TranscriptRead};
-use ff::Field;
+use ff::{Field, PrimeField};
 use group::Group;
 use halo2curves::pairing::{Engine, MillerLoopResult, MultiMillerLoop};
 use rand_core::OsRng;
@@ -36,7 +36,7 @@ pub struct VerifierSHPLONK<'params, E: Engine> {
 impl<'params, E> Verifier<'params, KZGCommitmentScheme<E>> for VerifierSHPLONK<'params, E>
 where
     E: MultiMillerLoop + Debug,
-    E::Scalar: Ord,
+    E::Scalar: PrimeField + Ord,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {

@@ -13,7 +13,7 @@ use crate::poly::Rotation;
 use crate::poly::{commitment::Params, Coeff, Polynomial};
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
 
-use ff::Field;
+use ff::{Field, PrimeField};
 use group::Curve;
 use halo2curves::pairing::Engine;
 use rand_core::RngCore;
@@ -105,7 +105,7 @@ impl<'a, E: Engine> ProverSHPLONK<'a, E> {
 impl<'params, E: Engine + Debug> Prover<'params, KZGCommitmentScheme<E>>
     for ProverSHPLONK<'params, E>
 where
-    E::Scalar: Ord,
+    E::Scalar: Ord + PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {

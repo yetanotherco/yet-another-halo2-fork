@@ -2,7 +2,8 @@
 #![allow(clippy::op_ref)]
 
 use assert_matches::assert_matches;
-use halo2_proofs::arithmetic::{Field, Field};
+use ff::{FromUniformBytes, PrimeField, WithSmallOrderMulGroup};
+use halo2_proofs::arithmetic::Field;
 use halo2_proofs::circuit::{Cell, Layouter, SimpleFloorPlanner, Value};
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::{
@@ -400,12 +401,7 @@ fn plonk_api() {
                 * <$scheme as CommitmentScheme>::Scalar::ZETA;
             let instance = <$scheme as CommitmentScheme>::Scalar::ONE
                 + <$scheme as CommitmentScheme>::Scalar::ONE;
-            let lookup_table = vec![
-                instance,
-                a,
-                a,
-                <$scheme as CommitmentScheme>::Scalar::zero(),
-            ];
+            let lookup_table = vec![instance, a, a, <$scheme as CommitmentScheme>::Scalar::ZERO];
             (a, instance, lookup_table)
         }};
     }
@@ -440,9 +436,10 @@ fn plonk_api() {
         }};
     }
 
-    fn keygen<Scheme: CommitmentScheme>(
-        params: &Scheme::ParamsProver,
-    ) -> ProvingKey<Scheme::Curve> {
+    fn keygen<Scheme: CommitmentScheme>(params: &Scheme::ParamsProver) -> ProvingKey<Scheme::Curve>
+    where
+        Scheme::Scalar: FromUniformBytes<64> + PrimeField + WithSmallOrderMulGroup<3>,
+    {
         let (_, _, lookup_table) = common!(Scheme);
         let empty_circuit: MyCircuit<Scheme::Scalar> = MyCircuit {
             a: Value::unknown(),
@@ -466,7 +463,10 @@ fn plonk_api() {
         rng: R,
         params: &'params Scheme::ParamsProver,
         pk: &ProvingKey<Scheme::Curve>,
-    ) -> Vec<u8> {
+    ) -> Vec<u8>
+    where
+        Scheme::Scalar: Ord + WithSmallOrderMulGroup<3> + FromUniformBytes<64> + PrimeField,
+    {
         let (a, instance, lookup_table) = common!(Scheme);
 
         let circuit: MyCircuit<Scheme::Scalar> = MyCircuit {
@@ -508,7 +508,9 @@ fn plonk_api() {
         params_verifier: &'params Scheme::ParamsVerifier,
         vk: &VerifyingKey<Scheme::Curve>,
         proof: &'a [u8],
-    ) {
+    ) where
+        Scheme::Scalar: Ord + WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
+    {
         let (_, instance, _) = common!(Scheme);
         let pubinputs = vec![instance];
 

@@ -19,7 +19,7 @@ use crate::poly::{
 };
 use crate::transcript::{EncodedChallenge, TranscriptRead};
 
-use ff::Field;
+use ff::{Field, PrimeField};
 use group::Group;
 use halo2curves::pairing::{Engine, MillerLoopResult, MultiMillerLoop};
 use rand_core::OsRng;
@@ -33,6 +33,7 @@ pub struct VerifierGWC<'params, E: Engine> {
 impl<'params, E> Verifier<'params, KZGCommitmentScheme<E>> for VerifierGWC<'params, E>
 where
     E: MultiMillerLoop + Debug,
+    E::Scalar: PrimeField,
     E::G1Affine: SerdeCurveAffine,
     E::G2Affine: SerdeCurveAffine,
 {
