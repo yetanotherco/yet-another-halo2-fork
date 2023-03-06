@@ -1,13 +1,11 @@
 use super::super::{util::*, Gate};
-use halo2_proofs::{
-    arithmetic::Field,
-    plonk::{Constraint, Constraints, Expression},
-};
+use ff::PrimeField;
+use halo2_proofs::plonk::{Constraint, Constraints, Expression};
 use std::marker::PhantomData;
 
-pub struct CompressionGate<F: Field>(PhantomData<F>);
+pub struct CompressionGate<F: PrimeField>(PhantomData<F>);
 
-impl<F: Field> CompressionGate<F> {
+impl<F: PrimeField> CompressionGate<F> {
     fn ones() -> Expression<F> {
         Expression::Constant(F::ONE)
     }

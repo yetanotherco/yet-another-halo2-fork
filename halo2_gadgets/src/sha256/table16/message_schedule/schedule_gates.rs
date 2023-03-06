@@ -1,10 +1,11 @@
 use super::super::Gate;
-use halo2_proofs::{arithmetic::Field, plonk::Expression};
+use ff::PrimeField;
+use halo2_proofs::plonk::Expression;
 use std::marker::PhantomData;
 
-pub struct ScheduleGate<F: Field>(PhantomData<F>);
+pub struct ScheduleGate<F: PrimeField>(PhantomData<F>);
 
-impl<F: Field> ScheduleGate<F> {
+impl<F: PrimeField> ScheduleGate<F> {
     /// s_word for W_16 to W_63
     #[allow(clippy::too_many_arguments)]
     pub fn s_word(

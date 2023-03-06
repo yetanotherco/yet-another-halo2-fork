@@ -1,6 +1,5 @@
 use ff::Field;
 use halo2_proofs::{
-    arithmetic::Field,
     circuit::{Cell, Layouter, Region, SimpleFloorPlanner, Value},
     plonk::{Advice, Assigned, Circuit, Column, ConstraintSystem, Error, Fixed, TableColumn},
     poly::Rotation,

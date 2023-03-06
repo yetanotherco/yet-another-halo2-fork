@@ -1,4 +1,5 @@
 use super::{util::*, AssignedBits};
+use ff::PrimeField;
 use halo2_proofs::{
     arithmetic::Field,
     circuit::{Chip, Layouter, Region, Value},
@@ -171,7 +172,7 @@ impl<F: Field> Chip<F> for SpreadTableChip<F> {
     }
 }
 
-impl<F: Field> SpreadTableChip<F> {
+impl<F: PrimeField> SpreadTableChip<F> {
     pub fn configure(
         meta: &mut ConstraintSystem<F>,
         input_tag: Column<Advice>,
@@ -250,7 +251,7 @@ impl<F: Field> SpreadTableChip<F> {
 }
 
 impl SpreadTableConfig {
-    fn generate<F: Field>() -> impl Iterator<Item = (F, F, F)> {
+    fn generate<F: PrimeField>() -> impl Iterator<Item = (F, F, F)> {
         (1..=(1 << 16)).scan((F::ZERO, F::ZERO, F::ZERO), |(tag, dense, spread), i| {
             // We computed this table row in the previous iteration.
             let res = (*tag, *dense, *spread);
@@ -282,10 +283,10 @@ impl SpreadTableConfig {
 #[cfg(test)]
 mod tests {
     use super::{get_tag, SpreadTableChip, SpreadTableConfig};
+    use ff::PrimeField;
     use rand::Rng;
 
     use halo2_proofs::{
-        arithmetic::Field,
         circuit::{Layouter, SimpleFloorPlanner, Value},
         dev::MockProver,
         plonk::{Advice, Circuit, Column, ConstraintSystem, Error},
@@ -300,7 +301,7 @@ mod tests {
 
         struct MyCircuit {}
 
-        impl<F: Field> Circuit<F> for MyCircuit {
+        impl<F: PrimeField> Circuit<F> for MyCircuit {
             type Config = SpreadTableConfig;
             type FloorPlanner = SimpleFloorPlanner;
 
