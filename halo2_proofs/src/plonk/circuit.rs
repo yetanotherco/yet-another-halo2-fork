@@ -354,11 +354,10 @@ impl TryFrom<Column<Any>> for Column<Instance> {
 /// row when required:
 /// ```
 /// use halo2_proofs::{
-///     arithmetic::Field,
 ///     circuit::{Chip, Layouter, Value},
 ///     plonk::{Advice, Column, Error, Selector},
 /// };
-/// # use ff::Field;
+/// use ff::Field;
 /// # use halo2_proofs::plonk::Fixed;
 ///
 /// struct Config {
