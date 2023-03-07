@@ -590,7 +590,7 @@ impl<F: Field> Assignment<F> for MockProver<F> {
     }
 }
 
-impl<F: Field + FromUniformBytes<64> + Ord> MockProver<F> {
+impl<F: FromUniformBytes<64> + Ord> MockProver<F> {
     /// Runs a synthetic keygen-and-prove operation on the given circuit, collecting data
     /// about the constraints and their assignments.
     pub fn run<ConcreteCircuit: Circuit<F>>(

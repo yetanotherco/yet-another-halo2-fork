@@ -251,7 +251,7 @@ impl<F: Field, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W, H>
     }
 }
 
-fn test_mock_prover<F: Field + Ord + FromUniformBytes<64>, const W: usize, const H: usize>(
+fn test_mock_prover<F: Ord + FromUniformBytes<64>, const W: usize, const H: usize>(
     k: u32,
     circuit: MyCircuit<F, W, H>,
     expected: Result<(), Vec<(metadata::Constraint, FailureLocation)>>,

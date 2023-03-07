@@ -2,7 +2,7 @@
 #![allow(clippy::op_ref)]
 
 use assert_matches::assert_matches;
-use ff::{FromUniformBytes, PrimeField, WithSmallOrderMulGroup};
+use ff::{FromUniformBytes, WithSmallOrderMulGroup};
 use halo2_proofs::arithmetic::Field;
 use halo2_proofs::circuit::{Cell, Layouter, SimpleFloorPlanner, Value};
 use halo2_proofs::dev::MockProver;
@@ -438,7 +438,7 @@ fn plonk_api() {
 
     fn keygen<Scheme: CommitmentScheme>(params: &Scheme::ParamsProver) -> ProvingKey<Scheme::Curve>
     where
-        Scheme::Scalar: FromUniformBytes<64> + PrimeField + WithSmallOrderMulGroup<3>,
+        Scheme::Scalar: FromUniformBytes<64> + WithSmallOrderMulGroup<3>,
     {
         let (_, _, lookup_table) = common!(Scheme);
         let empty_circuit: MyCircuit<Scheme::Scalar> = MyCircuit {
@@ -465,7 +465,7 @@ fn plonk_api() {
         pk: &ProvingKey<Scheme::Curve>,
     ) -> Vec<u8>
     where
-        Scheme::Scalar: Ord + WithSmallOrderMulGroup<3> + FromUniformBytes<64> + PrimeField,
+        Scheme::Scalar: Ord + WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
     {
         let (a, instance, lookup_table) = common!(Scheme);
 

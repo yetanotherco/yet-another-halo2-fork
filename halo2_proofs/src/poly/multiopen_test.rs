@@ -235,7 +235,7 @@ mod test {
         params: &'params Scheme::ParamsProver,
     ) -> Vec<u8>
     where
-        Scheme::Scalar: PrimeField + WithSmallOrderMulGroup<3>,
+        Scheme::Scalar: WithSmallOrderMulGroup<3>,
     {
         let domain = EvaluationDomain::new(1, params.k());
 

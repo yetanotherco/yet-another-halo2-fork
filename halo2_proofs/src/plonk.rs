@@ -150,10 +150,7 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
-    ) -> io::Result<Self>
-    where
-        C::Scalar: FromUniformBytes<64>,
-    {
+    ) -> io::Result<Self> {
         Self::read::<_, ConcreteCircuit>(&mut bytes, format)
     }
 }
@@ -338,10 +335,7 @@ where
     pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
         reader: &mut R,
         format: SerdeFormat,
-    ) -> io::Result<Self>
-    where
-        C::Scalar: FromUniformBytes<64>,
-    {
+    ) -> io::Result<Self> {
         let vk = VerifyingKey::<C>::read::<R, ConcreteCircuit>(reader, format)?;
         let l0 = Polynomial::read(reader, format)?;
         let l_last = Polynomial::read(reader, format)?;
@@ -375,10 +369,7 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
-    ) -> io::Result<Self>
-    where
-        C::Scalar: FromUniformBytes<64>,
-    {
+    ) -> io::Result<Self> {
         Self::read::<_, ConcreteCircuit>(&mut bytes, format)
     }
 }

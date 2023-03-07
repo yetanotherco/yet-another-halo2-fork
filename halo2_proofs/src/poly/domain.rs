@@ -36,7 +36,7 @@ pub struct EvaluationDomain<F: Field> {
     barycentric_weight: F,
 }
 
-impl<F: Field + WithSmallOrderMulGroup<3>> EvaluationDomain<F> {
+impl<F: WithSmallOrderMulGroup<3>> EvaluationDomain<F> {
     /// This constructs a new evaluation domain object based on the provided
     /// values $j, k$.
     pub fn new(j: u32, k: u32) -> Self {
