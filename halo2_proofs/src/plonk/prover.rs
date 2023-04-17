@@ -68,7 +68,7 @@ where
 
     let domain = &pk.vk.domain;
     let mut meta = ConstraintSystem::default();
-    let config = ConcreteCircuit::configure(&mut meta);
+    let config = ConcreteCircuit::configure_with_params(&mut meta, &circuits[0].params());
 
     // Selector optimizations cannot be applied here; use the ConstraintSystem
     // from the verification key.

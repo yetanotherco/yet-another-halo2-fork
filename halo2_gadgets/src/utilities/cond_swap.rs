@@ -217,6 +217,7 @@ mod tests {
         impl<F: PrimeField> Circuit<F> for MyCircuit<F> {
             type Config = CondSwapConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 Self::default()

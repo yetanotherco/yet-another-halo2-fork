@@ -213,6 +213,7 @@ pub mod tests {
             MerkleConfig<TestHashDomain, TestCommitDomain, TestFixedBases>,
         );
         type FloorPlanner = SimpleFloorPlanner;
+        type Params = ();
 
         fn without_witnesses(&self) -> Self {
             Self::default()

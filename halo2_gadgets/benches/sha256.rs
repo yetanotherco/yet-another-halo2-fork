@@ -37,6 +37,7 @@ fn bench(name: &str, k: u32, c: &mut Criterion) {
     impl Circuit<pallas::Base> for MyCircuit {
         type Config = Table16Config;
         type FloorPlanner = SimpleFloorPlanner;
+        type Params = ();
 
         fn without_witnesses(&self) -> Self {
             Self::default()

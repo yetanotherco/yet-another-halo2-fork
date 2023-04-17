@@ -525,6 +525,7 @@ pub(crate) mod tests {
             SinsemillaConfig<TestHashDomain, TestCommitDomain, TestFixedBases>,
         );
         type FloorPlanner = SimpleFloorPlanner;
+        type Params = ();
 
         fn without_witnesses(&self) -> Self {
             MyCircuit {}

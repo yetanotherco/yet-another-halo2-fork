@@ -150,7 +150,7 @@ impl<G: PrimeGroup, ConcreteCircuit: Circuit<G::Scalar>> CircuitCost<G, Concrete
     pub fn measure(k: usize, circuit: &ConcreteCircuit) -> Self {
         // Collect the layout details.
         let mut cs = ConstraintSystem::default();
-        let config = ConcreteCircuit::configure(&mut cs);
+        let config = ConcreteCircuit::configure_with_params(&mut cs, &circuit.params());
         let mut assembly = Assembly {
             selectors: vec![vec![false; 1 << k]; cs.num_selectors],
         };

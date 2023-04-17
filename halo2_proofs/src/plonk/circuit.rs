@@ -664,13 +664,29 @@ pub trait Circuit<F: Field> {
     /// The floor planner used for this circuit. This is an associated type of the
     /// `Circuit` trait because its behaviour is circuit-critical.
     type FloorPlanner: FloorPlanner;
+    /// Optional circuit configuration parameters.
+    type Params: Default;
 
     /// Returns a copy of this circuit with no witness values (i.e. all witnesses set to
     /// `None`). For most circuits, this will be equal to `Self::default()`.
     fn without_witnesses(&self) -> Self;
 
+    /// Returns a reference to the parameters that should be used to configure the circuit.
+    fn params(&self) -> Self::Params {
+        Self::Params::default()
+    }
+
     /// The circuit is given an opportunity to describe the exact gate
     /// arrangement, column arrangement, etc.
+    fn configure_with_params(
+        meta: &mut ConstraintSystem<F>,
+        _params: &Self::Params,
+    ) -> Self::Config {
+        Self::configure(meta)
+    }
+
+    /// Configuration function without parameters.  This method is usually only called via the default
+    /// `configure_with_params` implementation for backwards-compatibility purposes.
     fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config;
 
     /// Given the provided `cs`, synthesize the circuit. The concrete type of

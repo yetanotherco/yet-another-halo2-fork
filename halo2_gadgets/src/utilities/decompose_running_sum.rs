@@ -243,6 +243,7 @@ mod tests {
         {
             type Config = RunningSumConfig<F, WINDOW_NUM_BITS>;
             type FloorPlanner = SimpleFloorPlanner;
+            type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 Self {

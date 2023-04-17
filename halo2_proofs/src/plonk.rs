@@ -101,11 +101,12 @@ where
     pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
         reader: &mut R,
         format: SerdeFormat,
+        params: &ConcreteCircuit::Params,
     ) -> io::Result<Self> {
         let mut k = [0u8; 4];
         reader.read_exact(&mut k)?;
         let k = u32::from_be_bytes(k);
-        let (domain, cs, _) = keygen::create_domain::<C, ConcreteCircuit>(k);
+        let (domain, cs, _) = keygen::create_domain::<C, ConcreteCircuit>(k, params);
         let mut num_fixed_columns = [0u8; 4];
         reader.read_exact(&mut num_fixed_columns)?;
         let num_fixed_columns = u32::from_be_bytes(num_fixed_columns);
@@ -150,8 +151,9 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
+        params: &ConcreteCircuit::Params,
     ) -> io::Result<Self> {
-        Self::read::<_, ConcreteCircuit>(&mut bytes, format)
+        Self::read::<_, ConcreteCircuit>(&mut bytes, format, params)
     }
 }
 
@@ -335,8 +337,9 @@ where
     pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
         reader: &mut R,
         format: SerdeFormat,
+        params: &ConcreteCircuit::Params,
     ) -> io::Result<Self> {
-        let vk = VerifyingKey::<C>::read::<R, ConcreteCircuit>(reader, format)?;
+        let vk = VerifyingKey::<C>::read::<R, ConcreteCircuit>(reader, format, params)?;
         let l0 = Polynomial::read(reader, format)?;
         let l_last = Polynomial::read(reader, format)?;
         let l_active_row = Polynomial::read(reader, format)?;
@@ -369,8 +372,9 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
+        params: &ConcreteCircuit::Params,
     ) -> io::Result<Self> {
-        Self::read::<_, ConcreteCircuit>(&mut bytes, format)
+        Self::read::<_, ConcreteCircuit>(&mut bytes, format, params)
     }
 }
 

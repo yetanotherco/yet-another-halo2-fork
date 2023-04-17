@@ -620,6 +620,7 @@ mod tests {
     {
         type Config = Pow5Config<Fp, WIDTH, RATE>;
         type FloorPlanner = SimpleFloorPlanner;
+        type Params = ();
 
         fn without_witnesses(&self) -> Self {
             PermuteCircuit::<S, WIDTH, RATE>(PhantomData)
@@ -735,6 +736,7 @@ mod tests {
     {
         type Config = Pow5Config<Fp, WIDTH, RATE>;
         type FloorPlanner = SimpleFloorPlanner;
+        type Params = ();
 
         fn without_witnesses(&self) -> Self {
             Self {

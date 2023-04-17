@@ -517,6 +517,7 @@ mod tests {
         impl Circuit<vesta::Scalar> for MyCircuit {
             type Config = Column<Advice>;
             type FloorPlanner = super::V1;
+            type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 MyCircuit {}

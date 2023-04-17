@@ -86,6 +86,7 @@ struct StandardPlonk(Fr);
 impl Circuit<Fr> for StandardPlonk {
     type Config = StandardPlonkConfig;
     type FloorPlanner = SimpleFloorPlanner;
+    type Params = ();
 
     fn without_witnesses(&self) -> Self {
         Self::default()
@@ -140,8 +141,12 @@ fn main() {
 
     let f = File::open("serialization-test.pk").unwrap();
     let mut reader = BufReader::new(f);
-    let pk = ProvingKey::<G1Affine>::read::<_, StandardPlonk>(&mut reader, SerdeFormat::RawBytes)
-        .unwrap();
+    let pk = ProvingKey::<G1Affine>::read::<_, StandardPlonk>(
+        &mut reader,
+        SerdeFormat::RawBytes,
+        &circuit.params(),
+    )
+    .unwrap();
 
     std::fs::remove_file("serialization-test.pk").unwrap();
 
