@@ -479,13 +479,17 @@ mod tests {
         impl Circuit<vesta::Scalar> for MyCircuit {
             type Config = Column<Advice>;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 MyCircuit {}
             }
 
-            fn configure(meta: &mut crate::plonk::ConstraintSystem<vesta::Scalar>) -> Self::Config {
+            fn configure(
+                meta: &mut crate::plonk::ConstraintSystem<vesta::Scalar>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 meta.advice_column()
             }
 

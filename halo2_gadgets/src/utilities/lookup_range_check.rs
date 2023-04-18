@@ -410,13 +410,17 @@ mod tests {
         impl<F: PrimeFieldBits> Circuit<F> for MyCircuit<F> {
             type Config = LookupRangeCheckConfig<F, K>;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 *self
             }
 
-            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<F>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let running_sum = meta.advice_column();
                 let table_idx = meta.lookup_table_column();
                 let constants = meta.fixed_column();
@@ -507,6 +511,7 @@ mod tests {
         impl<F: PrimeFieldBits> Circuit<F> for MyCircuit<F> {
             type Config = LookupRangeCheckConfig<F, K>;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
@@ -516,7 +521,10 @@ mod tests {
                 }
             }
 
-            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<F>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let running_sum = meta.advice_column();
                 let table_idx = meta.lookup_table_column();
                 let constants = meta.fixed_column();

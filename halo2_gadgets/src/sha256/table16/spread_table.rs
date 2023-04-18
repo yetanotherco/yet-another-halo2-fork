@@ -304,13 +304,17 @@ mod tests {
         impl<F: PrimeField> Circuit<F> for MyCircuit {
             type Config = SpreadTableConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 MyCircuit {}
             }
 
-            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<F>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let input_tag = meta.advice_column();
                 let input_dense = meta.advice_column();
                 let input_spread = meta.advice_column();

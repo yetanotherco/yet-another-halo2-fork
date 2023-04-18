@@ -183,6 +183,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     impl<F: Field> Circuit<F> for MyCircuit<F> {
         type Config = PlonkConfig;
         type FloorPlanner = SimpleFloorPlanner;
+        #[cfg(feature = "circuit-params")]
         type Params = ();
 
         fn without_witnesses(&self) -> Self {
@@ -192,7 +193,10 @@ fn criterion_benchmark(c: &mut Criterion) {
             }
         }
 
-        fn configure(meta: &mut ConstraintSystem<F>) -> PlonkConfig {
+        fn configure(
+            meta: &mut ConstraintSystem<F>,
+            #[cfg(feature = "circuit-params")] _: &(),
+        ) -> PlonkConfig {
             meta.set_minimum_degree(5);
 
             let a = meta.advice_column();

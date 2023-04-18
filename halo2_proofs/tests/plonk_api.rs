@@ -265,6 +265,7 @@ fn plonk_api() {
     impl<F: Field> Circuit<F> for MyCircuit<F> {
         type Config = PlonkConfig;
         type FloorPlanner = SimpleFloorPlanner;
+        #[cfg(feature = "circuit-params")]
         type Params = ();
 
         fn without_witnesses(&self) -> Self {
@@ -274,7 +275,10 @@ fn plonk_api() {
             }
         }
 
-        fn configure(meta: &mut ConstraintSystem<F>) -> PlonkConfig {
+        fn configure(
+            meta: &mut ConstraintSystem<F>,
+            #[cfg(feature = "circuit-params")] _: &(),
+        ) -> PlonkConfig {
             let e = meta.advice_column();
             let a = meta.advice_column();
             let b = meta.advice_column();

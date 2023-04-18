@@ -243,6 +243,7 @@ mod tests {
         {
             type Config = RunningSumConfig<F, WINDOW_NUM_BITS>;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
@@ -252,7 +253,10 @@ mod tests {
                 }
             }
 
-            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<F>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let z = meta.advice_column();
                 let q_range_check = meta.selector();
                 let constants = meta.fixed_column();

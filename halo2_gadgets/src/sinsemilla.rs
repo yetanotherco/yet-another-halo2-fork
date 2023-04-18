@@ -525,6 +525,7 @@ pub(crate) mod tests {
             SinsemillaConfig<TestHashDomain, TestCommitDomain, TestFixedBases>,
         );
         type FloorPlanner = SimpleFloorPlanner;
+        #[cfg(feature = "circuit-params")]
         type Params = ();
 
         fn without_witnesses(&self) -> Self {
@@ -532,7 +533,10 @@ pub(crate) mod tests {
         }
 
         #[allow(non_snake_case)]
-        fn configure(meta: &mut ConstraintSystem<pallas::Base>) -> Self::Config {
+        fn configure(
+            meta: &mut ConstraintSystem<pallas::Base>,
+            #[cfg(feature = "circuit-params")] _: &(),
+        ) -> Self::Config {
             let advices = [
                 meta.advice_column(),
                 meta.advice_column(),

@@ -458,13 +458,17 @@ impl<F: Field> Circuit<F> for MyCircuit<F> {
     // Since we are using a single chip for everything, we can just reuse its config.
     type Config = FieldConfig;
     type FloorPlanner = SimpleFloorPlanner;
+    #[cfg(feature = "circuit-params")]
     type Params = ();
 
     fn without_witnesses(&self) -> Self {
         Self::default()
     }
 
-    fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+    fn configure(
+        meta: &mut ConstraintSystem<F>,
+        #[cfg(feature = "circuit-params")] _: &(),
+    ) -> Self::Config {
         // We create the two advice columns that FieldChip uses for I/O.
         let advice = [meta.advice_column(), meta.advice_column()];
 

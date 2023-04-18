@@ -208,6 +208,7 @@ impl<F: Field> Mul<F> for Value<F> {
 /// impl<F: PrimeField> Circuit<F> for MyCircuit {
 ///     type Config = MyConfig;
 ///     type FloorPlanner = SimpleFloorPlanner;
+///     #[cfg(feature = "circuit-params")]
 ///     type Params = ();
 ///
 ///     fn without_witnesses(&self) -> Self {
@@ -602,7 +603,11 @@ impl<F: FromUniformBytes<64> + Ord> MockProver<F> {
         let n = 1 << k;
 
         let mut cs = ConstraintSystem::default();
-        let config = ConcreteCircuit::configure_with_params(&mut cs, &circuit.params());
+        let config = ConcreteCircuit::configure(
+            &mut cs,
+            #[cfg(feature = "circuit-params")]
+            &circuit.params(),
+        );
         let cs = cs;
 
         assert!(
@@ -1537,9 +1542,13 @@ mod tests {
         impl Circuit<Fp> for FaultyCircuit {
             type Config = FaultyCircuitConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<Fp>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let a = meta.advice_column();
                 let b = meta.advice_column();
                 let q = meta.selector();
@@ -1624,9 +1633,13 @@ mod tests {
         impl Circuit<Fp> for FaultyCircuit {
             type Config = FaultyCircuitConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<Fp>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let a = meta.advice_column();
                 let q = meta.complex_selector();
                 let table = meta.instance_column();
@@ -1794,9 +1807,13 @@ mod tests {
         impl Circuit<Fp> for FaultyCircuit {
             type Config = FaultyCircuitConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<Fp>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let a = meta.advice_column();
                 let q = meta.complex_selector();
                 let table = meta.lookup_table_column();
@@ -1929,9 +1946,13 @@ mod tests {
         impl Circuit<Fp> for FaultyCircuit {
             type Config = FaultyCircuitConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<Fp>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let a = meta.advice_column();
                 let b = meta.advice_column();
                 let c = meta.advice_column();

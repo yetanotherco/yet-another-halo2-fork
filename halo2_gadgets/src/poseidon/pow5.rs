@@ -620,13 +620,17 @@ mod tests {
     {
         type Config = Pow5Config<Fp, WIDTH, RATE>;
         type FloorPlanner = SimpleFloorPlanner;
+        #[cfg(feature = "circuit-params")]
         type Params = ();
 
         fn without_witnesses(&self) -> Self {
             PermuteCircuit::<S, WIDTH, RATE>(PhantomData)
         }
 
-        fn configure(meta: &mut ConstraintSystem<Fp>) -> Pow5Config<Fp, WIDTH, RATE> {
+        fn configure(
+            meta: &mut ConstraintSystem<Fp>,
+            #[cfg(feature = "circuit-params")] _: &(),
+        ) -> Pow5Config<Fp, WIDTH, RATE> {
             let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
             let partial_sbox = meta.advice_column();
 
@@ -736,6 +740,7 @@ mod tests {
     {
         type Config = Pow5Config<Fp, WIDTH, RATE>;
         type FloorPlanner = SimpleFloorPlanner;
+        #[cfg(feature = "circuit-params")]
         type Params = ();
 
         fn without_witnesses(&self) -> Self {
@@ -746,7 +751,10 @@ mod tests {
             }
         }
 
-        fn configure(meta: &mut ConstraintSystem<Fp>) -> Pow5Config<Fp, WIDTH, RATE> {
+        fn configure(
+            meta: &mut ConstraintSystem<Fp>,
+            #[cfg(feature = "circuit-params")] _: &(),
+        ) -> Pow5Config<Fp, WIDTH, RATE> {
             let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
             let partial_sbox = meta.advice_column();
 

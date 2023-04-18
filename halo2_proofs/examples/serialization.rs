@@ -86,13 +86,17 @@ struct StandardPlonk(Fr);
 impl Circuit<Fr> for StandardPlonk {
     type Config = StandardPlonkConfig;
     type FloorPlanner = SimpleFloorPlanner;
+    #[cfg(feature = "circuit-params")]
     type Params = ();
 
     fn without_witnesses(&self) -> Self {
         Self::default()
     }
 
-    fn configure(meta: &mut ConstraintSystem<Fr>) -> Self::Config {
+    fn configure(
+        meta: &mut ConstraintSystem<Fr>,
+        #[cfg(feature = "circuit-params")] _: &(),
+    ) -> Self::Config {
         StandardPlonkConfig::configure(meta)
     }
 
@@ -144,6 +148,7 @@ fn main() {
     let pk = ProvingKey::<G1Affine>::read::<_, StandardPlonk>(
         &mut reader,
         SerdeFormat::RawBytes,
+        #[cfg(feature = "circuit-params")]
         &circuit.params(),
     )
     .unwrap();

@@ -49,6 +49,7 @@ struct Gate {
 /// impl<F: Field> Circuit<F> for MyCircuit {
 ///     type Config = MyConfig;
 ///     type FloorPlanner = SimpleFloorPlanner;
+///     #[cfg(feature = "circuit-params")]
 ///     type Params = ();
 ///
 ///     fn without_witnesses(&self) -> Self {
@@ -104,10 +105,16 @@ pub struct CircuitGates {
 
 impl CircuitGates {
     /// Collects the gates from within the circuit.
-    pub fn collect<F: PrimeField, C: Circuit<F>>(params: &C::Params) -> Self {
+    pub fn collect<F: PrimeField, C: Circuit<F>>(
+        #[cfg(feature = "circuit-params")] params: &C::Params,
+    ) -> Self {
         // Collect the graph details.
         let mut cs = ConstraintSystem::default();
-        let _ = C::configure_with_params(&mut cs, params);
+        let _ = C::configure(
+            &mut cs,
+            #[cfg(feature = "circuit-params")]
+            params,
+        );
 
         let gates = cs
             .gates

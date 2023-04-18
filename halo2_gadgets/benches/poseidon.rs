@@ -53,6 +53,7 @@ where
 {
     type Config = MyConfig<WIDTH, RATE, L>;
     type FloorPlanner = SimpleFloorPlanner;
+    #[cfg(feature = "circuit-params")]
     type Params = ();
 
     fn without_witnesses(&self) -> Self {
@@ -62,7 +63,10 @@ where
         }
     }
 
-    fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
+    fn configure(
+        meta: &mut ConstraintSystem<Fp>,
+        #[cfg(feature = "circuit-params")] _: &(),
+    ) -> Self::Config {
         let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
         let expected = meta.instance_column();
         meta.enable_equality(expected);

@@ -217,13 +217,17 @@ mod tests {
         impl<F: PrimeField> Circuit<F> for MyCircuit<F> {
             type Config = CondSwapConfig;
             type FloorPlanner = SimpleFloorPlanner;
+            #[cfg(feature = "circuit-params")]
             type Params = ();
 
             fn without_witnesses(&self) -> Self {
                 Self::default()
             }
 
-            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
+            fn configure(
+                meta: &mut ConstraintSystem<F>,
+                #[cfg(feature = "circuit-params")] _: &(),
+            ) -> Self::Config {
                 let advices = [
                     meta.advice_column(),
                     meta.advice_column(),
