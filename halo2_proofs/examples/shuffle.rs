@@ -143,10 +143,7 @@ impl<F: Field, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W, H>
         Self::default()
     }
 
-    fn configure(
-        meta: &mut ConstraintSystem<F>,
-        #[cfg(feature = "circuit-params")] _: &(),
-    ) -> Self::Config {
+    fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
         MyConfig::configure(meta)
     }
 

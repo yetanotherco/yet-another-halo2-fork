@@ -35,10 +35,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             Self::default()
         }
 
-        fn configure(
-            meta: &mut ConstraintSystem<F>,
-            #[cfg(feature = "circuit-params")] _: &(),
-        ) -> MyConfig {
+        fn configure(meta: &mut ConstraintSystem<F>) -> MyConfig {
             let config = MyConfig {
                 selector: meta.complex_selector(),
                 table: meta.lookup_table_column(),

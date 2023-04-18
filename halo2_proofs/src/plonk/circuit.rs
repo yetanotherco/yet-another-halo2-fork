@@ -680,13 +680,19 @@ pub trait Circuit<F: Field> {
     }
 
     /// The circuit is given an opportunity to describe the exact gate
-    /// arrangement, column arrangement, etc.  Takes a runtime parameter.
+    /// arrangement, column arrangement, etc.  Takes a runtime parameter.  The default
+    /// implementation calls `configure` ignoring the `_params` argument in order to easily support
+    /// circuits that don't use configuration parameters.
     #[cfg(feature = "circuit-params")]
-    fn configure(meta: &mut ConstraintSystem<F>, params: &Self::Params) -> Self::Config;
+    fn configure_with_params(
+        meta: &mut ConstraintSystem<F>,
+        _params: Self::Params,
+    ) -> Self::Config {
+        Self::configure(meta)
+    }
 
     /// The circuit is given an opportunity to describe the exact gate
     /// arrangement, column arrangement, etc.
-    #[cfg(not(feature = "circuit-params"))]
     fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config;
 
     /// Given the provided `cs`, synthesize the circuit. The concrete type of

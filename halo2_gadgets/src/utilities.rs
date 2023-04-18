@@ -278,10 +278,7 @@ mod tests {
                 MyCircuit(self.0)
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<pallas::Base>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<pallas::Base>) -> Self::Config {
                 let selector = meta.selector();
                 let advice = meta.advice_column();
 

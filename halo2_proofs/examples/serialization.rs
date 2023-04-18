@@ -93,10 +93,7 @@ impl Circuit<Fr> for StandardPlonk {
         Self::default()
     }
 
-    fn configure(
-        meta: &mut ConstraintSystem<Fr>,
-        #[cfg(feature = "circuit-params")] _: &(),
-    ) -> Self::Config {
+    fn configure(meta: &mut ConstraintSystem<Fr>) -> Self::Config {
         StandardPlonkConfig::configure(meta)
     }
 
@@ -145,11 +142,12 @@ fn main() {
 
     let f = File::open("serialization-test.pk").unwrap();
     let mut reader = BufReader::new(f);
+    #[allow(clippy::unit_arg)]
     let pk = ProvingKey::<G1Affine>::read::<_, StandardPlonk>(
         &mut reader,
         SerdeFormat::RawBytes,
         #[cfg(feature = "circuit-params")]
-        &circuit.params(),
+        circuit.params(),
     )
     .unwrap();
 

@@ -224,10 +224,7 @@ mod tests {
                 Self::default()
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<F>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
                 let advices = [
                     meta.advice_column(),
                     meta.advice_column(),

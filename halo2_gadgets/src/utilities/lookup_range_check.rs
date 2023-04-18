@@ -417,10 +417,7 @@ mod tests {
                 *self
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<F>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
                 let running_sum = meta.advice_column();
                 let table_idx = meta.lookup_table_column();
                 let constants = meta.fixed_column();
@@ -521,10 +518,7 @@ mod tests {
                 }
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<F>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
                 let running_sum = meta.advice_column();
                 let table_idx = meta.lookup_table_column();
                 let constants = meta.fixed_column();

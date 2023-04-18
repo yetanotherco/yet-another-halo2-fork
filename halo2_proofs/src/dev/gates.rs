@@ -106,15 +106,14 @@ pub struct CircuitGates {
 impl CircuitGates {
     /// Collects the gates from within the circuit.
     pub fn collect<F: PrimeField, C: Circuit<F>>(
-        #[cfg(feature = "circuit-params")] params: &C::Params,
+        #[cfg(feature = "circuit-params")] params: C::Params,
     ) -> Self {
         // Collect the graph details.
         let mut cs = ConstraintSystem::default();
-        let _ = C::configure(
-            &mut cs,
-            #[cfg(feature = "circuit-params")]
-            params,
-        );
+        #[cfg(feature = "circuit-params")]
+        let _ = C::configure_with_params(&mut cs, params);
+        #[cfg(not(feature = "circuit-params"))]
+        let _ = C::configure(&mut cs);
 
         let gates = cs
             .gates

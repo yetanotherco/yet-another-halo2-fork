@@ -311,10 +311,7 @@ mod tests {
                 MyCircuit {}
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<F>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
                 let input_tag = meta.advice_column();
                 let input_dense = meta.advice_column();
                 let input_spread = meta.advice_column();

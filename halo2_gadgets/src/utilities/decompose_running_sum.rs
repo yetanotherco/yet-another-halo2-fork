@@ -253,10 +253,7 @@ mod tests {
                 }
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<F>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
                 let z = meta.advice_column();
                 let q_range_check = meta.selector();
                 let constants = meta.fixed_column();

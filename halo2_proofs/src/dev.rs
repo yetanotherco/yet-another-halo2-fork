@@ -603,11 +603,10 @@ impl<F: FromUniformBytes<64> + Ord> MockProver<F> {
         let n = 1 << k;
 
         let mut cs = ConstraintSystem::default();
-        let config = ConcreteCircuit::configure(
-            &mut cs,
-            #[cfg(feature = "circuit-params")]
-            &circuit.params(),
-        );
+        #[cfg(feature = "circuit-params")]
+        let config = ConcreteCircuit::configure_with_params(&mut cs, circuit.params());
+        #[cfg(not(feature = "circuit-params"))]
+        let config = ConcreteCircuit::configure(&mut cs);
         let cs = cs;
 
         assert!(
@@ -1545,10 +1544,7 @@ mod tests {
             #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(
-                meta: &mut ConstraintSystem<Fp>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
                 let a = meta.advice_column();
                 let b = meta.advice_column();
                 let q = meta.selector();
@@ -1636,10 +1632,7 @@ mod tests {
             #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(
-                meta: &mut ConstraintSystem<Fp>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
                 let a = meta.advice_column();
                 let q = meta.complex_selector();
                 let table = meta.instance_column();
@@ -1810,10 +1803,7 @@ mod tests {
             #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(
-                meta: &mut ConstraintSystem<Fp>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
                 let a = meta.advice_column();
                 let q = meta.complex_selector();
                 let table = meta.lookup_table_column();
@@ -1949,10 +1939,7 @@ mod tests {
             #[cfg(feature = "circuit-params")]
             type Params = ();
 
-            fn configure(
-                meta: &mut ConstraintSystem<Fp>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
                 let a = meta.advice_column();
                 let b = meta.advice_column();
                 let c = meta.advice_column();

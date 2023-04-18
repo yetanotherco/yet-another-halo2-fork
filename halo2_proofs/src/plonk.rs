@@ -101,7 +101,7 @@ where
     pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
         reader: &mut R,
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: &ConcreteCircuit::Params,
+        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
     ) -> io::Result<Self> {
         let mut k = [0u8; 4];
         reader.read_exact(&mut k)?;
@@ -155,7 +155,7 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: &ConcreteCircuit::Params,
+        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
     ) -> io::Result<Self> {
         Self::read::<_, ConcreteCircuit>(
             &mut bytes,
@@ -346,7 +346,7 @@ where
     pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
         reader: &mut R,
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: &ConcreteCircuit::Params,
+        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
     ) -> io::Result<Self> {
         let vk = VerifyingKey::<C>::read::<R, ConcreteCircuit>(
             reader,
@@ -386,7 +386,7 @@ where
     pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
         mut bytes: &[u8],
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: &ConcreteCircuit::Params,
+        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
     ) -> io::Result<Self> {
         Self::read::<_, ConcreteCircuit>(
             &mut bytes,

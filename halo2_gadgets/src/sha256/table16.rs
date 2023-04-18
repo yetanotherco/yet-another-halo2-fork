@@ -475,10 +475,7 @@ mod tests {
                 MyCircuit {}
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<pallas::Base>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<pallas::Base>) -> Self::Config {
                 Table16Chip::configure(meta)
             }
 

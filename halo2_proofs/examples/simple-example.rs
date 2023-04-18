@@ -255,10 +255,7 @@ impl<F: Field> Circuit<F> for MyCircuit<F> {
         Self::default()
     }
 
-    fn configure(
-        meta: &mut ConstraintSystem<F>,
-        #[cfg(feature = "circuit-params")] _: &(),
-    ) -> Self::Config {
+    fn configure(meta: &mut ConstraintSystem<F>) -> Self::Config {
         // We create the two advice columns that FieldChip uses for I/O.
         let advice = [meta.advice_column(), meta.advice_column()];
 

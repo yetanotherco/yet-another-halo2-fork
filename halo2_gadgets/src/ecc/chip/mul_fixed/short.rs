@@ -441,10 +441,7 @@ pub mod tests {
                 Self::default()
             }
 
-            fn configure(
-                meta: &mut ConstraintSystem<pallas::Base>,
-                #[cfg(feature = "circuit-params")] _: &(),
-            ) -> Self::Config {
+            fn configure(meta: &mut ConstraintSystem<pallas::Base>) -> Self::Config {
                 let advices = [
                     meta.advice_column(),
                     meta.advice_column(),

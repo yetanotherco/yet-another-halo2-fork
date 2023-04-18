@@ -63,10 +63,7 @@ where
         }
     }
 
-    fn configure(
-        meta: &mut ConstraintSystem<Fp>,
-        #[cfg(feature = "circuit-params")] _: &(),
-    ) -> Self::Config {
+    fn configure(meta: &mut ConstraintSystem<Fp>) -> Self::Config {
         let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
         let expected = meta.instance_column();
         meta.enable_equality(expected);

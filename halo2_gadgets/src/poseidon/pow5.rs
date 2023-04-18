@@ -627,10 +627,7 @@ mod tests {
             PermuteCircuit::<S, WIDTH, RATE>(PhantomData)
         }
 
-        fn configure(
-            meta: &mut ConstraintSystem<Fp>,
-            #[cfg(feature = "circuit-params")] _: &(),
-        ) -> Pow5Config<Fp, WIDTH, RATE> {
+        fn configure(meta: &mut ConstraintSystem<Fp>) -> Pow5Config<Fp, WIDTH, RATE> {
             let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
             let partial_sbox = meta.advice_column();
 
@@ -751,10 +748,7 @@ mod tests {
             }
         }
 
-        fn configure(
-            meta: &mut ConstraintSystem<Fp>,
-            #[cfg(feature = "circuit-params")] _: &(),
-        ) -> Pow5Config<Fp, WIDTH, RATE> {
+        fn configure(meta: &mut ConstraintSystem<Fp>) -> Pow5Config<Fp, WIDTH, RATE> {
             let state = (0..WIDTH).map(|_| meta.advice_column()).collect::<Vec<_>>();
             let partial_sbox = meta.advice_column();
 

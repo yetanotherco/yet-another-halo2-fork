@@ -172,10 +172,7 @@ impl<F: Field> Circuit<F> for MyCircuit<F> {
     }
 
     #[allow(clippy::many_single_char_names)]
-    fn configure(
-        meta: &mut ConstraintSystem<F>,
-        #[cfg(feature = "circuit-params")] _: &(),
-    ) -> PlonkConfig {
+    fn configure(meta: &mut ConstraintSystem<F>) -> PlonkConfig {
         let e = meta.advice_column();
         let a = meta.advice_column();
         let b = meta.advice_column();
