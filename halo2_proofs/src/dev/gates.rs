@@ -81,7 +81,10 @@ struct Gate {
 ///     }
 /// }
 ///
-/// let gates = CircuitGates::collect::<pallas::Base, MyCircuit>(&());
+/// #[cfg(feature = "circuit-params")]
+/// let gates = CircuitGates::collect::<pallas::Base, MyCircuit>(());
+/// #[cfg(not(feature = "circuit-params"))]
+/// let gates = CircuitGates::collect::<pallas::Base, MyCircuit>();
 /// assert_eq!(
 ///     format!("{}", gates),
 ///     r#####"R1CS constraint:
