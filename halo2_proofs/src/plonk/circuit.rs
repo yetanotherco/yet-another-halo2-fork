@@ -664,10 +664,32 @@ pub trait Circuit<F: Field> {
     /// The floor planner used for this circuit. This is an associated type of the
     /// `Circuit` trait because its behaviour is circuit-critical.
     type FloorPlanner: FloorPlanner;
+    /// Optional circuit configuration parameters. Requires the `circuit-params` feature.
+    #[cfg(feature = "circuit-params")]
+    type Params: Default;
 
     /// Returns a copy of this circuit with no witness values (i.e. all witnesses set to
     /// `None`). For most circuits, this will be equal to `Self::default()`.
     fn without_witnesses(&self) -> Self;
+
+    /// Returns a reference to the parameters that should be used to configure the circuit.
+    /// Requires the `circuit-params` feature.
+    #[cfg(feature = "circuit-params")]
+    fn params(&self) -> Self::Params {
+        Self::Params::default()
+    }
+
+    /// The circuit is given an opportunity to describe the exact gate
+    /// arrangement, column arrangement, etc.  Takes a runtime parameter.  The default
+    /// implementation calls `configure` ignoring the `_params` argument in order to easily support
+    /// circuits that don't use configuration parameters.
+    #[cfg(feature = "circuit-params")]
+    fn configure_with_params(
+        meta: &mut ConstraintSystem<F>,
+        _params: Self::Params,
+    ) -> Self::Config {
+        Self::configure(meta)
+    }
 
     /// The circuit is given an opportunity to describe the exact gate
     /// arrangement, column arrangement, etc.
@@ -1212,25 +1234,34 @@ impl<Col: Into<Column<Any>>> From<(Col, Rotation)> for VirtualCell {
 /// These are returned by the closures passed to `ConstraintSystem::create_gate`.
 #[derive(Debug)]
 pub struct Constraint<F: Field> {
-    name: &'static str,
+    name: String,
     poly: Expression<F>,
 }
 
 impl<F: Field> From<Expression<F>> for Constraint<F> {
     fn from(poly: Expression<F>) -> Self {
-        Constraint { name: "", poly }
+        Constraint {
+            name: "".to_string(),
+            poly,
+        }
     }
 }
 
-impl<F: Field> From<(&'static str, Expression<F>)> for Constraint<F> {
-    fn from((name, poly): (&'static str, Expression<F>)) -> Self {
-        Constraint { name, poly }
+impl<F: Field, S: AsRef<str>> From<(S, Expression<F>)> for Constraint<F> {
+    fn from((name, poly): (S, Expression<F>)) -> Self {
+        Constraint {
+            name: name.as_ref().to_string(),
+            poly,
+        }
     }
 }
 
 impl<F: Field> From<Expression<F>> for Vec<Constraint<F>> {
     fn from(poly: Expression<F>) -> Self {
-        vec![Constraint { name: "", poly }]
+        vec![Constraint {
+            name: "".to_string(),
+            poly,
+        }]
     }
 }
 
@@ -1320,8 +1351,8 @@ impl<F: Field, C: Into<Constraint<F>>, Iter: IntoIterator<Item = C>> IntoIterato
 /// Gate
 #[derive(Clone, Debug)]
 pub struct Gate<F: Field> {
-    name: &'static str,
-    constraint_names: Vec<&'static str>,
+    name: String,
+    constraint_names: Vec<String>,
     polys: Vec<Expression<F>>,
     /// We track queried selectors separately from other cells, so that we can use them to
     /// trigger debug checks on gates.
@@ -1330,12 +1361,12 @@ pub struct Gate<F: Field> {
 }
 
 impl<F: Field> Gate<F> {
-    pub(crate) fn name(&self) -> &'static str {
-        self.name
+    pub(crate) fn name(&self) -> &str {
+        self.name.as_str()
     }
 
-    pub(crate) fn constraint_name(&self, constraint_index: usize) -> &'static str {
-        self.constraint_names[constraint_index]
+    pub(crate) fn constraint_name(&self, constraint_index: usize) -> &str {
+        self.constraint_names[constraint_index].as_str()
     }
 
     /// Returns constraints of this gate
@@ -1528,9 +1559,9 @@ impl<F: Field> ConstraintSystem<F> {
     ///
     /// `table_map` returns a map between input expressions and the table columns
     /// they need to match.
-    pub fn lookup(
+    pub fn lookup<S: AsRef<str>>(
         &mut self,
-        name: &'static str,
+        name: S,
         table_map: impl FnOnce(&mut VirtualCells<'_, F>) -> Vec<(Expression<F>, TableColumn)>,
     ) -> usize {
         let mut cells = VirtualCells::new(self);
@@ -1549,7 +1580,8 @@ impl<F: Field> ConstraintSystem<F> {
 
         let index = self.lookups.len();
 
-        self.lookups.push(lookup::Argument::new(name, table_map));
+        self.lookups
+            .push(lookup::Argument::new(name.as_ref(), table_map));
 
         index
     }
@@ -1558,9 +1590,9 @@ impl<F: Field> ConstraintSystem<F> {
     ///
     /// `table_map` returns a map between input expressions and the table expressions
     /// they need to match.
-    pub fn lookup_any(
+    pub fn lookup_any<S: AsRef<str>>(
         &mut self,
-        name: &'static str,
+        name: S,
         table_map: impl FnOnce(&mut VirtualCells<'_, F>) -> Vec<(Expression<F>, Expression<F>)>,
     ) -> usize {
         let mut cells = VirtualCells::new(self);
@@ -1568,7 +1600,8 @@ impl<F: Field> ConstraintSystem<F> {
 
         let index = self.lookups.len();
 
-        self.lookups.push(lookup::Argument::new(name, table_map));
+        self.lookups
+            .push(lookup::Argument::new(name.as_ref(), table_map));
 
         index
     }
@@ -1688,9 +1721,9 @@ impl<F: Field> ConstraintSystem<F> {
     ///
     /// A gate is required to contain polynomial constraints. This method will panic if
     /// `constraints` returns an empty iterator.
-    pub fn create_gate<C: Into<Constraint<F>>, Iter: IntoIterator<Item = C>>(
+    pub fn create_gate<C: Into<Constraint<F>>, Iter: IntoIterator<Item = C>, S: AsRef<str>>(
         &mut self,
-        name: &'static str,
+        name: S,
         constraints: impl FnOnce(&mut VirtualCells<'_, F>) -> Iter,
     ) {
         let mut cells = VirtualCells::new(self);
@@ -1710,7 +1743,7 @@ impl<F: Field> ConstraintSystem<F> {
         );
 
         self.gates.push(Gate {
-            name,
+            name: name.as_ref().to_string(),
             constraint_names,
             polys,
             queried_selectors,
