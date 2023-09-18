@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["CondSwapChip","A chip implementing a conditional swap."],["CondSwapConfig","Configuration for the [`CondSwapChip`]."]],"trait":[["CondSwapInstructions","Instructions for a conditional swap gadget."]]};
