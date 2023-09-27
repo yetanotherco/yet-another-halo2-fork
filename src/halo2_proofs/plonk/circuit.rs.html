@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0-nightly (3223b0b5e 2023-09-20)" data-channel="nightly" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0-nightly (5ae769f06 2023-09-26)" data-channel="nightly" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -2454,6 +2454,65 @@
 <a href="#2439" id="2439">2439</a>
 <a href="#2440" id="2440">2440</a>
 <a href="#2441" id="2441">2441</a>
+<a href="#2442" id="2442">2442</a>
+<a href="#2443" id="2443">2443</a>
+<a href="#2444" id="2444">2444</a>
+<a href="#2445" id="2445">2445</a>
+<a href="#2446" id="2446">2446</a>
+<a href="#2447" id="2447">2447</a>
+<a href="#2448" id="2448">2448</a>
+<a href="#2449" id="2449">2449</a>
+<a href="#2450" id="2450">2450</a>
+<a href="#2451" id="2451">2451</a>
+<a href="#2452" id="2452">2452</a>
+<a href="#2453" id="2453">2453</a>
+<a href="#2454" id="2454">2454</a>
+<a href="#2455" id="2455">2455</a>
+<a href="#2456" id="2456">2456</a>
+<a href="#2457" id="2457">2457</a>
+<a href="#2458" id="2458">2458</a>
+<a href="#2459" id="2459">2459</a>
+<a href="#2460" id="2460">2460</a>
+<a href="#2461" id="2461">2461</a>
+<a href="#2462" id="2462">2462</a>
+<a href="#2463" id="2463">2463</a>
+<a href="#2464" id="2464">2464</a>
+<a href="#2465" id="2465">2465</a>
+<a href="#2466" id="2466">2466</a>
+<a href="#2467" id="2467">2467</a>
+<a href="#2468" id="2468">2468</a>
+<a href="#2469" id="2469">2469</a>
+<a href="#2470" id="2470">2470</a>
+<a href="#2471" id="2471">2471</a>
+<a href="#2472" id="2472">2472</a>
+<a href="#2473" id="2473">2473</a>
+<a href="#2474" id="2474">2474</a>
+<a href="#2475" id="2475">2475</a>
+<a href="#2476" id="2476">2476</a>
+<a href="#2477" id="2477">2477</a>
+<a href="#2478" id="2478">2478</a>
+<a href="#2479" id="2479">2479</a>
+<a href="#2480" id="2480">2480</a>
+<a href="#2481" id="2481">2481</a>
+<a href="#2482" id="2482">2482</a>
+<a href="#2483" id="2483">2483</a>
+<a href="#2484" id="2484">2484</a>
+<a href="#2485" id="2485">2485</a>
+<a href="#2486" id="2486">2486</a>
+<a href="#2487" id="2487">2487</a>
+<a href="#2488" id="2488">2488</a>
+<a href="#2489" id="2489">2489</a>
+<a href="#2490" id="2490">2490</a>
+<a href="#2491" id="2491">2491</a>
+<a href="#2492" id="2492">2492</a>
+<a href="#2493" id="2493">2493</a>
+<a href="#2494" id="2494">2494</a>
+<a href="#2495" id="2495">2495</a>
+<a href="#2496" id="2496">2496</a>
+<a href="#2497" id="2497">2497</a>
+<a href="#2498" id="2498">2498</a>
+<a href="#2499" id="2499">2499</a>
+<a href="#2500" id="2500">2500</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{lookup, permutation, shuffle, Assigned, Error};
 <span class="kw">use </span><span class="kw">crate</span>::circuit::layouter::SyncDeps;
 <span class="kw">use </span><span class="kw">crate</span>::dev::metadata;
@@ -2467,6 +2526,7 @@
 <span class="kw">use </span>sealed::SealedPhase;
 <span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::iter::{Product, Sum};
 <span class="kw">use </span>std::{
     convert::TryFrom,
     ops::{Neg, Sub},
@@ -2934,7 +2994,7 @@
 }
 
 <span class="doccomment">/// Query of fixed column at a certain relative location
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>FixedQuery {
     <span class="doccomment">/// Query index
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
@@ -2957,7 +3017,7 @@
 }
 
 <span class="doccomment">/// Query of advice column at a certain relative location
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>AdviceQuery {
     <span class="doccomment">/// Query index
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
@@ -2987,7 +3047,7 @@
 }
 
 <span class="doccomment">/// Query of instance column at a certain relative location
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>InstanceQuery {
     <span class="doccomment">/// Query index
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) index: <span class="prelude-ty">Option</span>&lt;usize&gt;,
@@ -3248,7 +3308,7 @@
 }
 
 <span class="doccomment">/// Low-degree expression representing an identity that must hold over the committed columns.
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>Expression&lt;F&gt; {
     <span class="doccomment">/// This is a constant polynomial
     </span>Constant(F),
@@ -3805,6 +3865,20 @@
     <span class="kw">type </span>Output = Expression&lt;F&gt;;
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: F) -&gt; Expression&lt;F&gt; {
         Expression::Scaled(Box::new(<span class="self">self</span>), rhs)
+    }
+}
+
+<span class="kw">impl</span>&lt;F: Field&gt; Sum&lt;<span class="self">Self</span>&gt; <span class="kw">for </span>Expression&lt;F&gt; {
+    <span class="kw">fn </span>sum&lt;I: Iterator&lt;Item = <span class="self">Self</span>&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        iter.reduce(|acc, x| acc + x)
+            .unwrap_or(Expression::Constant(F::ZERO))
+    }
+}
+
+<span class="kw">impl</span>&lt;F: Field&gt; Product&lt;<span class="self">Self</span>&gt; <span class="kw">for </span>Expression&lt;F&gt; {
+    <span class="kw">fn </span>product&lt;I: Iterator&lt;Item = <span class="self">Self</span>&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        iter.reduce(|acc, x| acc * x)
+            .unwrap_or(Expression::Constant(F::ONE))
     }
 }
 
@@ -4893,6 +4967,50 @@
     <span class="doccomment">/// Query a challenge
     </span><span class="kw">pub fn </span>query_challenge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, challenge: Challenge) -&gt; Expression&lt;F&gt; {
         Expression::Challenge(challenge)
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::Expression;
+    <span class="kw">use </span>halo2curves::bn256::Fr;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>iter_sum() {
+        <span class="kw">let </span>exprs: Vec&lt;Expression&lt;Fr&gt;&gt; = <span class="macro">vec!</span>[
+            Expression::Constant(<span class="number">1</span>.into()),
+            Expression::Constant(<span class="number">2</span>.into()),
+            Expression::Constant(<span class="number">3</span>.into()),
+        ];
+        <span class="kw">let </span>happened: Expression&lt;Fr&gt; = exprs.into_iter().sum();
+        <span class="kw">let </span>expected: Expression&lt;Fr&gt; = Expression::Sum(
+            Box::new(Expression::Sum(
+                Box::new(Expression::Constant(<span class="number">1</span>.into())),
+                Box::new(Expression::Constant(<span class="number">2</span>.into())),
+            )),
+            Box::new(Expression::Constant(<span class="number">3</span>.into())),
+        );
+
+        <span class="macro">assert_eq!</span>(happened, expected);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>iter_product() {
+        <span class="kw">let </span>exprs: Vec&lt;Expression&lt;Fr&gt;&gt; = <span class="macro">vec!</span>[
+            Expression::Constant(<span class="number">1</span>.into()),
+            Expression::Constant(<span class="number">2</span>.into()),
+            Expression::Constant(<span class="number">3</span>.into()),
+        ];
+        <span class="kw">let </span>happened: Expression&lt;Fr&gt; = exprs.into_iter().product();
+        <span class="kw">let </span>expected: Expression&lt;Fr&gt; = Expression::Product(
+            Box::new(Expression::Product(
+                Box::new(Expression::Constant(<span class="number">1</span>.into())),
+                Box::new(Expression::Constant(<span class="number">2</span>.into())),
+            )),
+            Box::new(Expression::Constant(<span class="number">3</span>.into())),
+        );
+
+        <span class="macro">assert_eq!</span>(happened, expected);
     }
 }
 </code></pre></div></section></main></body></html>
