@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (31bc7e2c4 2023-10-30)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (189d6c71f 2023-11-06)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -778,10 +778,25 @@
 <a href="#763" id="763">763</a>
 <a href="#764" id="764">764</a>
 <a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>rand_core::RngCore;
-<span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::collections::{BTreeSet, HashSet};
 <span class="kw">use </span>std::ops::RangeTo;
 <span class="kw">use </span>std::{collections::HashMap, iter};
 
@@ -927,6 +942,7 @@
         k: u32,
         current_phase: sealed::Phase,
         advice: Vec&lt;Polynomial&lt;Assigned&lt;F&gt;, LagrangeCoeff&gt;&gt;,
+        unblinded_advice: HashSet&lt;usize&gt;,
         challenges: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HashMap&lt;usize, F&gt;,
         instances: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[F]],
         usable_rows: RangeTo&lt;usize&gt;,
@@ -1099,6 +1115,7 @@
                     k: params.k(),
                     current_phase,
                     advice: <span class="macro">vec!</span>[domain.empty_lagrange_assigned(); meta.num_advice_columns],
+                    unblinded_advice: HashSet::from_iter(meta.unblinded_advice_columns.clone()),
                     instances,
                     challenges: <span class="kw-2">&amp;</span>challenges,
                     <span class="comment">// The prover will not be allowed to assign values to advice
@@ -1133,16 +1150,29 @@
                 );
 
                 <span class="comment">// Add blinding factors to advice columns
-                </span><span class="kw">for </span>advice_values <span class="kw">in </span><span class="kw-2">&amp;mut </span>advice_values {
-                    <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;mut </span>advice_values[unusable_rows_start..] {
-                        <span class="kw-2">*</span>cell = Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
+                </span><span class="kw">for </span>(column_index, advice_values) <span class="kw">in </span>column_indices.iter().zip(<span class="kw-2">&amp;mut </span>advice_values) {
+                    <span class="kw">if </span>!witness.unblinded_advice.contains(column_index) {
+                        <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;mut </span>advice_values[unusable_rows_start..] {
+                            <span class="kw-2">*</span>cell = Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
+                        }
+                    } <span class="kw">else </span>{
+                        <span class="attr">#[cfg(feature = <span class="string">&quot;sanity-checks&quot;</span>)]
+                        </span><span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;</span>advice_values[unusable_rows_start..] {
+                            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>cell, Scheme::Scalar::ZERO);
+                        }
                     }
                 }
 
                 <span class="comment">// Compute commitments to advice column polynomials
-                </span><span class="kw">let </span>blinds: Vec&lt;<span class="kw">_</span>&gt; = advice_values
+                </span><span class="kw">let </span>blinds: Vec&lt;<span class="kw">_</span>&gt; = column_indices
                     .iter()
-                    .map(|<span class="kw">_</span>| Blind(Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng)))
+                    .map(|i| {
+                        <span class="kw">if </span>witness.unblinded_advice.contains(i) {
+                            Blind::default()
+                        } <span class="kw">else </span>{
+                            Blind(Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng))
+                        }
+                    })
                     .collect();
                 <span class="kw">let </span>advice_commitments_projective: Vec&lt;<span class="kw">_</span>&gt; = advice_values
                     .iter()
