@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/keygen.rs`."><title>keygen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (189d6c71f 2023-11-06)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/keygen.rs`."><title>keygen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (7adc89b69 2023-11-07)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -391,6 +391,35 @@
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::int_plus_one)]
 
 </span><span class="kw">use </span>std::ops::Range;
@@ -596,9 +625,27 @@
 }
 
 <span class="doccomment">/// Generate a `VerifyingKey` from an instance of `Circuit`.
+/// By default, selector compression is turned **off**.
 </span><span class="kw">pub fn </span>keygen_vk&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
     params: <span class="kw-2">&amp;</span>P,
     circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
+) -&gt; <span class="prelude-ty">Result</span>&lt;VerifyingKey&lt;C&gt;, Error&gt;
+<span class="kw">where
+    </span>C: CurveAffine,
+    P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
+    ConcreteCircuit: Circuit&lt;C::Scalar&gt;,
+    C::Scalar: FromUniformBytes&lt;<span class="number">64</span>&gt;,
+{
+    keygen_vk_custom(params, circuit, <span class="bool-val">true</span>)
+}
+
+<span class="doccomment">/// Generate a `VerifyingKey` from an instance of `Circuit`.
+///
+/// The selector compression optimization is turned on only if `compress_selectors` is `true`.
+</span><span class="kw">pub fn </span>keygen_vk_custom&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
+    params: <span class="kw-2">&amp;</span>P,
+    circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
+    compress_selectors: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;VerifyingKey&lt;C&gt;, Error&gt;
 <span class="kw">where
     </span>C: CurveAffine,
@@ -634,7 +681,13 @@
     )<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>fixed = batch_invert_assigned(assembly.fixed);
-    <span class="kw">let </span>(cs, selector_polys) = cs.compress_selectors(assembly.selectors.clone());
+    <span class="kw">let </span>(cs, selector_polys) = <span class="kw">if </span>compress_selectors {
+        cs.compress_selectors(assembly.selectors.clone())
+    } <span class="kw">else </span>{
+        <span class="comment">// After this, the ConstraintSystem should not have any selectors: `verify` does not need them, and `keygen_pk` regenerates `cs` from scratch anyways.
+        </span><span class="kw">let </span>selectors = std::mem::take(<span class="kw-2">&amp;mut </span>assembly.selectors);
+        cs.directly_convert_selectors_to_fixed(selectors)
+    };
     fixed.extend(
         selector_polys
             .into_iter()
@@ -656,6 +709,7 @@
         permutation_vk,
         cs,
         assembly.selectors,
+        compress_selectors,
     ))
 }
 
@@ -700,7 +754,11 @@
     )<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>fixed = batch_invert_assigned(assembly.fixed);
-    <span class="kw">let </span>(cs, selector_polys) = cs.compress_selectors(assembly.selectors);
+    <span class="kw">let </span>(cs, selector_polys) = <span class="kw">if </span>vk.compress_selectors {
+        cs.compress_selectors(assembly.selectors)
+    } <span class="kw">else </span>{
+        cs.directly_convert_selectors_to_fixed(assembly.selectors)
+    };
     fixed.extend(
         selector_polys
             .into_iter()

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (189d6c71f 2023-11-06)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (7adc89b69 2023-11-07)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -2544,6 +2544,42 @@
 <a href="#2529" id="2529">2529</a>
 <a href="#2530" id="2530">2530</a>
 <a href="#2531" id="2531">2531</a>
+<a href="#2532" id="2532">2532</a>
+<a href="#2533" id="2533">2533</a>
+<a href="#2534" id="2534">2534</a>
+<a href="#2535" id="2535">2535</a>
+<a href="#2536" id="2536">2536</a>
+<a href="#2537" id="2537">2537</a>
+<a href="#2538" id="2538">2538</a>
+<a href="#2539" id="2539">2539</a>
+<a href="#2540" id="2540">2540</a>
+<a href="#2541" id="2541">2541</a>
+<a href="#2542" id="2542">2542</a>
+<a href="#2543" id="2543">2543</a>
+<a href="#2544" id="2544">2544</a>
+<a href="#2545" id="2545">2545</a>
+<a href="#2546" id="2546">2546</a>
+<a href="#2547" id="2547">2547</a>
+<a href="#2548" id="2548">2548</a>
+<a href="#2549" id="2549">2549</a>
+<a href="#2550" id="2550">2550</a>
+<a href="#2551" id="2551">2551</a>
+<a href="#2552" id="2552">2552</a>
+<a href="#2553" id="2553">2553</a>
+<a href="#2554" id="2554">2554</a>
+<a href="#2555" id="2555">2555</a>
+<a href="#2556" id="2556">2556</a>
+<a href="#2557" id="2557">2557</a>
+<a href="#2558" id="2558">2558</a>
+<a href="#2559" id="2559">2559</a>
+<a href="#2560" id="2560">2560</a>
+<a href="#2561" id="2561">2561</a>
+<a href="#2562" id="2562">2562</a>
+<a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{lookup, permutation, shuffle, Assigned, Error};
 <span class="kw">use </span><span class="kw">crate</span>::circuit::layouter::SyncDeps;
 <span class="kw">use </span><span class="kw">crate</span>::dev::metadata;
@@ -4569,7 +4605,45 @@
             .into_iter()
             .map(|a| a.unwrap())
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="self">self</span>.replace_selectors_with_fixed(<span class="kw-2">&amp;</span>selector_replacements);
 
+        (<span class="self">self</span>, polys)
+    }
+
+    <span class="doccomment">/// Does not combine selectors and directly replaces them everywhere with fixed columns.
+    </span><span class="kw">pub fn </span>directly_convert_selectors_to_fixed(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        selectors: Vec&lt;Vec&lt;bool&gt;&gt;,
+    ) -&gt; (<span class="self">Self</span>, Vec&lt;Vec&lt;F&gt;&gt;) {
+        <span class="comment">// The number of provided selector assignments must be the number we
+        // counted for this constraint system.
+        </span><span class="macro">assert_eq!</span>(selectors.len(), <span class="self">self</span>.num_selectors);
+
+        <span class="kw">let </span>(polys, selector_replacements): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) = selectors
+            .into_iter()
+            .map(|selector| {
+                <span class="kw">let </span>poly = selector
+                    .iter()
+                    .map(|b| <span class="kw">if </span><span class="kw-2">*</span>b { F::ONE } <span class="kw">else </span>{ F::ZERO })
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                <span class="kw">let </span>column = <span class="self">self</span>.fixed_column();
+                <span class="kw">let </span>rotation = Rotation::cur();
+                <span class="kw">let </span>expr = Expression::Fixed(FixedQuery {
+                    index: <span class="prelude-val">Some</span>(<span class="self">self</span>.query_fixed_index(column, rotation)),
+                    column_index: column.index,
+                    rotation,
+                });
+                (poly, expr)
+            })
+            .unzip();
+
+        <span class="self">self</span>.replace_selectors_with_fixed(<span class="kw-2">&amp;</span>selector_replacements);
+        <span class="self">self</span>.num_selectors = <span class="number">0</span>;
+
+        (<span class="self">self</span>, polys)
+    }
+
+    <span class="kw">fn </span>replace_selectors_with_fixed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, selector_replacements: <span class="kw-2">&amp;</span>[Expression&lt;F&gt;]) {
         <span class="kw">fn </span>replace_selectors&lt;F: Field&gt;(
             expr: <span class="kw-2">&amp;mut </span>Expression&lt;F&gt;,
             selector_replacements: <span class="kw-2">&amp;</span>[Expression&lt;F&gt;],
@@ -4600,7 +4674,7 @@
 
         <span class="comment">// Substitute selectors for the real fixed columns in all gates
         </span><span class="kw">for </span>expr <span class="kw">in </span><span class="self">self</span>.gates.iter_mut().flat_map(|gate| gate.polys.iter_mut()) {
-            replace_selectors(expr, <span class="kw-2">&amp;</span>selector_replacements, <span class="bool-val">false</span>);
+            replace_selectors(expr, selector_replacements, <span class="bool-val">false</span>);
         }
 
         <span class="comment">// Substitute non-simple selectors for the real fixed columns in all
@@ -4611,7 +4685,7 @@
                 .iter_mut()
                 .chain(lookup.table_expressions.iter_mut())
         }) {
-            replace_selectors(expr, <span class="kw-2">&amp;</span>selector_replacements, <span class="bool-val">true</span>);
+            replace_selectors(expr, selector_replacements, <span class="bool-val">true</span>);
         }
 
         <span class="kw">for </span>expr <span class="kw">in </span><span class="self">self</span>.shuffles.iter_mut().flat_map(|shuffle| {
@@ -4620,10 +4694,8 @@
                 .iter_mut()
                 .chain(shuffle.shuffle_expressions.iter_mut())
         }) {
-            replace_selectors(expr, <span class="kw-2">&amp;</span>selector_replacements, <span class="bool-val">true</span>);
+            replace_selectors(expr, selector_replacements, <span class="bool-val">true</span>);
         }
-
-        (<span class="self">self</span>, polys)
     }
 
     <span class="doccomment">/// Allocate a new (simple) selector. Simple selectors cannot be added to
