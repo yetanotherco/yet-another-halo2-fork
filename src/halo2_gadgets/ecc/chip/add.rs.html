@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/add.rs`."><title>add.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/add.rs`."><title>add.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -562,7 +562,7 @@
 
     <span class="kw">fn </span>create_gate(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;pallas::Base&gt;) {
         <span class="comment">// https://p.z.cash/halo2-0.1:ecc-complete-addition
-        </span>meta.create_gate(<span class="string">&quot;complete addition&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"complete addition"</span>, |meta| {
             <span class="kw">let </span>q_add = meta.query_selector(<span class="self">self</span>.q_add);
             <span class="kw">let </span>x_p = meta.query_advice(<span class="self">self</span>.x_p, Rotation::cur());
             <span class="kw">let </span>y_p = meta.query_advice(<span class="self">self</span>.y_p, Rotation::cur());
@@ -661,18 +661,18 @@
             Constraints::with_selector(
                 q_add,
                 [
-                    (<span class="string">&quot;1&quot;</span>, poly1),
-                    (<span class="string">&quot;2&quot;</span>, poly2),
-                    (<span class="string">&quot;3a&quot;</span>, poly3a),
-                    (<span class="string">&quot;3b&quot;</span>, poly3b),
-                    (<span class="string">&quot;3c&quot;</span>, poly3c),
-                    (<span class="string">&quot;3d&quot;</span>, poly3d),
-                    (<span class="string">&quot;4a&quot;</span>, poly4a),
-                    (<span class="string">&quot;4b&quot;</span>, poly4b),
-                    (<span class="string">&quot;5a&quot;</span>, poly5a),
-                    (<span class="string">&quot;5b&quot;</span>, poly5b),
-                    (<span class="string">&quot;6a&quot;</span>, poly6a),
-                    (<span class="string">&quot;6b&quot;</span>, poly6b),
+                    (<span class="string">"1"</span>, poly1),
+                    (<span class="string">"2"</span>, poly2),
+                    (<span class="string">"3a"</span>, poly3a),
+                    (<span class="string">"3b"</span>, poly3b),
+                    (<span class="string">"3c"</span>, poly3c),
+                    (<span class="string">"3d"</span>, poly3d),
+                    (<span class="string">"4a"</span>, poly4a),
+                    (<span class="string">"4b"</span>, poly4b),
+                    (<span class="string">"5a"</span>, poly5a),
+                    (<span class="string">"5b"</span>, poly5b),
+                    (<span class="string">"6a"</span>, poly6a),
+                    (<span class="string">"6b"</span>, poly6b),
                 ],
             )
         });
@@ -683,33 +683,33 @@
         p: <span class="kw-2">&amp;</span>EccPoint,
         q: <span class="kw-2">&amp;</span>EccPoint,
         offset: usize,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;EccPoint, Error&gt; {
         <span class="comment">// Enable `q_add` selector
         </span><span class="self">self</span>.q_add.enable(region, offset)<span class="question-mark">?</span>;
 
         <span class="comment">// Copy point `p` into `x_p`, `y_p` columns
-        </span>p.x.copy_advice(|| <span class="string">&quot;x_p&quot;</span>, region, <span class="self">self</span>.x_p, offset)<span class="question-mark">?</span>;
-        p.y.copy_advice(|| <span class="string">&quot;y_p&quot;</span>, region, <span class="self">self</span>.y_p, offset)<span class="question-mark">?</span>;
+        </span>p.x.copy_advice(|| <span class="string">"x_p"</span>, region, <span class="self">self</span>.x_p, offset)<span class="question-mark">?</span>;
+        p.y.copy_advice(|| <span class="string">"y_p"</span>, region, <span class="self">self</span>.y_p, offset)<span class="question-mark">?</span>;
 
         <span class="comment">// Copy point `q` into `x_qr`, `y_qr` columns
-        </span>q.x.copy_advice(|| <span class="string">&quot;x_q&quot;</span>, region, <span class="self">self</span>.x_qr, offset)<span class="question-mark">?</span>;
-        q.y.copy_advice(|| <span class="string">&quot;y_q&quot;</span>, region, <span class="self">self</span>.y_qr, offset)<span class="question-mark">?</span>;
+        </span>q.x.copy_advice(|| <span class="string">"x_q"</span>, region, <span class="self">self</span>.x_qr, offset)<span class="question-mark">?</span>;
+        q.y.copy_advice(|| <span class="string">"y_q"</span>, region, <span class="self">self</span>.y_qr, offset)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(x_p, y_p) = (p.x.value(), p.y.value());
         <span class="kw">let </span>(x_q, y_q) = (q.x.value(), q.y.value());
 
         <span class="comment">// Assign α = inv0(x_q - x_p)
         </span><span class="kw">let </span>alpha = (x_q - x_p).invert();
-        region.assign_advice(|| <span class="string">&quot;α&quot;</span>, <span class="self">self</span>.alpha, offset, || alpha)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"α"</span>, <span class="self">self</span>.alpha, offset, || alpha)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign β = inv0(x_p)
         </span><span class="kw">let </span>beta = x_p.invert();
-        region.assign_advice(|| <span class="string">&quot;β&quot;</span>, <span class="self">self</span>.beta, offset, || beta)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"β"</span>, <span class="self">self</span>.beta, offset, || beta)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign γ = inv0(x_q)
         </span><span class="kw">let </span>gamma = x_q.invert();
-        region.assign_advice(|| <span class="string">&quot;γ&quot;</span>, <span class="self">self</span>.gamma, offset, || gamma)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"γ"</span>, <span class="self">self</span>.gamma, offset, || gamma)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign δ = inv0(y_q + y_p) if x_q = x_p, 0 otherwise
         </span><span class="kw">let </span>delta = x_p
@@ -723,7 +723,7 @@
                     Assigned::Zero
                 }
             });
-        region.assign_advice(|| <span class="string">&quot;δ&quot;</span>, <span class="self">self</span>.delta, offset, || delta)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"δ"</span>, <span class="self">self</span>.delta, offset, || delta)<span class="question-mark">?</span>;
 
         <span class="attr">#[allow(clippy::collapsible_else_if)]
         </span><span class="comment">// Assign lambda
@@ -751,7 +751,7 @@
                         }
                     }
                 });
-        region.assign_advice(|| <span class="string">&quot;λ&quot;</span>, <span class="self">self</span>.lambda, offset, || lambda)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"λ"</span>, <span class="self">self</span>.lambda, offset, || lambda)<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate (x_r, y_r)
         </span><span class="kw">let </span>r =
@@ -782,11 +782,11 @@
 
         <span class="comment">// Assign x_r
         </span><span class="kw">let </span>x_r = r.map(|r| r.<span class="number">0</span>);
-        <span class="kw">let </span>x_r_cell = region.assign_advice(|| <span class="string">&quot;x_r&quot;</span>, <span class="self">self</span>.x_qr, offset + <span class="number">1</span>, || x_r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>x_r_cell = region.assign_advice(|| <span class="string">"x_r"</span>, <span class="self">self</span>.x_qr, offset + <span class="number">1</span>, || x_r)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign y_r
         </span><span class="kw">let </span>y_r = r.map(|r| r.<span class="number">1</span>);
-        <span class="kw">let </span>y_r_cell = region.assign_advice(|| <span class="string">&quot;y_r&quot;</span>, <span class="self">self</span>.y_qr, offset + <span class="number">1</span>, || y_r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>y_r_cell = region.assign_advice(|| <span class="string">"y_r"</span>, <span class="self">self</span>.y_qr, offset + <span class="number">1</span>, || y_r)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>result = EccPoint {
             x: x_r_cell,
@@ -840,7 +840,7 @@
 
         <span class="comment">// Check complete addition P + (-P)
         </span><span class="kw">let </span>zero = {
-            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">&quot;P + (-P)&quot;</span>), p_neg)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">"P + (-P)"</span>), p_neg)<span class="question-mark">?</span>;
             result
                 .inner()
                 .is_identity()
@@ -850,79 +850,79 @@
 
         <span class="comment">// Check complete addition 𝒪 + 𝒪
         </span>{
-            <span class="kw">let </span>result = zero.add(layouter.namespace(|| <span class="string">&quot;𝒪 + 𝒪&quot;</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;𝒪 + 𝒪 = 𝒪&quot;</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = zero.add(layouter.namespace(|| <span class="string">"𝒪 + 𝒪"</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
+            result.constrain_equal(layouter.namespace(|| <span class="string">"𝒪 + 𝒪 = 𝒪"</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Check P + Q
         </span>{
-            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">&quot;P + Q&quot;</span>), q)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">"P + Q"</span>), q)<span class="question-mark">?</span>;
             <span class="kw">let </span>witnessed_result = NonIdentityPoint::new(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;witnessed P + Q&quot;</span>),
+                layouter.namespace(|| <span class="string">"witnessed P + Q"</span>),
                 Value::known((p_val + q_val).to_affine()),
             )<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;constrain P + Q&quot;</span>), <span class="kw-2">&amp;</span>witnessed_result)<span class="question-mark">?</span>;
+            result.constrain_equal(layouter.namespace(|| <span class="string">"constrain P + Q"</span>), <span class="kw-2">&amp;</span>witnessed_result)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// P + P
         </span>{
-            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">&quot;P + P&quot;</span>), p)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">"P + P"</span>), p)<span class="question-mark">?</span>;
             <span class="kw">let </span>witnessed_result = NonIdentityPoint::new(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;witnessed P + P&quot;</span>),
+                layouter.namespace(|| <span class="string">"witnessed P + P"</span>),
                 Value::known((p_val + p_val).to_affine()),
             )<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;constrain P + P&quot;</span>), <span class="kw-2">&amp;</span>witnessed_result)<span class="question-mark">?</span>;
+            result.constrain_equal(layouter.namespace(|| <span class="string">"constrain P + P"</span>), <span class="kw-2">&amp;</span>witnessed_result)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// P + 𝒪
         </span>{
-            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">&quot;P + 𝒪&quot;</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;P + 𝒪 = P&quot;</span>), p)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = p.add(layouter.namespace(|| <span class="string">"P + 𝒪"</span>), <span class="kw-2">&amp;</span>zero)<span class="question-mark">?</span>;
+            result.constrain_equal(layouter.namespace(|| <span class="string">"P + 𝒪 = P"</span>), p)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// 𝒪 + P
         </span>{
-            <span class="kw">let </span>result = zero.add(layouter.namespace(|| <span class="string">&quot;𝒪 + P&quot;</span>), p)<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;𝒪 + P = P&quot;</span>), p)<span class="question-mark">?</span>;
+            <span class="kw">let </span>result = zero.add(layouter.namespace(|| <span class="string">"𝒪 + P"</span>), p)<span class="question-mark">?</span>;
+            result.constrain_equal(layouter.namespace(|| <span class="string">"𝒪 + P = P"</span>), p)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// (x, y) + (ζx, y) should behave like normal P + Q.
         </span><span class="kw">let </span>endo_p = p_val.to_curve().endo();
         <span class="kw">let </span>endo_p = NonIdentityPoint::new(
             chip.clone(),
-            layouter.namespace(|| <span class="string">&quot;endo(P)&quot;</span>),
+            layouter.namespace(|| <span class="string">"endo(P)"</span>),
             Value::known(endo_p.to_affine()),
         )<span class="question-mark">?</span>;
-        p.add(layouter.namespace(|| <span class="string">&quot;P + endo(P)&quot;</span>), <span class="kw-2">&amp;</span>endo_p)<span class="question-mark">?</span>;
+        p.add(layouter.namespace(|| <span class="string">"P + endo(P)"</span>), <span class="kw-2">&amp;</span>endo_p)<span class="question-mark">?</span>;
 
         <span class="comment">// (x, y) + (ζx, -y) should also behave like normal P + Q.
         </span><span class="kw">let </span>endo_p_neg = (-p_val).to_curve().endo();
         <span class="kw">let </span>endo_p_neg = NonIdentityPoint::new(
             chip.clone(),
-            layouter.namespace(|| <span class="string">&quot;endo(-P)&quot;</span>),
+            layouter.namespace(|| <span class="string">"endo(-P)"</span>),
             Value::known(endo_p_neg.to_affine()),
         )<span class="question-mark">?</span>;
-        p.add(layouter.namespace(|| <span class="string">&quot;P + endo(-P)&quot;</span>), <span class="kw-2">&amp;</span>endo_p_neg)<span class="question-mark">?</span>;
+        p.add(layouter.namespace(|| <span class="string">"P + endo(-P)"</span>), <span class="kw-2">&amp;</span>endo_p_neg)<span class="question-mark">?</span>;
 
         <span class="comment">// (x, y) + ((ζ^2)x, y)
         </span><span class="kw">let </span>endo_2_p = p_val.to_curve().endo().endo();
         <span class="kw">let </span>endo_2_p = NonIdentityPoint::new(
             chip.clone(),
-            layouter.namespace(|| <span class="string">&quot;endo^2(P)&quot;</span>),
+            layouter.namespace(|| <span class="string">"endo^2(P)"</span>),
             Value::known(endo_2_p.to_affine()),
         )<span class="question-mark">?</span>;
-        p.add(layouter.namespace(|| <span class="string">&quot;P + endo^2(P)&quot;</span>), <span class="kw-2">&amp;</span>endo_2_p)<span class="question-mark">?</span>;
+        p.add(layouter.namespace(|| <span class="string">"P + endo^2(P)"</span>), <span class="kw-2">&amp;</span>endo_2_p)<span class="question-mark">?</span>;
 
         <span class="comment">// (x, y) + ((ζ^2)x, -y)
         </span><span class="kw">let </span>endo_2_p_neg = (-p_val).to_curve().endo().endo();
         <span class="kw">let </span>endo_2_p_neg = NonIdentityPoint::new(
             chip,
-            layouter.namespace(|| <span class="string">&quot;endo^2(-P)&quot;</span>),
+            layouter.namespace(|| <span class="string">"endo^2(-P)"</span>),
             Value::known(endo_2_p_neg.to_affine()),
         )<span class="question-mark">?</span>;
-        p.add(layouter.namespace(|| <span class="string">&quot;P + endo^2(-P)&quot;</span>), <span class="kw-2">&amp;</span>endo_2_p_neg)<span class="question-mark">?</span>;
+        p.add(layouter.namespace(|| <span class="string">"P + endo^2(-P)"</span>), <span class="kw-2">&amp;</span>endo_2_p_neg)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }

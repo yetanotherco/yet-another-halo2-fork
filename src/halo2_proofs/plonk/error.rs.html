@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -209,38 +209,38 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Error::Synthesis =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;General synthesis error&quot;</span>),
-            Error::InvalidInstances =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Provided instances do not match the circuit&quot;</span>),
-            Error::ConstraintSystemFailure =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;The constraint system is not satisfied&quot;</span>),
-            Error::BoundsFailure =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;An out-of-bounds index was passed to the backend&quot;</span>),
-            Error::Opening =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Multi-opening proof was invalid&quot;</span>),
-            Error::Transcript(e) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Transcript error: {}&quot;</span>, e),
+            Error::Synthesis =&gt; <span class="macro">write!</span>(f, <span class="string">"General synthesis error"</span>),
+            Error::InvalidInstances =&gt; <span class="macro">write!</span>(f, <span class="string">"Provided instances do not match the circuit"</span>),
+            Error::ConstraintSystemFailure =&gt; <span class="macro">write!</span>(f, <span class="string">"The constraint system is not satisfied"</span>),
+            Error::BoundsFailure =&gt; <span class="macro">write!</span>(f, <span class="string">"An out-of-bounds index was passed to the backend"</span>),
+            Error::Opening =&gt; <span class="macro">write!</span>(f, <span class="string">"Multi-opening proof was invalid"</span>),
+            Error::Transcript(e) =&gt; <span class="macro">write!</span>(f, <span class="string">"Transcript error: {}"</span>, e),
             Error::NotEnoughRowsAvailable { current_k } =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;k = {} is too small for the given circuit. Try using a larger value of k&quot;</span>,
+                <span class="string">"k = {} is too small for the given circuit. Try using a larger value of k"</span>,
                 current_k,
             ),
-            Error::InstanceTooLarge =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Instance vectors are larger than the circuit&quot;</span>),
+            Error::InstanceTooLarge =&gt; <span class="macro">write!</span>(f, <span class="string">"Instance vectors are larger than the circuit"</span>),
             Error::NotEnoughColumnsForConstants =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;Too few fixed columns are enabled for global constants usage&quot;
+                    <span class="string">"Too few fixed columns are enabled for global constants usage"
                 </span>)
             }
             Error::ColumnNotInPermutation(column) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;Column {:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column&quot;</span>,
+                <span class="string">"Column {:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column"</span>,
                 column
             ),
-            Error::TableError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, error)
+            Error::TableError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, error)
         }
     }
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>Error {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Error::Transcript(e) =&gt; <span class="prelude-val">Some</span>(e),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -262,27 +262,27 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TableError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             TableError::ColumnNotAssigned(col) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;{:?} not fully assigned. Help: assign a value at offset 0.&quot;</span>,
+                    <span class="string">"{:?} not fully assigned. Help: assign a value at offset 0."</span>,
                     col
                 )
             }
             TableError::UnevenColumnLengths((col, col_len), (table, table_len)) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;{:?} has length {} while {:?} has length {}&quot;</span>,
+                <span class="string">"{:?} has length {} while {:?} has length {}"</span>,
                 col, col_len, table, table_len
             ),
             TableError::UsedColumn(col) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{:?} has already been used&quot;</span>, col)
+                <span class="macro">write!</span>(f, <span class="string">"{:?} has already been used"</span>, col)
             }
             TableError::OverwriteDefault(col, default, val) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;Attempted to overwrite default value {} with {} in {:?}&quot;</span>,
+                    <span class="string">"Attempted to overwrite default value {} with {} in {:?}"</span>,
                     default, val, col
                 )
             }

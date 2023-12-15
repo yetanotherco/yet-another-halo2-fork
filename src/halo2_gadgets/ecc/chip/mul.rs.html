@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul.rs`."><title>mul.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul.rs`."><title>mul.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -693,11 +693,11 @@
 
         <span class="macro">assert_eq!</span>(
             config.hi_config.double_and_add.x_p, config.lo_config.double_and_add.x_p,
-            <span class="string">&quot;x_p is shared across hi and lo halves.&quot;
+            <span class="string">"x_p is shared across hi and lo halves."
         </span>);
         <span class="macro">assert_eq!</span>(
             config.hi_config.y_p, config.lo_config.y_p,
-            <span class="string">&quot;y_p is shared across hi and lo halves.&quot;
+            <span class="string">"y_p is shared across hi and lo halves."
         </span>);
 
         <span class="comment">// For both hi_config and lo_config:
@@ -707,21 +707,21 @@
         {
             <span class="macro">assert!</span>(
                 !add_config_outputs.contains(<span class="kw-2">&amp;</span>config.hi_config.z),
-                <span class="string">&quot;incomplete config z cannot overlap with complete addition columns.&quot;
+                <span class="string">"incomplete config z cannot overlap with complete addition columns."
             </span>);
             <span class="macro">assert!</span>(
                 !add_config_outputs.contains(<span class="kw-2">&amp;</span>config.hi_config.double_and_add.lambda_1),
-                <span class="string">&quot;incomplete config lambda1 cannot overlap with complete addition columns.&quot;
+                <span class="string">"incomplete config lambda1 cannot overlap with complete addition columns."
             </span>);
         }
         {
             <span class="macro">assert!</span>(
                 !add_config_outputs.contains(<span class="kw-2">&amp;</span>config.lo_config.z),
-                <span class="string">&quot;incomplete config z cannot overlap with complete addition columns.&quot;
+                <span class="string">"incomplete config z cannot overlap with complete addition columns."
             </span>);
             <span class="macro">assert!</span>(
                 !add_config_outputs.contains(<span class="kw-2">&amp;</span>config.lo_config.double_and_add.lambda_1),
-                <span class="string">&quot;incomplete config lambda1 cannot overlap with complete addition columns.&quot;
+                <span class="string">"incomplete config lambda1 cannot overlap with complete addition columns."
             </span>);
         }
 
@@ -731,7 +731,7 @@
     <span class="kw">fn </span>create_gate(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;pallas::Base&gt;) {
         <span class="comment">// If `lsb` is 0, (x, y) = (x_p, -y_p). If `lsb` is 1, (x, y) = (0,0).
         // https://p.z.cash/halo2-0.1:ecc-var-mul-lsb-gate?partial
-        </span>meta.create_gate(<span class="string">&quot;LSB check&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"LSB check"</span>, |meta| {
             <span class="kw">let </span>q_mul_lsb = meta.query_selector(<span class="self">self</span>.q_mul_lsb);
 
             <span class="kw">let </span>z_1 = meta.query_advice(<span class="self">self</span>.complete_config.z_complete, Rotation::cur());
@@ -755,9 +755,9 @@
             Constraints::with_selector(
                 q_mul_lsb,
                 [
-                    (<span class="string">&quot;bool_check&quot;</span>, bool_check),
-                    (<span class="string">&quot;lsb_x&quot;</span>, lsb_x),
-                    (<span class="string">&quot;lsb_y&quot;</span>, lsb_y),
+                    (<span class="string">"bool_check"</span>, bool_check),
+                    (<span class="string">"lsb_x"</span>, lsb_x),
+                    (<span class="string">"lsb_y"</span>, lsb_y),
                 ],
             )
         });
@@ -770,7 +770,7 @@
         base: <span class="kw-2">&amp;</span>NonIdentityEccPoint,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(EccPoint, ScalarVar), Error&gt; {
         <span class="kw">let </span>(result, zs): (EccPoint, Vec&lt;Z&lt;pallas::Base&gt;&gt;) = layouter.assign_region(
-            || <span class="string">&quot;variable-base scalar mul&quot;</span>,
+            || <span class="string">"variable-base scalar mul"</span>,
             |<span class="kw-2">mut </span>region| {
                 <span class="kw">let </span>offset = <span class="number">0</span>;
 
@@ -800,7 +800,7 @@
                 // the same cell twice, and then applying an equality constraint between
                 // the cell and itself (which the permutation argument treats as a no-op).
                 </span><span class="kw">let </span>z_init = Z(region.assign_advice_from_constant(
-                    || <span class="string">&quot;z_init = 0&quot;</span>,
+                    || <span class="string">"z_init = 0"</span>,
                     <span class="self">self</span>.hi_config.z,
                     offset,
                     pallas::Base::zero(),
@@ -816,7 +816,7 @@
                 )<span class="question-mark">?</span>;
 
                 <span class="comment">// Double-and-add (incomplete addition) for the `lo` half of the scalar decomposition
-                </span><span class="kw">let </span>z = zs_incomplete_hi.last().expect(<span class="string">&quot;should not be empty&quot;</span>);
+                </span><span class="kw">let </span>z = zs_incomplete_hi.last().expect(<span class="string">"should not be empty"</span>);
                 <span class="kw">let </span>(x_a, y_a, zs_incomplete_lo) = <span class="self">self</span>.lo_config.double_and_add(
                     <span class="kw-2">&amp;mut </span>region,
                     offset,
@@ -836,7 +836,7 @@
 
                 <span class="comment">// Complete addition
                 </span><span class="kw">let </span>(acc, zs_complete) = {
-                    <span class="kw">let </span>z = zs_incomplete_lo.last().expect(<span class="string">&quot;should not be empty&quot;</span>);
+                    <span class="kw">let </span>z = zs_incomplete_lo.last().expect(<span class="string">"should not be empty"</span>);
                     <span class="comment">// Bits used in complete addition. k_{3} to k_{1} inclusive
                     // The LSB k_{0} is handled separately.
                     </span><span class="kw">let </span>bits_complete = <span class="kw-2">&amp;</span>bits[COMPLETE_RANGE];
@@ -895,7 +895,7 @@
         )<span class="question-mark">?</span>;
 
         <span class="self">self</span>.overflow_config.overflow_check(
-            layouter.namespace(|| <span class="string">&quot;overflow check&quot;</span>),
+            layouter.namespace(|| <span class="string">"overflow check"</span>),
             alpha.clone(),
             <span class="kw-2">&amp;</span>zs,
         )<span class="question-mark">?</span>;
@@ -922,7 +922,7 @@
     /// [Specification](https://p.z.cash/halo2-0.1:ecc-var-mul-lsb-gate?partial).
     </span><span class="kw">fn </span>process_lsb(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         base: <span class="kw-2">&amp;</span>NonIdentityEccPoint,
         acc: EccPoint,
@@ -940,7 +940,7 @@
                 z_1 * pallas::Base::from(<span class="number">2</span>) + lsb
             });
             <span class="kw">let </span>z_0_cell = region.assign_advice(
-                || <span class="string">&quot;z_0&quot;</span>,
+                || <span class="string">"z_0"</span>,
                 <span class="self">self</span>.complete_config.z_complete,
                 offset + <span class="number">1</span>,
                 || z_0_val,
@@ -951,9 +951,9 @@
 
         <span class="comment">// Copy in `base_x`, `base_y` to use in the LSB gate
         </span>base.x()
-            .copy_advice(|| <span class="string">&quot;copy base_x&quot;</span>, region, <span class="self">self</span>.add_config.x_p, offset + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"copy base_x"</span>, region, <span class="self">self</span>.add_config.x_p, offset + <span class="number">1</span>)<span class="question-mark">?</span>;
         base.y()
-            .copy_advice(|| <span class="string">&quot;copy base_y&quot;</span>, region, <span class="self">self</span>.add_config.y_p, offset + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"copy base_y"</span>, region, <span class="self">self</span>.add_config.y_p, offset + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// If `lsb` is 0, return `Acc + (-P)`. If `lsb` is 1, simply return `Acc + 0`.
         </span><span class="kw">let </span>x = lsb.and_then(|lsb| {
@@ -972,8 +972,8 @@
             }
         });
 
-        <span class="kw">let </span>x_cell = region.assign_advice(|| <span class="string">&quot;x&quot;</span>, <span class="self">self</span>.add_config.x_p, offset, || x)<span class="question-mark">?</span>;
-        <span class="kw">let </span>y_cell = region.assign_advice(|| <span class="string">&quot;y&quot;</span>, <span class="self">self</span>.add_config.y_p, offset, || y)<span class="question-mark">?</span>;
+        <span class="kw">let </span>x_cell = region.assign_advice(|| <span class="string">"x"</span>, <span class="self">self</span>.add_config.x_p, offset, || x)<span class="question-mark">?</span>;
+        <span class="kw">let </span>y_cell = region.assign_advice(|| <span class="string">"y"</span>, <span class="self">self</span>.add_config.y_p, offset, || y)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>p = EccPoint {
             x: x_cell,
@@ -1103,10 +1103,10 @@
             </span><span class="kw">let </span>scalar = pallas::Scalar::from_repr(scalar_val.to_repr()).unwrap();
             <span class="kw">let </span>expected = NonIdentityPoint::new(
                 chip,
-                layouter.namespace(|| <span class="string">&quot;expected point&quot;</span>),
+                layouter.namespace(|| <span class="string">"expected point"</span>),
                 Value::known((base_val * scalar).to_affine()),
             )<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;constrain result&quot;</span>), <span class="kw-2">&amp;</span>expected)
+            result.constrain_equal(layouter.namespace(|| <span class="string">"constrain result"</span>), <span class="kw-2">&amp;</span>expected)
         }
 
         <span class="comment">// [a]B
@@ -1114,20 +1114,20 @@
             <span class="kw">let </span>scalar_val = pallas::Base::random(OsRng);
             <span class="kw">let </span>(result, <span class="kw">_</span>) = {
                 <span class="kw">let </span>scalar = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;random scalar&quot;</span>),
+                    layouter.namespace(|| <span class="string">"random scalar"</span>),
                     column,
                     Value::known(scalar_val),
                 )<span class="question-mark">?</span>;
                 <span class="kw">let </span>scalar = ScalarVar::from_base(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;ScalarVar from_base&quot;</span>),
+                    layouter.namespace(|| <span class="string">"ScalarVar from_base"</span>),
                     <span class="kw-2">&amp;</span>scalar,
                 )<span class="question-mark">?</span>;
-                p.mul(layouter.namespace(|| <span class="string">&quot;random [a]B&quot;</span>), scalar)<span class="question-mark">?
+                p.mul(layouter.namespace(|| <span class="string">"random [a]B"</span>), scalar)<span class="question-mark">?
             </span>};
             constrain_equal_non_id(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;random [a]B&quot;</span>),
+                layouter.namespace(|| <span class="string">"random [a]B"</span>),
                 p_val,
                 scalar_val,
                 result,
@@ -1140,16 +1140,16 @@
             <span class="kw">let </span>scalar_val = pallas::Base::zero();
             <span class="kw">let </span>(result, <span class="kw">_</span>) = {
                 <span class="kw">let </span>scalar = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;zero&quot;</span>),
+                    layouter.namespace(|| <span class="string">"zero"</span>),
                     column,
                     Value::known(scalar_val),
                 )<span class="question-mark">?</span>;
                 <span class="kw">let </span>scalar = ScalarVar::from_base(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;ScalarVar from_base&quot;</span>),
+                    layouter.namespace(|| <span class="string">"ScalarVar from_base"</span>),
                     <span class="kw-2">&amp;</span>scalar,
                 )<span class="question-mark">?</span>;
-                p.mul(layouter.namespace(|| <span class="string">&quot;[0]B&quot;</span>), scalar)<span class="question-mark">?
+                p.mul(layouter.namespace(|| <span class="string">"[0]B"</span>), scalar)<span class="question-mark">?
             </span>};
             result
                 .inner()
@@ -1162,20 +1162,20 @@
             <span class="kw">let </span>scalar_val = -pallas::Base::one();
             <span class="kw">let </span>(result, <span class="kw">_</span>) = {
                 <span class="kw">let </span>scalar = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;-1&quot;</span>),
+                    layouter.namespace(|| <span class="string">"-1"</span>),
                     column,
                     Value::known(scalar_val),
                 )<span class="question-mark">?</span>;
                 <span class="kw">let </span>scalar = ScalarVar::from_base(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;ScalarVar from_base&quot;</span>),
+                    layouter.namespace(|| <span class="string">"ScalarVar from_base"</span>),
                     <span class="kw-2">&amp;</span>scalar,
                 )<span class="question-mark">?</span>;
-                p.mul(layouter.namespace(|| <span class="string">&quot;[-1]B&quot;</span>), scalar)<span class="question-mark">?
+                p.mul(layouter.namespace(|| <span class="string">"[-1]B"</span>), scalar)<span class="question-mark">?
             </span>};
             constrain_equal_non_id(
                 chip,
-                layouter.namespace(|| <span class="string">&quot;[-1]B&quot;</span>),
+                layouter.namespace(|| <span class="string">"[-1]B"</span>),
                 p_val,
                 scalar_val,
                 result,

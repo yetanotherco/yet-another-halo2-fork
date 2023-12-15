@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/poseidon/pow5.rs`."><title>pow5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/poseidon/pow5.rs`."><title>pow5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -954,7 +954,7 @@
     /// All columns in `state` will be equality-enabled.
     </span><span class="comment">//
     // TODO: Does the rate need to be hard-coded here, or only the width? It probably
-    // needs to be known wherever we implement the hashing gadget, but it isn&#39;t strictly
+    // needs to be known wherever we implement the hashing gadget, but it isn't strictly
     // necessary for the permutation.
     </span><span class="kw">pub fn </span>configure&lt;S: Spec&lt;F, WIDTH, RATE&gt;&gt;(
         meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;F&gt;,
@@ -975,7 +975,7 @@
         <span class="comment">// This allows state words to be initialized (by constraining them equal to fixed
         // values), and used in a permutation from an arbitrary region. rc_a is used in
         // every permutation round, while rc_b is empty in the initial and final full
-        // rounds, so we use rc_b as &quot;scratch space&quot; for fixed values (enabling potential
+        // rounds, so we use rc_b as "scratch space" for fixed values (enabling potential
         // layouter optimisations).
         </span><span class="kw">for </span>column <span class="kw">in </span>iter::empty()
             .chain(state.iter().cloned().map(Column::&lt;Any&gt;::from))
@@ -994,7 +994,7 @@
             v2.clone() * v2 * v
         };
 
-        meta.create_gate(<span class="string">&quot;full round&quot;</span>, |meta| {
+        meta.create_gate(<span class="string">"full round"</span>, |meta| {
             <span class="kw">let </span>s_full = meta.query_selector(s_full);
 
             Constraints::with_selector(
@@ -1009,14 +1009,14 @@
                                 pow_5(state_cur + rc_a) * m_reg[next_idx][idx]
                             })
                             .reduce(|acc, term| acc + term)
-                            .expect(<span class="string">&quot;WIDTH &gt; 0&quot;</span>);
+                            .expect(<span class="string">"WIDTH &gt; 0"</span>);
                         expr - state_next
                     })
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             )
         });
 
-        meta.create_gate(<span class="string">&quot;partial rounds&quot;</span>, |meta| {
+        meta.create_gate(<span class="string">"partial rounds"</span>, |meta| {
             <span class="kw">let </span>cur_0 = meta.query_advice(state[<span class="number">0</span>], Rotation::cur());
             <span class="kw">let </span>mid_0 = meta.query_advice(partial_sbox, Rotation::cur());
 
@@ -1042,7 +1042,7 @@
                         next * m_inv[idx][next_idx]
                     })
                     .reduce(|acc, next| acc + next)
-                    .expect(<span class="string">&quot;WIDTH &gt; 0&quot;</span>)
+                    .expect(<span class="string">"WIDTH &gt; 0"</span>)
             };
 
             <span class="kw">let </span>partial_round_linear = |idx: usize, meta: <span class="kw-2">&amp;mut </span>VirtualCells&lt;F&gt;| {
@@ -1062,7 +1062,7 @@
             )
         });
 
-        meta.create_gate(<span class="string">&quot;pad-and-add&quot;</span>, |meta| {
+        meta.create_gate(<span class="string">"pad-and-add"</span>, |meta| {
             <span class="kw">let </span>initial_state_rate = meta.query_advice(state[RATE], Rotation::prev());
             <span class="kw">let </span>output_state_rate = meta.query_advice(state[RATE], Rotation::next());
 
@@ -1137,7 +1137,7 @@
         <span class="kw">let </span>config = <span class="self">self</span>.config();
 
         layouter.assign_region(
-            || <span class="string">&quot;permute state&quot;</span>,
+            || <span class="string">"permute state"</span>,
             |<span class="kw-2">mut </span>region| {
                 <span class="comment">// Load the initial state into this region.
                 </span><span class="kw">let </span>state = Pow5State::load(<span class="kw-2">&amp;mut </span>region, config, initial_state)<span class="question-mark">?</span>;
@@ -1183,12 +1183,12 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;State&lt;<span class="self">Self</span>::Word, WIDTH&gt;, Error&gt; {
         <span class="kw">let </span>config = <span class="self">self</span>.config();
         <span class="kw">let </span>state = layouter.assign_region(
-            || <span class="macro">format!</span>(<span class="string">&quot;initial state for domain {}&quot;</span>, D::name()),
+            || <span class="macro">format!</span>(<span class="string">"initial state for domain {}"</span>, D::name()),
             |<span class="kw-2">mut </span>region| {
                 <span class="kw">let </span><span class="kw-2">mut </span>state = Vec::with_capacity(WIDTH);
                 <span class="kw">let </span><span class="kw-2">mut </span>load_state_word = |i: usize, value: F| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, Error&gt; {
                     <span class="kw">let </span>var = region.assign_advice_from_constant(
-                        || <span class="macro">format!</span>(<span class="string">&quot;state_{}&quot;</span>, i),
+                        || <span class="macro">format!</span>(<span class="string">"state_{}"</span>, i),
                         config.state[i],
                         <span class="number">0</span>,
                         value,
@@ -1218,7 +1218,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;State&lt;<span class="self">Self</span>::Word, WIDTH&gt;, Error&gt; {
         <span class="kw">let </span>config = <span class="self">self</span>.config();
         layouter.assign_region(
-            || <span class="macro">format!</span>(<span class="string">&quot;add input for domain {}&quot;</span>, D::name()),
+            || <span class="macro">format!</span>(<span class="string">"add input for domain {}"</span>, D::name()),
             |<span class="kw-2">mut </span>region| {
                 config.s_pad_and_add.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">1</span>)<span class="question-mark">?</span>;
 
@@ -1227,7 +1227,7 @@
                     initial_state[i]
                         .<span class="number">0
                         </span>.copy_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load state_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load state_{}"</span>, i),
                             <span class="kw-2">&amp;mut </span>region,
                             config.state[i],
                             <span class="number">0</span>,
@@ -1243,16 +1243,16 @@
                     <span class="kw">let </span>constraint_var = <span class="kw">match </span>input.<span class="number">0</span>[i].clone() {
                         <span class="prelude-val">Some</span>(PaddedWord::Message(word)) =&gt; word,
                         <span class="prelude-val">Some</span>(PaddedWord::Padding(padding_value)) =&gt; region.assign_fixed(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load pad_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load pad_{}"</span>, i),
                             config.rc_b[i],
                             <span class="number">1</span>,
                             || Value::known(padding_value),
                         )<span class="question-mark">?</span>,
-                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Input is not padded&quot;</span>),
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Input is not padded"</span>),
                     };
                     constraint_var
                         .copy_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load input_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load input_{}"</span>, i),
                             <span class="kw-2">&amp;mut </span>region,
                             config.state[i],
                             <span class="number">1</span>,
@@ -1272,7 +1272,7 @@
                             </span>.unwrap_or_else(|| Value::known(F::ZERO));
                     region
                         .assign_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load output_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load output_{}"</span>, i),
                             config.state[i],
                             <span class="number">2</span>,
                             || value,
@@ -1376,7 +1376,7 @@
             });
 
             region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;round_{} partial_sbox&quot;</span>, round),
+                || <span class="macro">format!</span>(<span class="string">"round_{} partial_sbox"</span>, round),
                 config.partial_sbox,
                 offset,
                 || r.as_ref().map(|r| r[<span class="number">0</span>]),
@@ -1396,7 +1396,7 @@
             <span class="comment">// Load the second round constants.
             </span><span class="kw">let </span><span class="kw-2">mut </span>load_round_constant = |i: usize| {
                 region.assign_fixed(
-                    || <span class="macro">format!</span>(<span class="string">&quot;round_{} rc_{}&quot;</span>, round + <span class="number">1</span>, i),
+                    || <span class="macro">format!</span>(<span class="string">"round_{} rc_{}"</span>, round + <span class="number">1</span>, i),
                     config.rc_b[i],
                     offset,
                     || Value::known(config.round_constants[round + <span class="number">1</span>][i]),
@@ -1438,7 +1438,7 @@
         <span class="kw">let </span>load_state_word = |i: usize| {
             initial_state[i]
                 .<span class="number">0
-                </span>.copy_advice(|| <span class="macro">format!</span>(<span class="string">&quot;load state_{}&quot;</span>, i), region, config.state[i], <span class="number">0</span>)
+                </span>.copy_advice(|| <span class="macro">format!</span>(<span class="string">"load state_{}"</span>, i), region, config.state[i], <span class="number">0</span>)
                 .map(StateWord)
         };
 
@@ -1460,7 +1460,7 @@
         <span class="comment">// Load the round constants.
         </span><span class="kw">let </span><span class="kw-2">mut </span>load_round_constant = |i: usize| {
             region.assign_fixed(
-                || <span class="macro">format!</span>(<span class="string">&quot;round_{} rc_{}&quot;</span>, round, i),
+                || <span class="macro">format!</span>(<span class="string">"round_{} rc_{}"</span>, round, i),
                 config.rc_a[i],
                 offset,
                 || Value::known(config.round_constants[round][i]),
@@ -1470,13 +1470,13 @@
             load_round_constant(i)<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Compute the next round&#39;s state.
+        <span class="comment">// Compute the next round's state.
         </span><span class="kw">let </span>(next_round, next_state) = round_fn(region)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>next_state_word = |i: usize| {
             <span class="kw">let </span>value = next_state[i];
             <span class="kw">let </span>var = region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;round_{} state_{}&quot;</span>, next_round, i),
+                || <span class="macro">format!</span>(<span class="string">"round_{} state_{}"</span>, next_round, i),
                 config.state[i],
                 offset + <span class="number">1</span>,
                 || value,
@@ -1517,7 +1517,7 @@
     {
         <span class="kw">type </span>Config = Pow5Config&lt;Fp, WIDTH, RATE&gt;;
         <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
         </span><span class="kw">type </span>Params = ();
 
         <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1546,12 +1546,12 @@
             <span class="kw-2">mut </span>layouter: <span class="kw">impl </span>Layouter&lt;Fp&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
             <span class="kw">let </span>initial_state = layouter.assign_region(
-                || <span class="string">&quot;prepare initial state&quot;</span>,
+                || <span class="string">"prepare initial state"</span>,
                 |<span class="kw-2">mut </span>region| {
                     <span class="kw">let </span>state_word = |i: usize| {
                         <span class="kw">let </span>value = Value::known(Fp::from(i <span class="kw">as </span>u64));
                         <span class="kw">let </span>var = region.assign_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load state_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load state_{}"</span>, i),
                             config.state[i],
                             <span class="number">0</span>,
                             || value,
@@ -1586,11 +1586,11 @@
             );
 
             layouter.assign_region(
-                || <span class="string">&quot;constrain final state&quot;</span>,
+                || <span class="string">"constrain final state"</span>,
                 |<span class="kw-2">mut </span>region| {
                     <span class="kw">let </span><span class="kw-2">mut </span>final_state_word = |i: usize| {
                         <span class="kw">let </span>var = region.assign_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load final_state_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load final_state_{}"</span>, i),
                             config.state[i],
                             <span class="number">0</span>,
                             || Value::known(expected_final_state[i]),
@@ -1634,7 +1634,7 @@
     {
         <span class="kw">type </span>Config = Pow5Config&lt;Fp, WIDTH, RATE&gt;;
         <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
         </span><span class="kw">type </span>Params = ();
 
         <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1671,12 +1671,12 @@
             <span class="kw">let </span>chip = Pow5Chip::construct(config.clone());
 
             <span class="kw">let </span>message = layouter.assign_region(
-                || <span class="string">&quot;load message&quot;</span>,
+                || <span class="string">"load message"</span>,
                 |<span class="kw-2">mut </span>region| {
                     <span class="kw">let </span>message_word = |i: usize| {
                         <span class="kw">let </span>value = <span class="self">self</span>.message.map(|message_vals| message_vals[i]);
                         region.assign_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;load message_{}&quot;</span>, i),
+                            || <span class="macro">format!</span>(<span class="string">"load message_{}"</span>, i),
                             config.state[i],
                             <span class="number">0</span>,
                             || value,
@@ -1690,15 +1690,15 @@
 
             <span class="kw">let </span>hasher = Hash::&lt;<span class="kw">_</span>, <span class="kw">_</span>, S, ConstantLength&lt;L&gt;, WIDTH, RATE&gt;::init(
                 chip,
-                layouter.namespace(|| <span class="string">&quot;init&quot;</span>),
+                layouter.namespace(|| <span class="string">"init"</span>),
             )<span class="question-mark">?</span>;
-            <span class="kw">let </span>output = hasher.hash(layouter.namespace(|| <span class="string">&quot;hash&quot;</span>), message)<span class="question-mark">?</span>;
+            <span class="kw">let </span>output = hasher.hash(layouter.namespace(|| <span class="string">"hash"</span>), message)<span class="question-mark">?</span>;
 
             layouter.assign_region(
-                || <span class="string">&quot;constrain output&quot;</span>,
+                || <span class="string">"constrain output"</span>,
                 |<span class="kw-2">mut </span>region| {
                     <span class="kw">let </span>expected_var = region.assign_advice(
-                        || <span class="string">&quot;load output&quot;</span>,
+                        || <span class="string">"load output"</span>,
                         config.state[<span class="number">0</span>],
                         <span class="number">0</span>,
                         || <span class="self">self</span>.output,
@@ -1766,15 +1766,15 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;test-dev-graph&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"test-dev-graph"</span>)]
     #[test]
     </span><span class="kw">fn </span>print_poseidon_chip() {
         <span class="kw">use </span>plotters::prelude::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span>root = BitMapBackend::new(<span class="string">&quot;poseidon-chip-layout.png&quot;</span>, (<span class="number">1024</span>, <span class="number">768</span>)).into_drawing_area();
+        <span class="kw">let </span>root = BitMapBackend::new(<span class="string">"poseidon-chip-layout.png"</span>, (<span class="number">1024</span>, <span class="number">768</span>)).into_drawing_area();
         root.fill(<span class="kw-2">&amp;</span>WHITE).unwrap();
         <span class="kw">let </span>root = root
-            .titled(<span class="string">&quot;Poseidon Chip Layout&quot;</span>, (<span class="string">&quot;sans-serif&quot;</span>, <span class="number">60</span>))
+            .titled(<span class="string">"Poseidon Chip Layout"</span>, (<span class="string">"sans-serif"</span>, <span class="number">60</span>))
             .unwrap();
 
         <span class="kw">let </span>circuit = HashCircuit::&lt;OrchardNullifier, <span class="number">3</span>, <span class="number">2</span>, <span class="number">2</span>&gt; {

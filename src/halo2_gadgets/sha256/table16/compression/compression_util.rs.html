@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression/compression_util.rs`."><title>compression_util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression/compression_util.rs`."><title>compression_util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -1018,7 +1018,7 @@
 <span class="kw">use </span>halo2curves::pasta::pallas;
 <span class="kw">use </span>std::convert::TryInto;
 
-<span class="comment">// Test vector &#39;abc&#39;
+<span class="comment">// Test vector 'abc'
 </span><span class="attr">#[cfg(test)]
 </span><span class="kw">pub const </span>COMPRESSION_OUTPUT: [u32; <span class="number">8</span>] = [
     <span class="number">0b10111010011110000001011010111111</span>,
@@ -1207,7 +1207,7 @@
 <span class="kw">impl </span>CompressionConfig {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>decompose_abcd(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         row: usize,
         val: Value&lt;u32&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;AbcdVar, Error&gt; {
@@ -1278,7 +1278,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>decompose_efgh(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         row: usize,
         val: Value&lt;u32&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;EfghVar, Error&gt; {
@@ -1349,7 +1349,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>decompose_a(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: RoundIdx,
         a_val: Value&lt;u32&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RoundWordA, Error&gt; {
@@ -1362,7 +1362,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>decompose_e(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: RoundIdx,
         e_val: Value&lt;u32&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RoundWordE, Error&gt; {
@@ -1375,7 +1375,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_upper_sigma_0(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         word: AbcdVar,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;), Error&gt; {
@@ -1391,23 +1391,23 @@
         <span class="comment">// Assign `spread_a` and copy constraint
         </span>word.a
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_a&quot;</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_a"</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_b` and copy constraint
-        </span>word.b.spread.copy_advice(|| <span class="string">&quot;spread_b&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+        </span>word.b.spread.copy_advice(|| <span class="string">"spread_b"</span>, region, a_5, row)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_c_lo` and copy constraint
         </span>word.c_lo
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_c_lo&quot;</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_c_lo"</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_c_mid` and copy constraint
         </span>word.c_mid
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_c_mid&quot;</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_c_mid"</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_c_hi` and copy constraint
         </span>word.c_hi
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_c_hi&quot;</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_c_hi"</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_d` and copy constraint
-        </span>word.d.spread.copy_advice(|| <span class="string">&quot;spread_d&quot;</span>, region, a_4, row)<span class="question-mark">?</span>;
+        </span>word.d.spread.copy_advice(|| <span class="string">"spread_d"</span>, region, a_4, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate R_0^{even}, R_0^{odd}, R_1^{even}, R_1^{odd}
         </span><span class="kw">let </span>r = word.xor_upper_sigma();
@@ -1433,7 +1433,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_upper_sigma_1(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         word: EfghVar,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;), Error&gt; {
@@ -1449,23 +1449,23 @@
         <span class="comment">// Assign `spread_a_lo` and copy constraint
         </span>word.a_lo
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_a_lo&quot;</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_a_lo"</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_a_hi` and copy constraint
         </span>word.a_hi
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_a_hi&quot;</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_a_hi"</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_b_lo` and copy constraint
         </span>word.b_lo
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_b_lo&quot;</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_b_lo"</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_b_hi` and copy constraint
         </span>word.b_hi
             .spread
-            .copy_advice(|| <span class="string">&quot;spread_b_hi&quot;</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"spread_b_hi"</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_c` and copy constraint
-        </span>word.c.spread.copy_advice(|| <span class="string">&quot;spread_c&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+        </span>word.c.spread.copy_advice(|| <span class="string">"spread_c"</span>, region, a_5, row)<span class="question-mark">?</span>;
         <span class="comment">// Assign `spread_d` and copy constraint
-        </span>word.d.spread.copy_advice(|| <span class="string">&quot;spread_d&quot;</span>, region, a_4, row)<span class="question-mark">?</span>;
+        </span>word.d.spread.copy_advice(|| <span class="string">"spread_d"</span>, region, a_4, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate R_0^{even}, R_0^{odd}, R_1^{even}, R_1^{odd}
         // Calculate R_0^{even}, R_0^{odd}, R_1^{even}, R_1^{odd}
@@ -1492,7 +1492,7 @@
 
     <span class="kw">fn </span>assign_ch_outputs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         row: usize,
         r_0_even: Value&lt;[bool; <span class="number">16</span>]&gt;,
         r_0_odd: Value&lt;[bool; <span class="number">16</span>]&gt;,
@@ -1517,7 +1517,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_ch(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         spread_halves_e: RoundWordSpread,
         spread_halves_f: RoundWordSpread,
@@ -1532,18 +1532,18 @@
         <span class="comment">// Assign and copy spread_e_lo, spread_e_hi
         </span>spread_halves_e
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_e_lo&quot;</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_e_lo"</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_e
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_e_hi&quot;</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_e_hi"</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy spread_f_lo, spread_f_hi
         </span>spread_halves_f
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_f_lo&quot;</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_f_lo"</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_f
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_f_hi&quot;</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_f_hi"</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>p: Value&lt;[bool; <span class="number">64</span>]&gt; = spread_halves_e
             .value()
@@ -1563,7 +1563,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_ch_neg(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         spread_halves_e: RoundWordSpread,
         spread_halves_g: RoundWordSpread,
@@ -1579,18 +1579,18 @@
         <span class="comment">// Assign and copy spread_e_lo, spread_e_hi
         </span>spread_halves_e
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_e_lo&quot;</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_e_lo"</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_e
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_e_hi&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_e_hi"</span>, region, a_5, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy spread_g_lo, spread_g_hi
         </span>spread_halves_g
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_g_lo&quot;</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_g_lo"</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_g
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_g_hi&quot;</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_g_hi"</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate neg_e_lo
         </span><span class="kw">let </span>spread_neg_e_lo = spread_halves_e
@@ -1600,7 +1600,7 @@
         <span class="comment">// Assign spread_neg_e_lo
         </span>AssignedBits::&lt;<span class="number">32</span>&gt;::assign_bits(
             region,
-            || <span class="string">&quot;spread_neg_e_lo&quot;</span>,
+            || <span class="string">"spread_neg_e_lo"</span>,
             a_3,
             row - <span class="number">1</span>,
             spread_neg_e_lo,
@@ -1614,7 +1614,7 @@
         <span class="comment">// Assign spread_neg_e_hi
         </span>AssignedBits::&lt;<span class="number">32</span>&gt;::assign_bits(
             region,
-            || <span class="string">&quot;spread_neg_e_hi&quot;</span>,
+            || <span class="string">"spread_neg_e_hi"</span>,
             a_4,
             row - <span class="number">1</span>,
             spread_neg_e_hi,
@@ -1642,7 +1642,7 @@
 
     <span class="kw">fn </span>assign_maj_outputs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         row: usize,
         r_0_even: Value&lt;[bool; <span class="number">16</span>]&gt;,
         r_0_odd: Value&lt;[bool; <span class="number">16</span>]&gt;,
@@ -1666,7 +1666,7 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_maj(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         spread_halves_a: RoundWordSpread,
         spread_halves_b: RoundWordSpread,
@@ -1682,26 +1682,26 @@
         <span class="comment">// Assign and copy spread_a_lo, spread_a_hi
         </span>spread_halves_a
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_a_lo&quot;</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_a_lo"</span>, region, a_4, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_a
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_a_hi&quot;</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_a_hi"</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy spread_b_lo, spread_b_hi
         </span>spread_halves_b
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_b_lo&quot;</span>, region, a_4, row)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_b_lo"</span>, region, a_4, row)<span class="question-mark">?</span>;
         spread_halves_b
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_b_hi&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_b_hi"</span>, region, a_5, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy spread_c_lo, spread_c_hi
         </span>spread_halves_c
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;spread_c_lo&quot;</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_c_lo"</span>, region, a_4, row + <span class="number">1</span>)<span class="question-mark">?</span>;
         spread_halves_c
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;spread_c_hi&quot;</span>, region, a_5, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"spread_c_hi"</span>, region, a_5, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>m: Value&lt;[bool; <span class="number">64</span>]&gt; = spread_halves_a
             .value()
@@ -1720,11 +1720,11 @@
         <span class="self">self</span>.assign_maj_outputs(region, row, m_0_even, m_0_odd, m_1_even, m_1_odd)
     }
 
-    <span class="comment">// s_h_prime to get H&#39; = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
+    <span class="comment">// s_h_prime to get H' = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_h_prime(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         h: RoundWordDense,
         ch: (AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;),
@@ -1744,32 +1744,32 @@
         <span class="kw">let </span>a_9 = <span class="self">self</span>.extras[<span class="number">5</span>];
 
         <span class="comment">// Assign and copy h
-        </span>h.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;h_lo&quot;</span>, region, a_7, row - <span class="number">1</span>)<span class="question-mark">?</span>;
-        h.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;h_hi&quot;</span>, region, a_7, row)<span class="question-mark">?</span>;
+        </span>h.<span class="number">0</span>.copy_advice(|| <span class="string">"h_lo"</span>, region, a_7, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+        h.<span class="number">1</span>.copy_advice(|| <span class="string">"h_hi"</span>, region, a_7, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy sigma_1
-        </span>sigma_1.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;sigma_1_lo&quot;</span>, region, a_4, row)<span class="question-mark">?</span>;
-        sigma_1.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;sigma_1_hi&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+        </span>sigma_1.<span class="number">0</span>.copy_advice(|| <span class="string">"sigma_1_lo"</span>, region, a_4, row)<span class="question-mark">?</span>;
+        sigma_1.<span class="number">1</span>.copy_advice(|| <span class="string">"sigma_1_hi"</span>, region, a_5, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign k
         </span><span class="kw">let </span>k: [bool; <span class="number">32</span>] = i2lebsp(k.into());
         <span class="kw">let </span>k_lo: [bool; <span class="number">16</span>] = k[..<span class="number">16</span>].try_into().unwrap();
         <span class="kw">let </span>k_hi: [bool; <span class="number">16</span>] = k[<span class="number">16</span>..].try_into().unwrap();
         {
-            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;k_lo&quot;</span>, a_6, row - <span class="number">1</span>, Value::known(k_lo))<span class="question-mark">?</span>;
-            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;k_hi&quot;</span>, a_6, row, Value::known(k_hi))<span class="question-mark">?</span>;
+            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"k_lo"</span>, a_6, row - <span class="number">1</span>, Value::known(k_lo))<span class="question-mark">?</span>;
+            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"k_hi"</span>, a_6, row, Value::known(k_hi))<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Assign and copy w
-        </span>w.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;w_lo&quot;</span>, region, a_8, row - <span class="number">1</span>)<span class="question-mark">?</span>;
-        w.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;w_hi&quot;</span>, region, a_8, row)<span class="question-mark">?</span>;
+        </span>w.<span class="number">0</span>.copy_advice(|| <span class="string">"w_lo"</span>, region, a_8, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+        w.<span class="number">1</span>.copy_advice(|| <span class="string">"w_hi"</span>, region, a_8, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy ch
-        </span>ch.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;ch_neg_hi&quot;</span>, region, a_6, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+        </span>ch.<span class="number">1</span>.copy_advice(|| <span class="string">"ch_neg_hi"</span>, region, a_6, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy ch_neg
-        </span>ch_neg.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;ch_neg_lo&quot;</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
-        ch_neg.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;ch_neg_hi&quot;</span>, region, a_5, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+        </span>ch_neg.<span class="number">0</span>.copy_advice(|| <span class="string">"ch_neg_lo"</span>, region, a_5, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+        ch_neg.<span class="number">1</span>.copy_advice(|| <span class="string">"ch_neg_hi"</span>, region, a_5, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign h_prime_lo, h_prime_hi, h_prime_carry
         </span>{
@@ -1786,7 +1786,7 @@
             ]);
 
             region.assign_advice(
-                || <span class="string">&quot;h_prime_carry&quot;</span>,
+                || <span class="string">"h_prime_carry"</span>,
                 a_9,
                 row + <span class="number">1</span>,
                 || h_prime_carry.map(pallas::Base::from),
@@ -1797,18 +1797,18 @@
             <span class="kw">let </span>h_prime_hi: Value&lt;[bool; <span class="number">16</span>]&gt; = h_prime.map(|w| w[<span class="number">16</span>..].try_into().unwrap());
 
             <span class="kw">let </span>h_prime_lo =
-                AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;h_prime_lo&quot;</span>, a_7, row + <span class="number">1</span>, h_prime_lo)<span class="question-mark">?</span>;
+                AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"h_prime_lo"</span>, a_7, row + <span class="number">1</span>, h_prime_lo)<span class="question-mark">?</span>;
             <span class="kw">let </span>h_prime_hi =
-                AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;h_prime_hi&quot;</span>, a_8, row + <span class="number">1</span>, h_prime_hi)<span class="question-mark">?</span>;
+                AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"h_prime_hi"</span>, a_8, row + <span class="number">1</span>, h_prime_hi)<span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>((h_prime_lo, h_prime_hi).into())
         }
     }
 
-    <span class="comment">// s_e_new to get E_new = H&#39; + D
+    <span class="comment">// s_e_new to get E_new = H' + D
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_e_new(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         d: <span class="kw-2">&amp;</span>RoundWordDense,
         h_prime: <span class="kw-2">&amp;</span>RoundWordDense,
@@ -1822,8 +1822,8 @@
         <span class="kw">let </span>a_9 = <span class="self">self</span>.extras[<span class="number">5</span>];
 
         <span class="comment">// Assign and copy d_lo, d_hi
-        </span>d.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;d_lo&quot;</span>, region, a_7, row)<span class="question-mark">?</span>;
-        d.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;d_hi&quot;</span>, region, a_7, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+        </span>d.<span class="number">0</span>.copy_advice(|| <span class="string">"d_lo"</span>, region, a_7, row)<span class="question-mark">?</span>;
+        d.<span class="number">1</span>.copy_advice(|| <span class="string">"d_hi"</span>, region, a_7, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign e_new, e_new_carry
         </span><span class="kw">let </span>(e_new, e_new_carry) = sum_with_carry(<span class="macro">vec!</span>[
@@ -1833,7 +1833,7 @@
 
         <span class="kw">let </span>e_new_dense = <span class="self">self</span>.assign_word_halves_dense(region, row, a_8, row + <span class="number">1</span>, a_8, e_new)<span class="question-mark">?</span>;
         region.assign_advice(
-            || <span class="string">&quot;e_new_carry&quot;</span>,
+            || <span class="string">"e_new_carry"</span>,
             a_9,
             row + <span class="number">1</span>,
             || e_new_carry.map(pallas::Base::from),
@@ -1842,10 +1842,10 @@
         <span class="prelude-val">Ok</span>(e_new_dense)
     }
 
-    <span class="comment">// s_a_new to get A_new = H&#39; + Maj(A, B, C) + s_upper_sigma_0(A)
+    <span class="comment">// s_a_new to get A_new = H' + Maj(A, B, C) + s_upper_sigma_0(A)
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>assign_a_new(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         round_idx: MainRoundIdx,
         maj: (AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;),
         sigma_0: (AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;),
@@ -1862,21 +1862,21 @@
         <span class="kw">let </span>a_9 = <span class="self">self</span>.extras[<span class="number">5</span>];
 
         <span class="comment">// Assign and copy maj_1
-        </span>maj.<span class="number">1</span>.copy_advice(|| <span class="string">&quot;maj_1_hi&quot;</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+        </span>maj.<span class="number">1</span>.copy_advice(|| <span class="string">"maj_1_hi"</span>, region, a_3, row - <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy sigma_0
-        </span>sigma_0.<span class="number">0</span>.copy_advice(|| <span class="string">&quot;sigma_0_lo&quot;</span>, region, a_6, row)<span class="question-mark">?</span>;
+        </span>sigma_0.<span class="number">0</span>.copy_advice(|| <span class="string">"sigma_0_lo"</span>, region, a_6, row)<span class="question-mark">?</span>;
         sigma_0
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;sigma_0_hi&quot;</span>, region, a_6, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"sigma_0_hi"</span>, region, a_6, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign and copy h_prime
         </span>h_prime
             .<span class="number">0
-            </span>.copy_advice(|| <span class="string">&quot;h_prime_lo&quot;</span>, region, a_7, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"h_prime_lo"</span>, region, a_7, row - <span class="number">1</span>)<span class="question-mark">?</span>;
         h_prime
             .<span class="number">1
-            </span>.copy_advice(|| <span class="string">&quot;h_prime_hi&quot;</span>, region, a_8, row - <span class="number">1</span>)<span class="question-mark">?</span>;
+            </span>.copy_advice(|| <span class="string">"h_prime_hi"</span>, region, a_8, row - <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign a_new, a_new_carry
         </span><span class="kw">let </span>(a_new, a_new_carry) = sum_with_carry(<span class="macro">vec!</span>[
@@ -1887,7 +1887,7 @@
 
         <span class="kw">let </span>a_new_dense = <span class="self">self</span>.assign_word_halves_dense(region, row, a_8, row + <span class="number">1</span>, a_8, a_new)<span class="question-mark">?</span>;
         region.assign_advice(
-            || <span class="string">&quot;a_new_carry&quot;</span>,
+            || <span class="string">"a_new_carry"</span>,
             a_9,
             row,
             || a_new_carry.map(pallas::Base::from),
@@ -1898,7 +1898,7 @@
 
     <span class="kw">pub fn </span>assign_word_halves_dense(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         lo_row: usize,
         lo_col: Column&lt;Advice&gt;,
         hi_row: usize,
@@ -1909,12 +1909,12 @@
 
         <span class="kw">let </span>lo = {
             <span class="kw">let </span>lo: Value&lt;[bool; <span class="number">16</span>]&gt; = word.map(|w| w[..<span class="number">16</span>].try_into().unwrap());
-            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;lo&quot;</span>, lo_col, lo_row, lo)<span class="question-mark">?
+            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"lo"</span>, lo_col, lo_row, lo)<span class="question-mark">?
         </span>};
 
         <span class="kw">let </span>hi = {
             <span class="kw">let </span>hi: Value&lt;[bool; <span class="number">16</span>]&gt; = word.map(|w| w[<span class="number">16</span>..].try_into().unwrap());
-            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">&quot;hi&quot;</span>, hi_col, hi_row, hi)<span class="question-mark">?
+            AssignedBits::&lt;<span class="number">16</span>&gt;::assign_bits(region, || <span class="string">"hi"</span>, hi_col, hi_row, hi)<span class="question-mark">?
         </span>};
 
         <span class="prelude-val">Ok</span>((lo, hi).into())
@@ -1924,7 +1924,7 @@
     </span><span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">pub fn </span>assign_word_halves(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         row: usize,
         word: Value&lt;u32&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(RoundWordDense, RoundWordSpread), Error&gt; {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla.rs`."><title>sinsemilla.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla.rs`."><title>sinsemilla.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -900,7 +900,7 @@
                 |(i, piece)| -&gt; <span class="prelude-ty">Result</span>&lt;MessagePiece&lt;C, SinsemillaChip, K, MAX_WORDS&gt;, Error&gt; {
                     MessagePiece::from_bitstring(
                         chip.clone(),
-                        layouter.namespace(|| <span class="macro">format!</span>(<span class="string">&quot;message piece {}&quot;</span>, i)),
+                        layouter.namespace(|| <span class="macro">format!</span>(<span class="string">"message piece {}"</span>, i)),
                         piece,
                     )
                 },
@@ -1112,7 +1112,7 @@
     }
 }
 
-<span class="doccomment">/// Trait allowing circuit&#39;s Sinsemilla CommitDomains to be enumerated.
+<span class="doccomment">/// Trait allowing circuit's Sinsemilla CommitDomains to be enumerated.
 </span><span class="kw">pub trait </span>CommitDomains&lt;C: CurveAffine, F: FixedPoints&lt;C&gt;, H: HashDomains&lt;C&gt;&gt;:
     Clone + Debug
 {
@@ -1124,7 +1124,7 @@
     </span><span class="kw">fn </span>hash_domain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; H;
 }
 
-<span class="doccomment">/// Trait allowing circuit&#39;s Sinsemilla HashDomains to be enumerated.
+<span class="doccomment">/// Trait allowing circuit's Sinsemilla HashDomains to be enumerated.
 </span><span class="attr">#[allow(non_snake_case)]
 </span><span class="kw">pub trait </span>HashDomains&lt;C: CurveAffine&gt;: Clone + Debug {
     <span class="doccomment">/// Returns the `Q` constant for this domain.
@@ -1197,9 +1197,9 @@
         Error,
     &gt; {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.M.sinsemilla_chip, message.chip);
-        <span class="kw">let </span>(blind, <span class="kw">_</span>) = <span class="self">self</span>.R.mul(layouter.namespace(|| <span class="string">&quot;[r] R&quot;</span>), r)<span class="question-mark">?</span>;
-        <span class="kw">let </span>(p, zs) = <span class="self">self</span>.M.hash_to_point(layouter.namespace(|| <span class="string">&quot;M&quot;</span>), message)<span class="question-mark">?</span>;
-        <span class="kw">let </span>commitment = p.add(layouter.namespace(|| <span class="string">&quot;M + [r] R&quot;</span>), <span class="kw-2">&amp;</span>blind)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(blind, <span class="kw">_</span>) = <span class="self">self</span>.R.mul(layouter.namespace(|| <span class="string">"[r] R"</span>), r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(p, zs) = <span class="self">self</span>.M.hash_to_point(layouter.namespace(|| <span class="string">"M"</span>), message)<span class="question-mark">?</span>;
+        <span class="kw">let </span>commitment = p.add(layouter.namespace(|| <span class="string">"M + [r] R"</span>), <span class="kw-2">&amp;</span>blind)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((commitment, zs))
     }
 
@@ -1214,7 +1214,7 @@
         r: ecc::ScalarFixed&lt;C, EccChip&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(ecc::X&lt;C, EccChip&gt;, Vec&lt;SinsemillaChip::RunningSum&gt;), Error&gt; {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.M.sinsemilla_chip, message.chip);
-        <span class="kw">let </span>(p, zs) = <span class="self">self</span>.commit(layouter.namespace(|| <span class="string">&quot;commit&quot;</span>), message, r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(p, zs) = <span class="self">self</span>.commit(layouter.namespace(|| <span class="string">"commit"</span>), message, r)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((p.extract_p(), zs))
     }
 }
@@ -1252,7 +1252,7 @@
 
     <span class="kw">use </span>std::convert::TryInto;
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PERSONALIZATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;MerkleCRH&quot;</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>PERSONALIZATION: <span class="kw-2">&amp;</span>str = <span class="string">"MerkleCRH"</span>;
 
     <span class="macro">lazy_static! </span>{
         <span class="kw">static </span><span class="kw-2">ref </span>COMMIT_DOMAIN: sinsemilla::CommitDomain =
@@ -1295,7 +1295,7 @@
             SinsemillaConfig&lt;TestHashDomain, TestCommitDomain, TestFixedBases&gt;,
         );
         <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
         </span><span class="kw">type </span>Params = ();
 
         <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1390,7 +1390,7 @@
                 </span><span class="kw">let </span>l_bitstring = <span class="macro">vec!</span>[Value::known(<span class="bool-val">false</span>); K];
                 <span class="kw">let </span>l = MessagePiece::from_bitstring(
                     chip1.clone(),
-                    layouter.namespace(|| <span class="string">&quot;l&quot;</span>),
+                    layouter.namespace(|| <span class="string">"l"</span>),
                     <span class="kw-2">&amp;</span>l_bitstring,
                 )<span class="question-mark">?</span>;
 
@@ -1400,7 +1400,7 @@
                     .collect();
                 <span class="kw">let </span>left = MessagePiece::from_bitstring(
                     chip1.clone(),
-                    layouter.namespace(|| <span class="string">&quot;left&quot;</span>),
+                    layouter.namespace(|| <span class="string">"left"</span>),
                     <span class="kw-2">&amp;</span>left_bitstring,
                 )<span class="question-mark">?</span>;
 
@@ -1410,7 +1410,7 @@
                     .collect();
                 <span class="kw">let </span>right = MessagePiece::from_bitstring(
                     chip1.clone(),
-                    layouter.namespace(|| <span class="string">&quot;right&quot;</span>),
+                    layouter.namespace(|| <span class="string">"right"</span>),
                     <span class="kw-2">&amp;</span>right_bitstring,
                 )<span class="question-mark">?</span>;
 
@@ -1432,7 +1432,7 @@
 
                     NonIdentityPoint::new(
                         ecc_chip.clone(),
-                        layouter.namespace(|| <span class="string">&quot;Witness expected parent&quot;</span>),
+                        layouter.namespace(|| <span class="string">"Witness expected parent"</span>),
                         expected_parent,
                     )<span class="question-mark">?
                 </span>};
@@ -1440,11 +1440,11 @@
                 <span class="comment">// Parent
                 </span><span class="kw">let </span>(parent, <span class="kw">_</span>) = {
                     <span class="kw">let </span>message = Message::from_pieces(chip1, <span class="macro">vec!</span>[l, left, right]);
-                    merkle_crh.hash_to_point(layouter.namespace(|| <span class="string">&quot;parent&quot;</span>), message)<span class="question-mark">?
+                    merkle_crh.hash_to_point(layouter.namespace(|| <span class="string">"parent"</span>), message)<span class="question-mark">?
                 </span>};
 
                 parent.constrain_equal(
-                    layouter.namespace(|| <span class="string">&quot;parent == expected parent&quot;</span>),
+                    layouter.namespace(|| <span class="string">"parent == expected parent"</span>),
                     <span class="kw-2">&amp;</span>expected_parent,
                 )<span class="question-mark">?</span>;
             }
@@ -1462,15 +1462,15 @@
                 <span class="kw">let </span>(result, <span class="kw">_</span>) = {
                     <span class="kw">let </span>r = ScalarFixed::new(
                         ecc_chip.clone(),
-                        layouter.namespace(|| <span class="string">&quot;r&quot;</span>),
+                        layouter.namespace(|| <span class="string">"r"</span>),
                         Value::known(r_val),
                     )<span class="question-mark">?</span>;
                     <span class="kw">let </span>message = Message::from_bitstring(
                         chip2,
-                        layouter.namespace(|| <span class="string">&quot;witness message&quot;</span>),
+                        layouter.namespace(|| <span class="string">"witness message"</span>),
                         message.clone(),
                     )<span class="question-mark">?</span>;
-                    test_commit.commit(layouter.namespace(|| <span class="string">&quot;commit&quot;</span>), message, r)<span class="question-mark">?
+                    test_commit.commit(layouter.namespace(|| <span class="string">"commit"</span>), message, r)<span class="question-mark">?
                 </span>};
 
                 <span class="comment">// Witness expected result.
@@ -1484,13 +1484,13 @@
 
                     NonIdentityPoint::new(
                         ecc_chip,
-                        layouter.namespace(|| <span class="string">&quot;Witness expected result&quot;</span>),
+                        layouter.namespace(|| <span class="string">"Witness expected result"</span>),
                         expected_result,
                     )<span class="question-mark">?
                 </span>};
 
                 result.constrain_equal(
-                    layouter.namespace(|| <span class="string">&quot;result == expected result&quot;</span>),
+                    layouter.namespace(|| <span class="string">"result == expected result"</span>),
                     <span class="kw-2">&amp;</span>expected_result,
                 )
             }
@@ -1505,15 +1505,15 @@
         <span class="macro">assert_eq!</span>(prover.verify(), <span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;test-dev-graph&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"test-dev-graph"</span>)]
     #[test]
     </span><span class="kw">fn </span>print_sinsemilla_chip() {
         <span class="kw">use </span>plotters::prelude::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>root =
-            BitMapBackend::new(<span class="string">&quot;sinsemilla-hash-layout.png&quot;</span>, (<span class="number">1024</span>, <span class="number">7680</span>)).into_drawing_area();
+            BitMapBackend::new(<span class="string">"sinsemilla-hash-layout.png"</span>, (<span class="number">1024</span>, <span class="number">7680</span>)).into_drawing_area();
         root.fill(<span class="kw-2">&amp;</span>WHITE).unwrap();
-        <span class="kw">let </span>root = root.titled(<span class="string">&quot;SinsemillaHash&quot;</span>, (<span class="string">&quot;sans-serif&quot;</span>, <span class="number">60</span>)).unwrap();
+        <span class="kw">let </span>root = root.titled(<span class="string">"SinsemillaHash"</span>, (<span class="string">"sans-serif"</span>, <span class="number">60</span>)).unwrap();
 
         <span class="kw">let </span>circuit = MyCircuit {};
         halo2_proofs::dev::CircuitLayout::default()

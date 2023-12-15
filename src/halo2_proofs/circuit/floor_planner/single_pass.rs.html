@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/circuit/floor_planner/single_pass.rs`."><title>single_pass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/circuit/floor_planner/single_pass.rs`."><title>single_pass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -469,7 +469,7 @@
 <span class="doccomment">/// A simple [`FloorPlanner`] that performs minimal optimizations.
 ///
 /// This floor planner is suitable for debugging circuits. It aims to reflect the circuit
-/// &quot;business logic&quot; in the circuit layout as closely as possible. It uses a single-pass
+/// "business logic" in the circuit layout as closely as possible. It uses a single-pass
 /// layouter that does not reorder regions for optimal packing.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>SimpleFloorPlanner;
@@ -487,8 +487,8 @@
 }
 
 <span class="doccomment">/// A [`Layouter`] for a single-chip circuit.
-</span><span class="kw">pub struct </span>SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a</span>&gt; {
-    cs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>CS,
+</span><span class="kw">pub struct </span>SingleChipLayouter&lt;<span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a</span>&gt; {
+    cs: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CS,
     constants: Vec&lt;Column&lt;Fixed&gt;&gt;,
     <span class="doccomment">/// Stores the starting row for each region.
     </span>regions: Vec&lt;RegionStart&gt;,
@@ -499,18 +499,18 @@
     _marker: PhantomData&lt;F&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F, CS&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;SingleChipLayouter&quot;</span>)
-            .field(<span class="string">&quot;regions&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.regions)
-            .field(<span class="string">&quot;columns&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.columns)
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>SingleChipLayouter&lt;<span class="lifetime">'a</span>, F, CS&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"SingleChipLayouter"</span>)
+            .field(<span class="string">"regions"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.regions)
+            .field(<span class="string">"columns"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.columns)
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt;&gt; SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F, CS&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt;&gt; SingleChipLayouter&lt;<span class="lifetime">'a</span>, F, CS&gt; {
     <span class="doccomment">/// Creates a new single-chip layouter.
-    </span><span class="kw">pub fn </span>new(cs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>CS, constants: Vec&lt;Column&lt;Fixed&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>new(cs: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CS, constants: Vec&lt;Column&lt;Fixed&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>ret = SingleChipLayouter {
             cs,
             constants,
@@ -523,14 +523,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a </span>+ SyncDeps&gt; Layouter&lt;F&gt;
-    <span class="kw">for </span>SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F, CS&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a </span>+ SyncDeps&gt; Layouter&lt;F&gt;
+    <span class="kw">for </span>SingleChipLayouter&lt;<span class="lifetime">'a</span>, F, CS&gt;
 {
     <span class="kw">type </span>Root = <span class="self">Self</span>;
 
     <span class="kw">fn </span>assign_region&lt;A, AR, N, NR&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: N, <span class="kw-2">mut </span>assignment: A) -&gt; <span class="prelude-ty">Result</span>&lt;AR, Error&gt;
     <span class="kw">where
-        </span>A: FnMut(Region&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;AR, Error&gt;,
+        </span>A: FnMut(Region&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;AR, Error&gt;,
         N: Fn() -&gt; NR,
         NR: Into&lt;String&gt;,
     {
@@ -580,7 +580,7 @@
                 .or_default();
             <span class="kw">for </span>(constant, advice) <span class="kw">in </span>constants_to_assign {
                 <span class="self">self</span>.cs.assign_fixed(
-                    || <span class="macro">format!</span>(<span class="string">&quot;Constant({:?})&quot;</span>, constant.evaluate()),
+                    || <span class="macro">format!</span>(<span class="string">"Constant({:?})"</span>, constant.evaluate()),
                     constants_column,
                     <span class="kw-2">*</span>next_constant_row,
                     || Value::known(constant),
@@ -600,7 +600,7 @@
 
     <span class="kw">fn </span>assign_table&lt;A, N, NR&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: N, <span class="kw-2">mut </span>assignment: A) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
-        </span>A: FnMut(Table&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;,
+        </span>A: FnMut(Table&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;,
         N: Fn() -&gt; NR,
         NR: Into&lt;String&gt;,
     {
@@ -670,26 +670,26 @@
     }
 }
 
-<span class="kw">struct </span>SingleChipLayouterRegion&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a</span>&gt; {
-    layouter: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F, CS&gt;,
+<span class="kw">struct </span>SingleChipLayouterRegion&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a</span>&gt; {
+    layouter: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>SingleChipLayouter&lt;<span class="lifetime">'a</span>, F, CS&gt;,
     region_index: RegionIndex,
     <span class="doccomment">/// Stores the constants to be assigned, and the cells to which they are copied.
     </span>constants: Vec&lt;(Assigned&lt;F&gt;, Cell)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a</span>&gt; fmt::Debug
-    <span class="kw">for </span>SingleChipLayouterRegion&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F, CS&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a</span>&gt; fmt::Debug
+    <span class="kw">for </span>SingleChipLayouterRegion&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F, CS&gt;
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;SingleChipLayouterRegion&quot;</span>)
-            .field(<span class="string">&quot;layouter&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.layouter)
-            .field(<span class="string">&quot;region_index&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.region_index)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"SingleChipLayouterRegion"</span>)
+            .field(<span class="string">"layouter"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.layouter)
+            .field(<span class="string">"region_index"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.region_index)
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a</span>&gt; SingleChipLayouterRegion&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F, CS&gt; {
-    <span class="kw">fn </span>new(layouter: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>SingleChipLayouter&lt;<span class="lifetime">&#39;a</span>, F, CS&gt;, region_index: RegionIndex) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a</span>&gt; SingleChipLayouterRegion&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F, CS&gt; {
+    <span class="kw">fn </span>new(layouter: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>SingleChipLayouter&lt;<span class="lifetime">'a</span>, F, CS&gt;, region_index: RegionIndex) -&gt; <span class="self">Self </span>{
         SingleChipLayouterRegion {
             layouter,
             region_index,
@@ -698,12 +698,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">&#39;a </span>+ SyncDeps&gt; RegionLayouter&lt;F&gt;
-    <span class="kw">for </span>SingleChipLayouterRegion&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;a</span>, F, CS&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F: Field, CS: Assignment&lt;F&gt; + <span class="lifetime">'a </span>+ SyncDeps&gt; RegionLayouter&lt;F&gt;
+    <span class="kw">for </span>SingleChipLayouterRegion&lt;<span class="lifetime">'r</span>, <span class="lifetime">'a</span>, F, CS&gt;
 {
-    <span class="kw">fn </span>enable_selector&lt;<span class="lifetime">&#39;v</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+    <span class="kw">fn </span>enable_selector&lt;<span class="lifetime">'v</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span><span class="self">self</span>,
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         selector: <span class="kw-2">&amp;</span>Selector,
         offset: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -714,20 +714,20 @@
         )
     }
 
-    <span class="kw">fn </span>name_column&lt;<span class="lifetime">&#39;v</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+    <span class="kw">fn </span>name_column&lt;<span class="lifetime">'v</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span><span class="self">self</span>,
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         column: Column&lt;Any&gt;,
     ) {
         <span class="self">self</span>.layouter.cs.annotate_column(annotation, column);
     }
 
-    <span class="kw">fn </span>assign_advice&lt;<span class="lifetime">&#39;v</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+    <span class="kw">fn </span>assign_advice&lt;<span class="lifetime">'v</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span><span class="self">self</span>,
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         column: Column&lt;Advice&gt;,
         offset: usize,
-        to: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut() -&gt; Value&lt;Assigned&lt;F&gt;&gt; + <span class="lifetime">&#39;v</span>),
+        to: <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut() -&gt; Value&lt;Assigned&lt;F&gt;&gt; + <span class="lifetime">'v</span>),
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Cell, Error&gt; {
         <span class="self">self</span>.layouter.cs.assign_advice(
             annotation,
@@ -743,9 +743,9 @@
         })
     }
 
-    <span class="kw">fn </span>assign_advice_from_constant&lt;<span class="lifetime">&#39;v</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+    <span class="kw">fn </span>assign_advice_from_constant&lt;<span class="lifetime">'v</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span><span class="self">self</span>,
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         column: Column&lt;Advice&gt;,
         offset: usize,
         constant: Assigned&lt;F&gt;,
@@ -757,9 +757,9 @@
         <span class="prelude-val">Ok</span>(advice)
     }
 
-    <span class="kw">fn </span>assign_advice_from_instance&lt;<span class="lifetime">&#39;v</span>&gt;(
+    <span class="kw">fn </span>assign_advice_from_instance&lt;<span class="lifetime">'v</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         instance: Column&lt;Instance&gt;,
         row: usize,
         advice: Column&lt;Advice&gt;,
@@ -787,12 +787,12 @@
         <span class="self">self</span>.layouter.cs.query_instance(instance, row)
     }
 
-    <span class="kw">fn </span>assign_fixed&lt;<span class="lifetime">&#39;v</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span><span class="self">self</span>,
-        annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">&#39;v</span>),
+    <span class="kw">fn </span>assign_fixed&lt;<span class="lifetime">'v</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span><span class="self">self</span>,
+        annotation: <span class="kw-2">&amp;</span><span class="lifetime">'v </span>(<span class="kw">dyn </span>Fn() -&gt; String + <span class="lifetime">'v</span>),
         column: Column&lt;Fixed&gt;,
         offset: usize,
-        to: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut() -&gt; Value&lt;Assigned&lt;F&gt;&gt; + <span class="lifetime">&#39;v</span>),
+        to: <span class="kw-2">&amp;</span><span class="lifetime">'v </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut() -&gt; Value&lt;Assigned&lt;F&gt;&gt; + <span class="lifetime">'v</span>),
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Cell, Error&gt; {
         <span class="self">self</span>.layouter.cs.assign_fixed(
             annotation,
@@ -842,7 +842,7 @@
         <span class="kw">impl </span>Circuit&lt;vesta::Scalar&gt; <span class="kw">for </span>MyCircuit {
             <span class="kw">type </span>Config = Column&lt;Advice&gt;;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -859,10 +859,10 @@
                 <span class="kw-2">mut </span>layouter: <span class="kw">impl </span><span class="kw">crate</span>::circuit::Layouter&lt;vesta::Scalar&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::plonk::Error&gt; {
                 layouter.assign_region(
-                    || <span class="string">&quot;assign constant&quot;</span>,
+                    || <span class="string">"assign constant"</span>,
                     |<span class="kw-2">mut </span>region| {
                         region.assign_advice_from_constant(
-                            || <span class="string">&quot;one&quot;</span>,
+                            || <span class="string">"one"</span>,
                             config,
                             <span class="number">0</span>,
                             vesta::Scalar::one(),

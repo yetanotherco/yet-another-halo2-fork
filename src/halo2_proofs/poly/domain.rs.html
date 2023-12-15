@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/domain.rs`."><title>domain.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/domain.rs`."><title>domain.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -628,7 +628,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>extended_omega = F::ROOT_OF_UNITY;
 
-        <span class="comment">// Get extended_omega, the 2^{extended_k}&#39;th root of unity
+        <span class="comment">// Get extended_omega, the 2^{extended_k}'th root of unity
         // The loop computes extended_omega = omega^{2 ^ (S - extended_k)}
         // Notice that extended_omega ^ {2 ^ extended_k} = omega ^ {2^S} = 1.
         </span><span class="kw">for _ in </span>extended_k..F::S {
@@ -637,7 +637,7 @@
         <span class="kw">let </span>extended_omega = extended_omega;
         <span class="kw">let </span><span class="kw-2">mut </span>extended_omega_inv = extended_omega; <span class="comment">// Inversion computed later
 
-        // Get omega, the 2^{k}&#39;th root of unity (i.e. n&#39;th root of unity)
+        // Get omega, the 2^{k}'th root of unity (i.e. n'th root of unity)
         // The loop computes omega = extended_omega ^ {2 ^ (extended_k - k)}
         //           = (omega^{2 ^ (S - extended_k)})  ^ {2 ^ (extended_k - k)}
         //           = omega ^ {2 ^ (S - k)}.
@@ -649,7 +649,7 @@
         <span class="kw">let </span>omega = omega;
         <span class="kw">let </span><span class="kw-2">mut </span>omega_inv = omega; <span class="comment">// Inversion computed later
 
-        // We use zeta here because we know it generates a coset, and it&#39;s available
+        // We use zeta here because we know it generates a coset, and it's available
         // already.
         // The coset evaluation domain is:
         // zeta {1, extended_omega, extended_omega^2, ..., extended_omega^{(2^extended_k) - 1}}
@@ -659,7 +659,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>t_evaluations = Vec::with_capacity(<span class="number">1 </span>&lt;&lt; (extended_k - k));
         {
             <span class="comment">// Compute the evaluations of t(X) = X^n - 1 in the coset evaluation domain.
-            // We don&#39;t have to compute all of them, because it will repeat.
+            // We don't have to compute all of them, because it will repeat.
             </span><span class="kw">let </span>orig = F::ZETA.pow_vartime([n, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]);
             <span class="kw">let </span>step = extended_omega.pow_vartime([n, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]);
             <span class="kw">let </span><span class="kw-2">mut </span>cur = orig;
@@ -677,7 +677,7 @@
                 <span class="kw-2">*</span>coeff -= <span class="kw-2">&amp;</span>F::ONE;
             }
 
-            <span class="comment">// Invert, because we&#39;re dividing by this polynomial.
+            <span class="comment">// Invert, because we're dividing by this polynomial.
             // We invert in a batch, below.
         </span>}
 
@@ -758,7 +758,7 @@
 
     <span class="doccomment">/// Returns an empty (zero) polynomial in the Lagrange coefficient basis, with
     /// deferred inversions.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty_lagrange_assigned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polynomial&lt;Assigned&lt;F&gt;, LagrangeCoeff&gt; {
+    </span><span class="kw">pub fn </span>empty_lagrange_assigned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polynomial&lt;Assigned&lt;F&gt;, LagrangeCoeff&gt; {
         Polynomial {
             values: <span class="macro">vec!</span>[F::ZERO.into(); <span class="self">self</span>.n <span class="kw">as </span>usize],
             _marker: PhantomData,
@@ -958,7 +958,7 @@
         <span class="self">self</span>.omega_inv
     }
 
-    <span class="doccomment">/// Get the generator of the extended domain&#39;s multiplicative subgroup.
+    <span class="doccomment">/// Get the generator of the extended domain's multiplicative subgroup.
     </span><span class="kw">pub fn </span>get_extended_omega(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; F {
         <span class="self">self</span>.extended_omega
     }
@@ -1031,7 +1031,7 @@
         results
     }
 
-    <span class="doccomment">/// Gets the quotient polynomial&#39;s degree (as a multiple of n)
+    <span class="doccomment">/// Gets the quotient polynomial's degree (as a multiple of n)
     </span><span class="kw">pub fn </span>get_quotient_poly_degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.quotient_poly_degree <span class="kw">as </span>usize
     }
@@ -1039,7 +1039,7 @@
     <span class="doccomment">/// Obtain a pinned version of this evaluation domain; a structure with the
     /// minimal parameters needed to determine the rest of the evaluation
     /// domain.
-    </span><span class="kw">pub fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedEvaluationDomain&lt;<span class="lifetime">&#39;_</span>, F&gt; {
+    </span><span class="kw">pub fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedEvaluationDomain&lt;<span class="lifetime">'_</span>, F&gt; {
         PinnedEvaluationDomain {
             k: <span class="kw-2">&amp;</span><span class="self">self</span>.k,
             extended_k: <span class="kw-2">&amp;</span><span class="self">self</span>.extended_k,
@@ -1051,10 +1051,10 @@
 <span class="doccomment">/// Represents the minimal parameters that determine an `EvaluationDomain`.
 </span><span class="attr">#[allow(dead_code)]
 #[derive(Debug)]
-</span><span class="kw">pub struct </span>PinnedEvaluationDomain&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; {
-    k: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u32,
-    extended_k: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u32,
-    omega: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>F,
+</span><span class="kw">pub struct </span>PinnedEvaluationDomain&lt;<span class="lifetime">'a</span>, F: Field&gt; {
+    k: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u32,
+    extended_k: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u32,
+    omega: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>F,
 }
 
 <span class="attr">#[test]

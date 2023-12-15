@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit.rs`."><title>circuit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -2621,7 +2621,7 @@
 
 <span class="doccomment">/// A column type
 </span><span class="kw">pub trait </span>ColumnType:
-    <span class="lifetime">&#39;static </span>+ Sized + Copy + std::fmt::Debug + PartialEq + Eq + Into&lt;Any&gt;
+    <span class="lifetime">'static </span>+ Sized + Copy + std::fmt::Debug + PartialEq + Eq + Into&lt;Any&gt;
 {
     <span class="doccomment">/// Return expression from cell
     </span><span class="kw">fn </span>query_cell&lt;F: Field&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize, at: Rotation) -&gt; Expression&lt;F&gt;;
@@ -2781,11 +2781,11 @@
 }
 
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Advice {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;Advice&quot;</span>);
-        <span class="comment">// Only show advice&#39;s phase if it&#39;s not in first phase.
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"Advice"</span>);
+        <span class="comment">// Only show advice's phase if it's not in first phase.
         </span><span class="kw">if </span><span class="self">self</span>.phase != FirstPhase.to_sealed() {
-            debug_struct.field(<span class="string">&quot;phase&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.phase);
+            debug_struct.field(<span class="string">"phase"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.phase);
         }
         debug_struct.finish()
     }
@@ -2823,18 +2823,18 @@
 }
 
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Any {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             Any::Advice(advice) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;Advice&quot;</span>);
-                <span class="comment">// Only show advice&#39;s phase if it&#39;s not in first phase.
+                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"Advice"</span>);
+                <span class="comment">// Only show advice's phase if it's not in first phase.
                 </span><span class="kw">if </span>advice.phase != FirstPhase.to_sealed() {
-                    debug_struct.field(<span class="string">&quot;phase&quot;</span>, <span class="kw-2">&amp;</span>advice.phase);
+                    debug_struct.field(<span class="string">"phase"</span>, <span class="kw-2">&amp;</span>advice.phase);
                 }
                 debug_struct.finish()
             }
-            Any::Fixed =&gt; f.debug_struct(<span class="string">&quot;Fixed&quot;</span>).finish(),
-            Any::Instance =&gt; f.debug_struct(<span class="string">&quot;Instance&quot;</span>).finish(),
+            Any::Fixed =&gt; f.debug_struct(<span class="string">"Fixed"</span>).finish(),
+            Any::Instance =&gt; f.debug_struct(<span class="string">"Instance"</span>).finish(),
         }
     }
 }
@@ -2960,7 +2960,7 @@
 }
 
 <span class="kw">impl </span>TryFrom&lt;Column&lt;Any&gt;&gt; <span class="kw">for </span>Column&lt;Advice&gt; {
-    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>try_from(any: Column&lt;Any&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>any.column_type() {
@@ -2968,13 +2968,13 @@
                 index: any.index(),
                 column_type: <span class="kw-2">*</span>advice,
             }),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Cannot convert into Column&lt;Advice&gt;&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"Cannot convert into Column&lt;Advice&gt;"</span>),
         }
     }
 }
 
 <span class="kw">impl </span>TryFrom&lt;Column&lt;Any&gt;&gt; <span class="kw">for </span>Column&lt;Fixed&gt; {
-    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>try_from(any: Column&lt;Any&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>any.column_type() {
@@ -2982,13 +2982,13 @@
                 index: any.index(),
                 column_type: Fixed,
             }),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Cannot convert into Column&lt;Fixed&gt;&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"Cannot convert into Column&lt;Fixed&gt;"</span>),
         }
     }
 }
 
 <span class="kw">impl </span>TryFrom&lt;Column&lt;Any&gt;&gt; <span class="kw">for </span>Column&lt;Instance&gt; {
-    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>try_from(any: Column&lt;Any&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>any.column_type() {
@@ -2996,7 +2996,7 @@
                 index: any.index(),
                 column_type: Instance,
             }),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Cannot convert into Column&lt;Instance&gt;&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"Cannot convert into Column&lt;Instance&gt;"</span>),
         }
     }
 }
@@ -3014,7 +3014,7 @@
 /// let b = meta.advice_column();
 /// let s = meta.selector();
 ///
-/// meta.create_gate(&quot;foo&quot;, |meta| {
+/// meta.create_gate("foo", |meta| {
 ///     let a = meta.query_advice(a, Rotation::prev());
 ///     let b = meta.query_advice(b, Rotation::cur());
 ///     let s = meta.query_selector(s);
@@ -3044,9 +3044,9 @@
 /// fn circuit_logic&lt;F: Field, C: Chip&lt;F&gt;&gt;(chip: C, mut layouter: impl Layouter&lt;F&gt;) -&gt; Result&lt;(), Error&gt; {
 ///     let config = chip.config();
 ///     # let config: Config = todo!();
-///     layouter.assign_region(|| &quot;bar&quot;, |mut region| {
-///         region.assign_advice(|| &quot;a&quot;, config.a, 0, || Value::known(F::ONE))?;
-///         region.assign_advice(|| &quot;a&quot;, config.b, 1, || Value::known(F::ONE))?;
+///     layouter.assign_region(|| "bar", |mut region| {
+///         region.assign_advice(|| "a", config.a, 0, || Value::known(F::ONE))?;
+///         region.assign_advice(|| "a", config.b, 1, || Value::known(F::ONE))?;
 ///         config.s.enable(&amp;mut region, 1)
 ///     })?;
 ///     Ok(())
@@ -3058,10 +3058,10 @@
 <span class="kw">impl </span>Selector {
     <span class="doccomment">/// Enable this selector at the given offset within the given region.
     </span><span class="kw">pub fn </span>enable&lt;F: Field&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, region: <span class="kw-2">&amp;mut </span>Region&lt;F&gt;, offset: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        region.enable_selector(|| <span class="string">&quot;&quot;</span>, <span class="self">self</span>, offset)
+        region.enable_selector(|| <span class="string">""</span>, <span class="self">self</span>, offset)
     }
 
-    <span class="doccomment">/// Is this selector &quot;simple&quot;? Simple selectors can only be multiplied
+    <span class="doccomment">/// Is this selector "simple"? Simple selectors can only be multiplied
     /// by expressions that contain no other simple selectors.
     </span><span class="kw">pub fn </span>is_simple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">1
@@ -3160,7 +3160,7 @@
 /// can currently only contain a single table, but they may be used in multiple lookup
 /// arguments via [`ConstraintSystem::lookup`].
 ///
-/// Lookup table columns are always &quot;encumbered&quot; by the lookup arguments they are used in;
+/// Lookup table columns are always "encumbered" by the lookup arguments they are used in;
 /// they cannot simultaneously be used as general fixed columns.
 ///
 /// [`Layouter::assign_table`]: crate::circuit::Layouter::assign_table
@@ -3252,7 +3252,7 @@
 
     <span class="doccomment">/// Queries the cell of an instance column at a particular absolute row.
     ///
-    /// Returns the cell&#39;s value, if known.
+    /// Returns the cell's value, if known.
     </span><span class="kw">fn </span>query_instance(<span class="kw-2">&amp;</span><span class="self">self</span>, column: Column&lt;Instance&gt;, row: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Value&lt;F&gt;, Error&gt;;
 
     <span class="doccomment">/// Assign an advice column value (witness)
@@ -3356,7 +3356,7 @@
     /// `Circuit` trait because its behaviour is circuit-critical.
     </span><span class="kw">type </span>FloorPlanner: FloorPlanner;
     <span class="doccomment">/// Optional circuit configuration parameters. Requires the `circuit-params` feature.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
     </span><span class="kw">type </span>Params: Default;
 
     <span class="doccomment">/// Returns a copy of this circuit with no witness values (i.e. all witnesses set to
@@ -3365,7 +3365,7 @@
 
     <span class="doccomment">/// Returns a reference to the parameters that should be used to configure the circuit.
     /// Requires the `circuit-params` feature.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
     </span><span class="kw">fn </span>params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Params {
         <span class="self">Self</span>::Params::default()
     }
@@ -3373,8 +3373,8 @@
     <span class="doccomment">/// The circuit is given an opportunity to describe the exact gate
     /// arrangement, column arrangement, etc.  Takes a runtime parameter.  The default
     /// implementation calls `configure` ignoring the `_params` argument in order to easily support
-    /// circuits that don&#39;t use configuration parameters.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+    /// circuits that don't use configuration parameters.
+    </span><span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
     </span><span class="kw">fn </span>configure_with_params(
         meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;F&gt;,
         _params: <span class="self">Self</span>::Params,
@@ -3419,7 +3419,7 @@
 
 <span class="kw">impl</span>&lt;F: Field&gt; Expression&lt;F&gt; {
     <span class="doccomment">/// Make side effects
-    </span><span class="kw">pub fn </span>query_cells(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cells: <span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, F&gt;) {
+    </span><span class="kw">pub fn </span>query_cells(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cells: <span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, F&gt;) {
         <span class="kw">match </span><span class="self">self </span>{
             Expression::Constant(<span class="kw">_</span>) =&gt; (),
             Expression::Selector(selector) =&gt; {
@@ -3710,60 +3710,60 @@
 
     <span class="kw">fn </span>write_identifier&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Expression::Constant(scalar) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;{:?}&quot;</span>, scalar),
-            Expression::Selector(selector) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;selector[{}]&quot;</span>, selector.<span class="number">0</span>),
+            Expression::Constant(scalar) =&gt; <span class="macro">write!</span>(writer, <span class="string">"{:?}"</span>, scalar),
+            Expression::Selector(selector) =&gt; <span class="macro">write!</span>(writer, <span class="string">"selector[{}]"</span>, selector.<span class="number">0</span>),
             Expression::Fixed(query) =&gt; {
                 <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;fixed[{}][{}]&quot;</span>,
+                    <span class="string">"fixed[{}][{}]"</span>,
                     query.column_index, query.rotation.<span class="number">0
                 </span>)
             }
             Expression::Advice(query) =&gt; {
                 <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;advice[{}][{}]&quot;</span>,
+                    <span class="string">"advice[{}][{}]"</span>,
                     query.column_index, query.rotation.<span class="number">0
                 </span>)
             }
             Expression::Instance(query) =&gt; {
                 <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;instance[{}][{}]&quot;</span>,
+                    <span class="string">"instance[{}][{}]"</span>,
                     query.column_index, query.rotation.<span class="number">0
                 </span>)
             }
             Expression::Challenge(challenge) =&gt; {
-                <span class="macro">write!</span>(writer, <span class="string">&quot;challenge[{}]&quot;</span>, challenge.index())
+                <span class="macro">write!</span>(writer, <span class="string">"challenge[{}]"</span>, challenge.index())
             }
             Expression::Negated(a) =&gt; {
-                writer.write_all(<span class="string">b&quot;(-&quot;</span>)<span class="question-mark">?</span>;
+                writer.write_all(<span class="string">b"(-"</span>)<span class="question-mark">?</span>;
                 a.write_identifier(writer)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b&quot;)&quot;</span>)
+                writer.write_all(<span class="string">b")"</span>)
             }
             Expression::Sum(a, b) =&gt; {
-                writer.write_all(<span class="string">b&quot;(&quot;</span>)<span class="question-mark">?</span>;
+                writer.write_all(<span class="string">b"("</span>)<span class="question-mark">?</span>;
                 a.write_identifier(writer)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b&quot;+&quot;</span>)<span class="question-mark">?</span>;
+                writer.write_all(<span class="string">b"+"</span>)<span class="question-mark">?</span>;
                 b.write_identifier(writer)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b&quot;)&quot;</span>)
+                writer.write_all(<span class="string">b")"</span>)
             }
             Expression::Product(a, b) =&gt; {
-                writer.write_all(<span class="string">b&quot;(&quot;</span>)<span class="question-mark">?</span>;
+                writer.write_all(<span class="string">b"("</span>)<span class="question-mark">?</span>;
                 a.write_identifier(writer)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b&quot;*&quot;</span>)<span class="question-mark">?</span>;
+                writer.write_all(<span class="string">b"*"</span>)<span class="question-mark">?</span>;
                 b.write_identifier(writer)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b&quot;)&quot;</span>)
+                writer.write_all(<span class="string">b")"</span>)
             }
             Expression::Scaled(a, f) =&gt; {
                 a.write_identifier(writer)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(writer, <span class="string">&quot;*{:?}&quot;</span>, f)
+                <span class="macro">write!</span>(writer, <span class="string">"*{:?}"</span>, f)
             }
         }
     }
 
     <span class="doccomment">/// Identifier for this expression. Expressions with identical identifiers
-    /// do the same calculation (but the expressions don&#39;t need to be exactly equal
+    /// do the same calculation (but the expressions don't need to be exactly equal
     /// in how they are composed e.g. `1 + 2` and `2 + 1` can have the same identifier).
     </span><span class="kw">pub fn </span>identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = std::io::Cursor::new(Vec::new());
@@ -3828,7 +3828,7 @@
     </span><span class="kw">fn </span>extract_simple_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Selector&gt; {
         <span class="kw">let </span>op = |a, b| <span class="kw">match </span>(a, b) {
             (<span class="prelude-val">Some</span>(a), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(a)) =&gt; <span class="prelude-val">Some</span>(a),
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;two simple selectors cannot be in the same expression&quot;</span>),
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">"two simple selectors cannot be in the same expression"</span>),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
 
@@ -3854,56 +3854,56 @@
 }
 
 <span class="kw">impl</span>&lt;F: std::fmt::Debug&gt; std::fmt::Debug <span class="kw">for </span>Expression&lt;F&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Expression::Constant(scalar) =&gt; f.debug_tuple(<span class="string">&quot;Constant&quot;</span>).field(scalar).finish(),
-            Expression::Selector(selector) =&gt; f.debug_tuple(<span class="string">&quot;Selector&quot;</span>).field(selector).finish(),
+            Expression::Constant(scalar) =&gt; f.debug_tuple(<span class="string">"Constant"</span>).field(scalar).finish(),
+            Expression::Selector(selector) =&gt; f.debug_tuple(<span class="string">"Selector"</span>).field(selector).finish(),
             <span class="comment">// Skip enum variant and print query struct directly to maintain backwards compatibility.
             </span>Expression::Fixed(query) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;Fixed&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"Fixed"</span>);
                 <span class="kw">match </span>query.index {
-                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>query.index),
-                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>idx),
+                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>query.index),
+                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>idx),
                 };
                 debug_struct
-                    .field(<span class="string">&quot;column_index&quot;</span>, <span class="kw-2">&amp;</span>query.column_index)
-                    .field(<span class="string">&quot;rotation&quot;</span>, <span class="kw-2">&amp;</span>query.rotation)
+                    .field(<span class="string">"column_index"</span>, <span class="kw-2">&amp;</span>query.column_index)
+                    .field(<span class="string">"rotation"</span>, <span class="kw-2">&amp;</span>query.rotation)
                     .finish()
             }
             Expression::Advice(query) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;Advice&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"Advice"</span>);
                 <span class="kw">match </span>query.index {
-                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>query.index),
-                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>idx),
+                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>query.index),
+                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>idx),
                 };
                 debug_struct
-                    .field(<span class="string">&quot;column_index&quot;</span>, <span class="kw-2">&amp;</span>query.column_index)
-                    .field(<span class="string">&quot;rotation&quot;</span>, <span class="kw-2">&amp;</span>query.rotation);
-                <span class="comment">// Only show advice&#39;s phase if it&#39;s not in first phase.
+                    .field(<span class="string">"column_index"</span>, <span class="kw-2">&amp;</span>query.column_index)
+                    .field(<span class="string">"rotation"</span>, <span class="kw-2">&amp;</span>query.rotation);
+                <span class="comment">// Only show advice's phase if it's not in first phase.
                 </span><span class="kw">if </span>query.phase != FirstPhase.to_sealed() {
-                    debug_struct.field(<span class="string">&quot;phase&quot;</span>, <span class="kw-2">&amp;</span>query.phase);
+                    debug_struct.field(<span class="string">"phase"</span>, <span class="kw-2">&amp;</span>query.phase);
                 }
                 debug_struct.finish()
             }
             Expression::Instance(query) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;Instance&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"Instance"</span>);
                 <span class="kw">match </span>query.index {
-                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>query.index),
-                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">&quot;query_index&quot;</span>, <span class="kw-2">&amp;</span>idx),
+                    <span class="prelude-val">None </span>=&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>query.index),
+                    <span class="prelude-val">Some</span>(idx) =&gt; debug_struct.field(<span class="string">"query_index"</span>, <span class="kw-2">&amp;</span>idx),
                 };
                 debug_struct
-                    .field(<span class="string">&quot;column_index&quot;</span>, <span class="kw-2">&amp;</span>query.column_index)
-                    .field(<span class="string">&quot;rotation&quot;</span>, <span class="kw-2">&amp;</span>query.rotation)
+                    .field(<span class="string">"column_index"</span>, <span class="kw-2">&amp;</span>query.column_index)
+                    .field(<span class="string">"rotation"</span>, <span class="kw-2">&amp;</span>query.rotation)
                     .finish()
             }
             Expression::Challenge(challenge) =&gt; {
-                f.debug_tuple(<span class="string">&quot;Challenge&quot;</span>).field(challenge).finish()
+                f.debug_tuple(<span class="string">"Challenge"</span>).field(challenge).finish()
             }
-            Expression::Negated(poly) =&gt; f.debug_tuple(<span class="string">&quot;Negated&quot;</span>).field(poly).finish(),
-            Expression::Sum(a, b) =&gt; f.debug_tuple(<span class="string">&quot;Sum&quot;</span>).field(a).field(b).finish(),
-            Expression::Product(a, b) =&gt; f.debug_tuple(<span class="string">&quot;Product&quot;</span>).field(a).field(b).finish(),
+            Expression::Negated(poly) =&gt; f.debug_tuple(<span class="string">"Negated"</span>).field(poly).finish(),
+            Expression::Sum(a, b) =&gt; f.debug_tuple(<span class="string">"Sum"</span>).field(a).field(b).finish(),
+            Expression::Product(a, b) =&gt; f.debug_tuple(<span class="string">"Product"</span>).field(a).field(b).finish(),
             Expression::Scaled(poly, scalar) =&gt; {
-                f.debug_tuple(<span class="string">&quot;Scaled&quot;</span>).field(poly).field(scalar).finish()
+                f.debug_tuple(<span class="string">"Scaled"</span>).field(poly).field(scalar).finish()
             }
         }
     }
@@ -3920,7 +3920,7 @@
     <span class="kw">type </span>Output = Expression&lt;F&gt;;
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: Expression&lt;F&gt;) -&gt; Expression&lt;F&gt; {
         <span class="kw">if </span><span class="self">self</span>.contains_simple_selector() || rhs.contains_simple_selector() {
-            <span class="macro">panic!</span>(<span class="string">&quot;attempted to use a simple selector in an addition&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"attempted to use a simple selector in an addition"</span>);
         }
         Expression::Sum(Box::new(<span class="self">self</span>), Box::new(rhs))
     }
@@ -3930,7 +3930,7 @@
     <span class="kw">type </span>Output = Expression&lt;F&gt;;
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: Expression&lt;F&gt;) -&gt; Expression&lt;F&gt; {
         <span class="kw">if </span><span class="self">self</span>.contains_simple_selector() || rhs.contains_simple_selector() {
-            <span class="macro">panic!</span>(<span class="string">&quot;attempted to use a simple selector in a subtraction&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"attempted to use a simple selector in a subtraction"</span>);
         }
         Expression::Sum(Box::new(<span class="self">self</span>), Box::new(-rhs))
     }
@@ -3940,7 +3940,7 @@
     <span class="kw">type </span>Output = Expression&lt;F&gt;;
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: Expression&lt;F&gt;) -&gt; Expression&lt;F&gt; {
         <span class="kw">if </span><span class="self">self</span>.contains_simple_selector() &amp;&amp; rhs.contains_simple_selector() {
-            <span class="macro">panic!</span>(<span class="string">&quot;attempted to multiply two expressions containing simple selectors&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"attempted to multiply two expressions containing simple selectors"</span>);
         }
         Expression::Product(Box::new(<span class="self">self</span>), Box::new(rhs))
     }
@@ -3972,7 +3972,7 @@
 </span><span class="attr">#[derive(Copy, Clone, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PointIndex(<span class="kw">pub </span>usize);
 
-<span class="doccomment">/// A &quot;virtual cell&quot; is a PLONK cell that has been queried at a particular relative offset
+<span class="doccomment">/// A "virtual cell" is a PLONK cell that has been queried at a particular relative offset
 /// within a custom gate.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>VirtualCell {
@@ -4001,7 +4001,7 @@
 <span class="kw">impl</span>&lt;F: Field&gt; From&lt;Expression&lt;F&gt;&gt; <span class="kw">for </span>Constraint&lt;F&gt; {
     <span class="kw">fn </span>from(poly: Expression&lt;F&gt;) -&gt; <span class="self">Self </span>{
         Constraint {
-            name: <span class="string">&quot;&quot;</span>.to_string(),
+            name: <span class="string">""</span>.to_string(),
             poly,
         }
     }
@@ -4019,7 +4019,7 @@
 <span class="kw">impl</span>&lt;F: Field&gt; From&lt;Expression&lt;F&gt;&gt; <span class="kw">for </span>Vec&lt;Constraint&lt;F&gt;&gt; {
     <span class="kw">fn </span>from(poly: Expression&lt;F&gt;) -&gt; <span class="self">Self </span>{
         <span class="macro">vec!</span>[Constraint {
-            name: <span class="string">&quot;&quot;</span>.to_string(),
+            name: <span class="string">""</span>.to_string(),
             poly,
         }]
     }
@@ -4038,7 +4038,7 @@
 /// let c = meta.advice_column();
 /// let s = meta.selector();
 ///
-/// meta.create_gate(&quot;foo&quot;, |meta| {
+/// meta.create_gate("foo", |meta| {
 ///     let next = meta.query_advice(a, Rotation::next());
 ///     let a = meta.query_advice(a, Rotation::cur());
 ///     let b = meta.query_advice(b, Rotation::cur());
@@ -4050,8 +4050,8 @@
 ///     Constraints::with_selector(
 ///         s_ternary,
 ///         std::array::IntoIter::new([
-///             (&quot;a is boolean&quot;, a.clone() * one_minus_a.clone()),
-///             (&quot;next == a ? b : c&quot;, next - (a * b + one_minus_a * c)),
+///             ("a is boolean", a.clone() * one_minus_a.clone()),
+///             ("next == a ? b : c", next - (a * b + one_minus_a * c)),
 ///         ]),
 ///     )
 /// });
@@ -4200,61 +4200,61 @@
 
 <span class="doccomment">/// Represents the minimal parameters that determine a `ConstraintSystem`.
 </span><span class="attr">#[allow(dead_code)]
-</span><span class="kw">pub struct </span>PinnedConstraintSystem&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; {
-    num_fixed_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
-    num_advice_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
-    num_instance_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
-    num_selectors: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
-    num_challenges: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
-    advice_column_phase: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;sealed::Phase&gt;,
-    challenge_phase: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;sealed::Phase&gt;,
-    gates: PinnedGates&lt;<span class="lifetime">&#39;a</span>, F&gt;,
-    advice_queries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;(Column&lt;Advice&gt;, Rotation)&gt;,
-    instance_queries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;(Column&lt;Instance&gt;, Rotation)&gt;,
-    fixed_queries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;(Column&lt;Fixed&gt;, Rotation)&gt;,
-    permutation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>permutation::Argument,
-    lookups: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;lookup::Argument&lt;F&gt;&gt;,
-    shuffles: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;shuffle::Argument&lt;F&gt;&gt;,
-    constants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;Column&lt;Fixed&gt;&gt;,
-    minimum_degree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;usize&gt;,
+</span><span class="kw">pub struct </span>PinnedConstraintSystem&lt;<span class="lifetime">'a</span>, F: Field&gt; {
+    num_fixed_columns: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize,
+    num_advice_columns: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize,
+    num_instance_columns: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize,
+    num_selectors: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize,
+    num_challenges: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize,
+    advice_column_phase: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;sealed::Phase&gt;,
+    challenge_phase: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;sealed::Phase&gt;,
+    gates: PinnedGates&lt;<span class="lifetime">'a</span>, F&gt;,
+    advice_queries: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;(Column&lt;Advice&gt;, Rotation)&gt;,
+    instance_queries: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;(Column&lt;Instance&gt;, Rotation)&gt;,
+    fixed_queries: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;(Column&lt;Fixed&gt;, Rotation)&gt;,
+    permutation: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>permutation::Argument,
+    lookups: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;lookup::Argument&lt;F&gt;&gt;,
+    shuffles: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;shuffle::Argument&lt;F&gt;&gt;,
+    constants: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;Column&lt;Fixed&gt;&gt;,
+    minimum_degree: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; std::fmt::Debug <span class="kw">for </span>PinnedConstraintSystem&lt;<span class="lifetime">&#39;a</span>, F&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">&quot;PinnedConstraintSystem&quot;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field&gt; std::fmt::Debug <span class="kw">for </span>PinnedConstraintSystem&lt;<span class="lifetime">'a</span>, F&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>debug_struct = f.debug_struct(<span class="string">"PinnedConstraintSystem"</span>);
         debug_struct
-            .field(<span class="string">&quot;num_fixed_columns&quot;</span>, <span class="self">self</span>.num_fixed_columns)
-            .field(<span class="string">&quot;num_advice_columns&quot;</span>, <span class="self">self</span>.num_advice_columns)
-            .field(<span class="string">&quot;num_instance_columns&quot;</span>, <span class="self">self</span>.num_instance_columns)
-            .field(<span class="string">&quot;num_selectors&quot;</span>, <span class="self">self</span>.num_selectors);
-        <span class="comment">// Only show multi-phase related fields if it&#39;s used.
+            .field(<span class="string">"num_fixed_columns"</span>, <span class="self">self</span>.num_fixed_columns)
+            .field(<span class="string">"num_advice_columns"</span>, <span class="self">self</span>.num_advice_columns)
+            .field(<span class="string">"num_instance_columns"</span>, <span class="self">self</span>.num_instance_columns)
+            .field(<span class="string">"num_selectors"</span>, <span class="self">self</span>.num_selectors);
+        <span class="comment">// Only show multi-phase related fields if it's used.
         </span><span class="kw">if </span><span class="kw-2">*</span><span class="self">self</span>.num_challenges &gt; <span class="number">0 </span>{
             debug_struct
-                .field(<span class="string">&quot;num_challenges&quot;</span>, <span class="self">self</span>.num_challenges)
-                .field(<span class="string">&quot;advice_column_phase&quot;</span>, <span class="self">self</span>.advice_column_phase)
-                .field(<span class="string">&quot;challenge_phase&quot;</span>, <span class="self">self</span>.challenge_phase);
+                .field(<span class="string">"num_challenges"</span>, <span class="self">self</span>.num_challenges)
+                .field(<span class="string">"advice_column_phase"</span>, <span class="self">self</span>.advice_column_phase)
+                .field(<span class="string">"challenge_phase"</span>, <span class="self">self</span>.challenge_phase);
         }
         debug_struct
-            .field(<span class="string">&quot;gates&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.gates)
-            .field(<span class="string">&quot;advice_queries&quot;</span>, <span class="self">self</span>.advice_queries)
-            .field(<span class="string">&quot;instance_queries&quot;</span>, <span class="self">self</span>.instance_queries)
-            .field(<span class="string">&quot;fixed_queries&quot;</span>, <span class="self">self</span>.fixed_queries)
-            .field(<span class="string">&quot;permutation&quot;</span>, <span class="self">self</span>.permutation)
-            .field(<span class="string">&quot;lookups&quot;</span>, <span class="self">self</span>.lookups);
+            .field(<span class="string">"gates"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.gates)
+            .field(<span class="string">"advice_queries"</span>, <span class="self">self</span>.advice_queries)
+            .field(<span class="string">"instance_queries"</span>, <span class="self">self</span>.instance_queries)
+            .field(<span class="string">"fixed_queries"</span>, <span class="self">self</span>.fixed_queries)
+            .field(<span class="string">"permutation"</span>, <span class="self">self</span>.permutation)
+            .field(<span class="string">"lookups"</span>, <span class="self">self</span>.lookups);
         <span class="kw">if </span>!<span class="self">self</span>.shuffles.is_empty() {
-            debug_struct.field(<span class="string">&quot;shuffles&quot;</span>, <span class="self">self</span>.shuffles);
+            debug_struct.field(<span class="string">"shuffles"</span>, <span class="self">self</span>.shuffles);
         }
         debug_struct
-            .field(<span class="string">&quot;constants&quot;</span>, <span class="self">self</span>.constants)
-            .field(<span class="string">&quot;minimum_degree&quot;</span>, <span class="self">self</span>.minimum_degree);
+            .field(<span class="string">"constants"</span>, <span class="self">self</span>.constants)
+            .field(<span class="string">"minimum_degree"</span>, <span class="self">self</span>.minimum_degree);
         debug_struct.finish()
     }
 }
 
-<span class="kw">struct </span>PinnedGates&lt;<span class="lifetime">&#39;a</span>, F: Field&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;Gate&lt;F&gt;&gt;);
+<span class="kw">struct </span>PinnedGates&lt;<span class="lifetime">'a</span>, F: Field&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;Gate&lt;F&gt;&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; std::fmt::Debug <span class="kw">for </span>PinnedGates&lt;<span class="lifetime">&#39;a</span>, F&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field&gt; std::fmt::Debug <span class="kw">for </span>PinnedGates&lt;<span class="lifetime">'a</span>, F&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
         f.debug_list()
             .entries(<span class="self">self</span>.<span class="number">0</span>.iter().flat_map(|gate| gate.polynomials().iter()))
             .finish()
@@ -4292,7 +4292,7 @@
     <span class="doccomment">/// Obtain a pinned version of this constraint system; a structure with the
     /// minimal parameters needed to determine the rest of the constraint
     /// system.
-    </span><span class="kw">pub fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedConstraintSystem&lt;<span class="lifetime">&#39;_</span>, F&gt; {
+    </span><span class="kw">pub fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedConstraintSystem&lt;<span class="lifetime">'_</span>, F&gt; {
         PinnedConstraintSystem {
             num_fixed_columns: <span class="kw-2">&amp;</span><span class="self">self</span>.num_fixed_columns,
             num_advice_columns: <span class="kw-2">&amp;</span><span class="self">self</span>.num_advice_columns,
@@ -4339,14 +4339,14 @@
     </span><span class="kw">pub fn </span>lookup&lt;S: AsRef&lt;str&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: S,
-        table_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, TableColumn)&gt;,
+        table_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, TableColumn)&gt;,
     ) -&gt; usize {
         <span class="kw">let </span><span class="kw-2">mut </span>cells = VirtualCells::new(<span class="self">self</span>);
         <span class="kw">let </span>table_map = table_map(<span class="kw-2">&amp;mut </span>cells)
             .into_iter()
             .map(|(<span class="kw-2">mut </span>input, table)| {
                 <span class="kw">if </span>input.contains_simple_selector() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;expression containing simple selector supplied to lookup argument&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"expression containing simple selector supplied to lookup argument"</span>);
                 }
                 <span class="kw">let </span><span class="kw-2">mut </span>table = cells.query_fixed(table.inner(), Rotation::cur());
                 input.query_cells(<span class="kw-2">&amp;mut </span>cells);
@@ -4369,17 +4369,17 @@
     </span><span class="kw">pub fn </span>lookup_any&lt;S: AsRef&lt;str&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: S,
-        table_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, Expression&lt;F&gt;)&gt;,
+        table_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, Expression&lt;F&gt;)&gt;,
     ) -&gt; usize {
         <span class="kw">let </span><span class="kw-2">mut </span>cells = VirtualCells::new(<span class="self">self</span>);
         <span class="kw">let </span>table_map = table_map(<span class="kw-2">&amp;mut </span>cells)
             .into_iter()
             .map(|(<span class="kw-2">mut </span>input, <span class="kw-2">mut </span>table)| {
                 <span class="kw">if </span>input.contains_simple_selector() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;expression containing simple selector supplied to lookup argument&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"expression containing simple selector supplied to lookup argument"</span>);
                 }
                 <span class="kw">if </span>table.contains_simple_selector() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;expression containing simple selector supplied to lookup argument&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"expression containing simple selector supplied to lookup argument"</span>);
                 }
                 input.query_cells(<span class="kw-2">&amp;mut </span>cells);
                 table.query_cells(<span class="kw-2">&amp;mut </span>cells);
@@ -4398,7 +4398,7 @@
     </span><span class="kw">pub fn </span>shuffle&lt;S: AsRef&lt;str&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: S,
-        shuffle_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, Expression&lt;F&gt;)&gt;,
+        shuffle_map: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; Vec&lt;(Expression&lt;F&gt;, Expression&lt;F&gt;)&gt;,
     ) -&gt; usize {
         <span class="kw">let </span><span class="kw-2">mut </span>cells = VirtualCells::new(<span class="self">self</span>);
         <span class="kw">let </span>shuffle_map = shuffle_map(<span class="kw-2">&amp;mut </span>cells)
@@ -4482,7 +4482,7 @@
             }
         }
 
-        <span class="macro">panic!</span>(<span class="string">&quot;get_advice_query_index called for non-existent query&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"get_advice_query_index called for non-existent query"</span>);
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_fixed_query_index(<span class="kw-2">&amp;</span><span class="self">self</span>, column: Column&lt;Fixed&gt;, at: Rotation) -&gt; usize {
@@ -4492,7 +4492,7 @@
             }
         }
 
-        <span class="macro">panic!</span>(<span class="string">&quot;get_fixed_query_index called for non-existent query&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"get_fixed_query_index called for non-existent query"</span>);
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_instance_query_index(<span class="kw-2">&amp;</span><span class="self">self</span>, column: Column&lt;Instance&gt;, at: Rotation) -&gt; usize {
@@ -4502,7 +4502,7 @@
             }
         }
 
-        <span class="macro">panic!</span>(<span class="string">&quot;get_instance_query_index called for non-existent query&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"get_instance_query_index called for non-existent query"</span>);
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_any_query_index(<span class="kw-2">&amp;</span><span class="self">self</span>, column: Column&lt;Any&gt;, at: Rotation) -&gt; usize {
@@ -4535,7 +4535,7 @@
     </span><span class="kw">pub fn </span>create_gate&lt;C: Into&lt;Constraint&lt;F&gt;&gt;, Iter: IntoIterator&lt;Item = C&gt;, S: AsRef&lt;str&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: S,
-        constraints: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, F&gt;) -&gt; Iter,
+        constraints: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, F&gt;) -&gt; Iter,
     ) {
         <span class="kw">let </span><span class="kw-2">mut </span>cells = VirtualCells::new(<span class="self">self</span>);
         <span class="kw">let </span>constraints = constraints(<span class="kw-2">&amp;mut </span>cells);
@@ -4553,7 +4553,7 @@
 
         <span class="macro">assert!</span>(
             !polys.is_empty(),
-            <span class="string">&quot;Gates must contain at least one constraint.&quot;
+            <span class="string">"Gates must contain at least one constraint."
         </span>);
 
         <span class="self">self</span>.gates.push(Gate {
@@ -4757,7 +4757,7 @@
         </span>A: Fn() -&gt; AR,
         AR: Into&lt;String&gt;,
     {
-        <span class="comment">// We don&#39;t care if the table has already an annotation. If it&#39;s the case we keep the new one.
+        <span class="comment">// We don't care if the table has already an annotation. If it's the case we keep the new one.
         </span><span class="self">self</span>.general_column_annotations.insert(
             metadata::Column::from((Any::Fixed, column.inner().index)),
             annotation().into(),
@@ -4772,7 +4772,7 @@
         T: Into&lt;Column&lt;Any&gt;&gt;,
     {
         <span class="kw">let </span>col_any = column.into();
-        <span class="comment">// We don&#39;t care if the table has already an annotation. If it&#39;s the case we keep the new one.
+        <span class="comment">// We don't care if the table has already an annotation. If it's the case we keep the new one.
         </span><span class="self">self</span>.general_column_annotations.insert(
             metadata::Column::from((col_any.column_type, col_any.index)),
             annotation().into(),
@@ -4800,13 +4800,13 @@
     }
 
     <span class="doccomment">/// Allocate a new unblinded advice column in given phase. This allows for the generation of deterministic commitments to advice columns
-    /// which can be used to split large circuits into smaller ones, whose proofs can then be &quot;joined&quot; together by their common witness commitments.
+    /// which can be used to split large circuits into smaller ones, whose proofs can then be "joined" together by their common witness commitments.
     </span><span class="kw">pub fn </span>unblinded_advice_column_in&lt;P: Phase&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, phase: P) -&gt; Column&lt;Advice&gt; {
         <span class="kw">let </span>phase = phase.to_sealed();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(previous_phase) = phase.prev() {
             <span class="self">self</span>.assert_phase_exists(
                 previous_phase,
-                <span class="macro">format!</span>(<span class="string">&quot;Column&lt;Advice&gt; in later phase {:?}&quot;</span>, phase).as_str(),
+                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {:?}"</span>, phase).as_str(),
             );
         }
 
@@ -4825,13 +4825,13 @@
     ///
     /// # Panics
     ///
-    /// It panics if previous phase before the given one doesn&#39;t have advice column allocated.
+    /// It panics if previous phase before the given one doesn't have advice column allocated.
     </span><span class="kw">pub fn </span>advice_column_in&lt;P: Phase&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, phase: P) -&gt; Column&lt;Advice&gt; {
         <span class="kw">let </span>phase = phase.to_sealed();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(previous_phase) = phase.prev() {
             <span class="self">self</span>.assert_phase_exists(
                 previous_phase,
-                <span class="macro">format!</span>(<span class="string">&quot;Column&lt;Advice&gt; in later phase {:?}&quot;</span>, phase).as_str(),
+                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {:?}"</span>, phase).as_str(),
             );
         }
 
@@ -4859,12 +4859,12 @@
     ///
     /// # Panics
     ///
-    /// It panics if the given phase doesn&#39;t have advice column allocated.
+    /// It panics if the given phase doesn't have advice column allocated.
     </span><span class="kw">pub fn </span>challenge_usable_after&lt;P: Phase&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, phase: P) -&gt; Challenge {
         <span class="kw">let </span>phase = phase.to_sealed();
         <span class="self">self</span>.assert_phase_exists(
             phase,
-            <span class="macro">format!</span>(<span class="string">&quot;Challenge usable after phase {:?}&quot;</span>, phase).as_str(),
+            <span class="macro">format!</span>(<span class="string">"Challenge usable after phase {:?}"</span>, phase).as_str(),
         );
 
         <span class="kw">let </span>tmp = Challenge {
@@ -4885,7 +4885,7 @@
             .find(|advice_column_phase| <span class="kw-2">**</span>advice_column_phase == phase)
             .unwrap_or_else(|| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;No Column&lt;Advice&gt; is used in phase {:?} while allocating a new {:?}&quot;</span>,
+                    <span class="string">"No Column&lt;Advice&gt; is used in phase {:?} while allocating a new {:?}"</span>,
                     phase, resource
                 )
             });
@@ -4945,9 +4945,9 @@
     }
 
     <span class="doccomment">/// Compute the number of blinding factors necessary to perfectly blind
-    /// each of the prover&#39;s witness polynomials.
+    /// each of the prover's witness polynomials.
     </span><span class="kw">pub fn </span>blinding_factors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="comment">// All of the prover&#39;s advice columns are evaluated at no more than
+        <span class="comment">// All of the prover's advice columns are evaluated at no more than
         </span><span class="kw">let </span>factors = <span class="kw-2">*</span><span class="self">self</span>.num_advice_queries.iter().max().unwrap_or(<span class="kw-2">&amp;</span><span class="number">1</span>);
         <span class="comment">// distinct points during gate checks.
 
@@ -4966,7 +4966,7 @@
         // h(x_3) is also not revealed; the verifier only learns a single
         // evaluation of a polynomial in x_1 which has h(x_3) and another random
         // polynomial evaluated at x_3 as coefficients -- this random polynomial
-        // is &quot;random_poly&quot; in the vanishing argument.
+        // is "random_poly" in the vanishing argument.
 
         // Add an additional blinding factor as a slight defense against
         // off-by-one errors.
@@ -5069,17 +5069,17 @@
     }
 }
 
-<span class="doccomment">/// Exposes the &quot;virtual cells&quot; that can be queried while creating a custom gate or lookup
+<span class="doccomment">/// Exposes the "virtual cells" that can be queried while creating a custom gate or lookup
 /// table.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>VirtualCells&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; {
-    meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ConstraintSystem&lt;F&gt;,
+</span><span class="kw">pub struct </span>VirtualCells&lt;<span class="lifetime">'a</span>, F: Field&gt; {
+    meta: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ConstraintSystem&lt;F&gt;,
     queried_selectors: Vec&lt;Selector&gt;,
     queried_cells: Vec&lt;VirtualCell&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; VirtualCells&lt;<span class="lifetime">&#39;a</span>, F&gt; {
-    <span class="kw">fn </span>new(meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ConstraintSystem&lt;F&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F: Field&gt; VirtualCells&lt;<span class="lifetime">'a</span>, F&gt; {
+    <span class="kw">fn </span>new(meta: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ConstraintSystem&lt;F&gt;) -&gt; <span class="self">Self </span>{
         VirtualCells {
             meta,
             queried_selectors: <span class="macro">vec!</span>[],

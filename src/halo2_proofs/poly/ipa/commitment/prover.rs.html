@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/ipa/commitment/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/ipa/commitment/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -205,7 +205,7 @@
 ///
 /// **Important:** This function assumes that the provided `transcript` has
 /// already seen the common inputs: the polynomial commitment P, the claimed
-/// opening v, and the point x. It&#39;s probably also nice for the transcript
+/// opening v, and the point x. It's probably also nice for the transcript
 /// to have seen the elliptic curve description and the URS, if you want to
 /// be rigorous.
 </span><span class="kw">pub fn </span>create_proof&lt;
@@ -221,7 +221,7 @@
     p_blind: Blind&lt;C::Scalar&gt;,
     x_3: C::Scalar,
 ) -&gt; io::Result&lt;()&gt; {
-    <span class="comment">// We&#39;re limited to polynomials of degree n - 1.
+    <span class="comment">// We're limited to polynomials of degree n - 1.
     </span><span class="macro">assert_eq!</span>(p_poly.len(), params.n <span class="kw">as </span>usize);
 
     <span class="comment">// Sample a random polynomial (of same degree) that has a root at x_3, first
@@ -250,7 +250,7 @@
     // in their commitments.
     </span><span class="kw">let </span>z = <span class="kw-2">*</span>transcript.squeeze_challenge_scalar::&lt;()&gt;();
 
-    <span class="comment">// We&#39;ll be opening `P&#39; = P - [v] G_0 + [ξ] S` to ensure it has a root at
+    <span class="comment">// We'll be opening `P' = P - [v] G_0 + [ξ] S` to ensure it has a root at
     // zero.
     </span><span class="kw">let </span><span class="kw-2">mut </span>p_prime_poly = s_poly * xi + p_poly;
     <span class="kw">let </span>v = eval_polynomial(<span class="kw-2">&amp;</span>p_prime_poly, x_3);
@@ -258,7 +258,7 @@
     <span class="kw">let </span>p_prime_blind = s_poly_blind * Blind(xi) + p_blind;
 
     <span class="comment">// This accumulates the synthetic blinding factor `f` starting
-    // with the blinding factor for `P&#39;`.
+    // with the blinding factor for `P'`.
     </span><span class="kw">let </span><span class="kw-2">mut </span>f = p_prime_blind.<span class="number">0</span>;
 
     <span class="comment">// Initialize the vector `p_prime` as the coefficients of the polynomial.
@@ -276,17 +276,17 @@
         }
     }
 
-    <span class="comment">// Initialize the vector `G&#39;` from the URS. We&#39;ll be progressively collapsing
+    <span class="comment">// Initialize the vector `G'` from the URS. We'll be progressively collapsing
     // this vector into smaller and smaller vectors until it is of length 1.
     </span><span class="kw">let </span><span class="kw-2">mut </span>g_prime = params.g.clone();
 
     <span class="comment">// Perform the inner product argument, round by round.
     </span><span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..params.k {
-        <span class="kw">let </span>half = <span class="number">1 </span>&lt;&lt; (params.k - j - <span class="number">1</span>); <span class="comment">// half the length of `p_prime`, `b`, `G&#39;`
+        <span class="kw">let </span>half = <span class="number">1 </span>&lt;&lt; (params.k - j - <span class="number">1</span>); <span class="comment">// half the length of `p_prime`, `b`, `G'`
 
         // Compute L, R
         //
-        // TODO: If we modify multiexp to take &quot;extra&quot; bases, we could speed
+        // TODO: If we modify multiexp to take "extra" bases, we could speed
         // this piece up a bit by combining the multiexps.
         </span><span class="kw">let </span>l_j = best_multiexp(<span class="kw-2">&amp;</span>p_prime[half..], <span class="kw-2">&amp;</span>g_prime[<span class="number">0</span>..half]);
         <span class="kw">let </span>r_j = best_multiexp(<span class="kw-2">&amp;</span>p_prime[<span class="number">0</span>..half], <span class="kw-2">&amp;</span>g_prime[half..]);
@@ -315,7 +315,7 @@
         p_prime.truncate(half);
         b.truncate(half);
 
-        <span class="comment">// Collapse `G&#39;`
+        <span class="comment">// Collapse `G'`
         </span>parallel_generator_collapse(<span class="kw-2">&amp;mut </span>g_prime, u_j);
         g_prime.truncate(half);
 
@@ -324,7 +324,7 @@
         f += <span class="kw-2">&amp;</span>(r_j_randomness * <span class="kw-2">&amp;</span>u_j);
     }
 
-    <span class="comment">// We have fully collapsed `p_prime`, `b`, `G&#39;`
+    <span class="comment">// We have fully collapsed `p_prime`, `b`, `G'`
     </span><span class="macro">assert_eq!</span>(p_prime.len(), <span class="number">1</span>);
     <span class="kw">let </span>c = p_prime[<span class="number">0</span>];
 

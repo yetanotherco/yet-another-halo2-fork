@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev.rs`."><title>dev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev.rs`."><title>dev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -2322,7 +2322,7 @@
     },
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::multicore::{
     IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelIterator,
     ParallelSliceMut,
@@ -2344,11 +2344,11 @@
 <span class="kw">mod </span>tfp;
 <span class="kw">pub use </span>tfp::TracingFloorPlanner;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;dev-graph&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dev-graph"</span>)]
 </span><span class="kw">mod </span>graph;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;dev-graph&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;dev-graph&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"dev-graph"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"dev-graph"</span>)))]
 </span><span class="kw">pub use </span>graph::{circuit_dot_graph, layout::CircuitLayout};
 
 <span class="attr">#[derive(Debug)]
@@ -2408,7 +2408,7 @@
 <span class="kw">impl</span>&lt;F: Field&gt; From&lt;CellValue&lt;F&gt;&gt; <span class="kw">for </span>Value&lt;F&gt; {
     <span class="kw">fn </span>from(value: CellValue&lt;F&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>value {
-            <span class="comment">// Cells that haven&#39;t been explicitly assigned to, default to zero.
+            <span class="comment">// Cells that haven't been explicitly assigned to, default to zero.
             </span>CellValue::Unassigned =&gt; Value::Real(F::ZERO),
             CellValue::Assigned(v) =&gt; Value::Real(v),
             CellValue::Poison(<span class="kw">_</span>) =&gt; Value::Poison,
@@ -2445,7 +2445,7 @@
         <span class="kw">match </span>(<span class="self">self</span>, rhs) {
             (Value::Real(a), Value::Real(b)) =&gt; Value::Real(a * b),
             <span class="comment">// If poison is multiplied by zero, then we treat the poison as unconstrained
-            // and we don&#39;t propagate it.
+            // and we don't propagate it.
             </span>(Value::Real(x), Value::Poison) | (Value::Poison, Value::Real(x))
                 <span class="kw">if </span>x.is_zero_vartime() =&gt;
             {
@@ -2463,7 +2463,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             Value::Real(lhs) =&gt; Value::Real(lhs * rhs),
             <span class="comment">// If poison is multiplied by zero, then we treat the poison as unconstrained
-            // and we don&#39;t propagate it.
+            // and we don't propagate it.
             </span>Value::Poison <span class="kw">if </span>rhs.is_zero_vartime() =&gt; Value::Real(F::ZERO),
             <span class="kw">_ </span>=&gt; Value::Poison,
         }
@@ -2473,8 +2473,8 @@
 <span class="doccomment">/// A test prover for debugging circuits.
 ///
 /// The normal proving process, when applied to a buggy circuit implementation, might
-/// return proofs that do not validate when they should, but it can&#39;t indicate anything
-/// other than &quot;something is invalid&quot;. `MockProver` can be used to figure out _why_ these
+/// return proofs that do not validate when they should, but it can't indicate anything
+/// other than "something is invalid". `MockProver` can be used to figure out _why_ these
 /// are invalid: it stores all the private inputs along with the circuit internals, and
 /// then checks every constraint manually.
 ///
@@ -2508,7 +2508,7 @@
 /// impl&lt;F: PrimeField&gt; Circuit&lt;F&gt; for MyCircuit {
 ///     type Config = MyConfig;
 ///     type FloorPlanner = SimpleFloorPlanner;
-///     #[cfg(feature = &quot;circuit-params&quot;)]
+///     #[cfg(feature = "circuit-params")]
 ///     type Params = ();
 ///
 ///     fn without_witnesses(&amp;self) -&gt; Self {
@@ -2521,29 +2521,29 @@
 ///         let c = meta.advice_column();
 ///         let s = meta.selector();
 ///
-///         meta.create_gate(&quot;R1CS constraint&quot;, |meta| {
+///         meta.create_gate("R1CS constraint", |meta| {
 ///             let a = meta.query_advice(a, Rotation::cur());
 ///             let b = meta.query_advice(b, Rotation::cur());
 ///             let c = meta.query_advice(c, Rotation::cur());
 ///             let s = meta.query_selector(s);
 ///
 ///             // BUG: Should be a * b - c
-///             Some((&quot;buggy R1CS&quot;, s * (a * b + c)))
+///             Some(("buggy R1CS", s * (a * b + c)))
 ///         });
 ///
 ///         MyConfig { a, b, c, s }
 ///     }
 ///
 ///     fn synthesize(&amp;self, config: MyConfig, mut layouter: impl Layouter&lt;F&gt;) -&gt; Result&lt;(), Error&gt; {
-///         layouter.assign_region(|| &quot;Example region&quot;, |mut region| {
+///         layouter.assign_region(|| "Example region", |mut region| {
 ///             config.s.enable(&amp;mut region, 0)?;
-///             region.assign_advice(|| &quot;a&quot;, config.a, 0, || {
+///             region.assign_advice(|| "a", config.a, 0, || {
 ///                 self.a.map(F::from)
 ///             })?;
-///             region.assign_advice(|| &quot;b&quot;, config.b, 0, || {
+///             region.assign_advice(|| "b", config.b, 0, || {
 ///                 self.b.map(F::from)
 ///             })?;
-///             region.assign_advice(|| &quot;c&quot;, config.c, 0, || {
+///             region.assign_advice(|| "c", config.c, 0, || {
 ///                 (self.a * self.b).map(F::from)
 ///             })?;
 ///             Ok(())
@@ -2564,15 +2564,15 @@
 /// assert_eq!(
 ///     prover.verify(),
 ///     Err(vec![VerifyFailure::ConstraintNotSatisfied {
-///         constraint: ((0, &quot;R1CS constraint&quot;).into(), 0, &quot;buggy R1CS&quot;).into(),
+///         constraint: ((0, "R1CS constraint").into(), 0, "buggy R1CS").into(),
 ///         location: FailureLocation::InRegion {
-///             region: (0, &quot;Example region&quot;).into(),
+///             region: (0, "Example region").into(),
 ///             offset: 0,
 ///         },
 ///         cell_values: vec![
-///             (((Any::advice(), 0).into(), 0).into(), &quot;0x2&quot;.to_string()),
-///             (((Any::advice(), 1).into(), 0).into(), &quot;0x4&quot;.to_string()),
-///             (((Any::advice(), 2).into(), 0).into(), &quot;0x8&quot;.to_string()),
+///             (((Any::advice(), 0).into(), 0).into(), "0x2".to_string()),
+///             (((Any::advice(), 1).into(), 0).into(), "0x4".to_string()),
+///             (((Any::advice(), 2).into(), 0).into(), "0x8".to_string()),
 ///         ],
 ///     }])
 /// );
@@ -2584,7 +2584,7 @@
 /// });
 /// assert_eq!(
 ///     result.unwrap_err().downcast_ref::&lt;String&gt;().unwrap(),
-///     &quot;n=4, minimum_rows=8, k=2&quot;
+///     "n=4, minimum_rows=8, k=2"
 /// );
 /// ```
 </span><span class="attr">#[derive(Debug)]
@@ -2695,7 +2695,7 @@
 
         <span class="macro">assert!</span>(
             <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row),
-            <span class="string">&quot;row={} not in usable_rows={:?}, k={}&quot;</span>,
+            <span class="string">"row={} not in usable_rows={:?}, k={}"</span>,
             row,
             <span class="self">self</span>.usable_rows,
             <span class="self">self</span>.k,
@@ -2723,7 +2723,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;circuit::Value&lt;F&gt;, Error&gt; {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row),
-            <span class="string">&quot;row={}, usable_rows={:?}, k={}&quot;</span>,
+            <span class="string">"row={}, usable_rows={:?}, k={}"</span>,
             row,
             <span class="self">self</span>.usable_rows,
             <span class="self">self</span>.k,
@@ -2734,7 +2734,7 @@
             .get(column.index())
             .and_then(|column| column.get(row))
             .map(|v| circuit::Value::known(v.value()))
-            .expect(<span class="string">&quot;bound failure&quot;</span>))
+            .expect(<span class="string">"bound failure"</span>))
     }
 
     <span class="kw">fn </span>assign_advice&lt;V, VR, A, AR&gt;(
@@ -2753,7 +2753,7 @@
         <span class="kw">if </span><span class="self">self</span>.in_phase(FirstPhase) {
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row),
-                <span class="string">&quot;row={}, usable_rows={:?}, k={}&quot;</span>,
+                <span class="string">"row={}, usable_rows={:?}, k={}"</span>,
                 row,
                 <span class="self">self</span>.usable_rows,
                 <span class="self">self</span>.k,
@@ -2775,7 +2775,7 @@
                     </span>.advice
                     .get_mut(column.index())
                     .and_then(|v| v.get_mut(row))
-                    .expect(<span class="string">&quot;bounds failure&quot;</span>);
+                    .expect(<span class="string">"bounds failure"</span>);
                 <span class="kw-2">*</span>value = CellValue::Assigned(to);
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
@@ -2808,7 +2808,7 @@
 
         <span class="macro">assert!</span>(
             <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row),
-            <span class="string">&quot;row={}, usable_rows={:?}, k={}&quot;</span>,
+            <span class="string">"row={}, usable_rows={:?}, k={}"</span>,
             row,
             <span class="self">self</span>.usable_rows,
             <span class="self">self</span>.k,
@@ -2827,7 +2827,7 @@
             </span>.fixed
             .get_mut(column.index())
             .and_then(|v| v.get_mut(row))
-            .expect(<span class="string">&quot;bounds failure&quot;</span>) = CellValue::Assigned(to().into_field().evaluate().assign()<span class="question-mark">?</span>);
+            .expect(<span class="string">"bounds failure"</span>) = CellValue::Assigned(to().into_field().evaluate().assign()<span class="question-mark">?</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -2845,7 +2845,7 @@
 
         <span class="macro">assert!</span>(
             <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>left_row) &amp;&amp; <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>right_row),
-            <span class="string">&quot;left_row={}, right_row={}, usable_rows={:?}, k={}&quot;</span>,
+            <span class="string">"left_row={}, right_row={}, usable_rows={:?}, k={}"</span>,
             left_row,
             right_row,
             <span class="self">self</span>.usable_rows,
@@ -2868,14 +2868,14 @@
 
         <span class="macro">assert!</span>(
             <span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>from_row),
-            <span class="string">&quot;row={}, usable_rows={:?}, k={}&quot;</span>,
+            <span class="string">"row={}, usable_rows={:?}, k={}"</span>,
             from_row,
             <span class="self">self</span>.usable_rows,
             <span class="self">self</span>.k,
         );
 
         <span class="kw">for </span>row <span class="kw">in </span><span class="self">self</span>.usable_rows.clone().skip(from_row) {
-            <span class="self">self</span>.assign_fixed(|| <span class="string">&quot;&quot;</span>, col, row, || to)<span class="question-mark">?</span>;
+            <span class="self">self</span>.assign_fixed(|| <span class="string">""</span>, col, row, || to)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -2913,15 +2913,15 @@
         <span class="kw">let </span>n = <span class="number">1 </span>&lt;&lt; k;
 
         <span class="kw">let </span><span class="kw-2">mut </span>cs = ConstraintSystem::default();
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
         </span><span class="kw">let </span>config = ConcreteCircuit::configure_with_params(<span class="kw-2">&amp;mut </span>cs, circuit.params());
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;circuit-params&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"circuit-params"</span>))]
         </span><span class="kw">let </span>config = ConcreteCircuit::configure(<span class="kw-2">&amp;mut </span>cs);
         <span class="kw">let </span>cs = cs;
 
         <span class="macro">assert!</span>(
             n &gt;= cs.minimum_rows(),
-            <span class="string">&quot;n={}, minimum_rows={}, k={}&quot;</span>,
+            <span class="string">"n={}, minimum_rows={}, k={}"</span>,
             n,
             cs.minimum_rows(),
             k,
@@ -2934,7 +2934,7 @@
             .map(|instance| {
                 <span class="macro">assert!</span>(
                     instance.len() &lt;= n - (cs.blinding_factors() + <span class="number">1</span>),
-                    <span class="string">&quot;instance.len={}, n={}, cs.blinding_factors={}&quot;</span>,
+                    <span class="string">"instance.len={}, n={}, cs.blinding_factors={}"</span>,
                     instance.len(),
                     n,
                     cs.blinding_factors()
@@ -2971,7 +2971,7 @@
 
         <span class="comment">// Use hash chain to derive deterministic challenges for testing
         </span><span class="kw">let </span>challenges = {
-            <span class="kw">let </span><span class="kw-2">mut </span>hash: [u8; <span class="number">64</span>] = blake2b(<span class="string">b&quot;Halo2-MockProver&quot;</span>).as_bytes().try_into().unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>hash: [u8; <span class="number">64</span>] = blake2b(<span class="string">b"Halo2-MockProver"</span>).as_bytes().try_into().unwrap();
             iter::repeat_with(|| {
                 hash = blake2b(<span class="kw-2">&amp;</span>hash).as_bytes().try_into().unwrap();
                 F::from_uniform_bytes(<span class="kw-2">&amp;</span>hash)
@@ -3016,7 +3016,7 @@
             v
         }));
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;thread-safe-region&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"thread-safe-region"</span>)]
         </span>prover.permutation.build_ordered_mapping();
 
         <span class="prelude-val">Ok</span>(prover)
@@ -3052,12 +3052,12 @@
         <span class="comment">// check all the row ids are valid
         </span><span class="kw">for </span>row_id <span class="kw">in </span>gate_row_ids.clone() {
             <span class="kw">if </span>!<span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row_id) {
-                <span class="macro">panic!</span>(<span class="string">&quot;invalid gate row id {}&quot;</span>, row_id)
+                <span class="macro">panic!</span>(<span class="string">"invalid gate row id {}"</span>, row_id)
             }
         }
         <span class="kw">for </span>row_id <span class="kw">in </span>lookup_input_row_ids.clone() {
             <span class="kw">if </span>!<span class="self">self</span>.usable_rows.contains(<span class="kw-2">&amp;</span>row_id) {
-                <span class="macro">panic!</span>(<span class="string">&quot;invalid lookup row id {}&quot;</span>, row_id)
+                <span class="macro">panic!</span>(<span class="string">"invalid lookup row id {}"</span>, row_id)
             }
         }
 
@@ -3144,7 +3144,7 @@
                         gate.polynomials().iter().enumerate().filter_map(
                             <span class="kw">move </span>|(poly_index, poly)| <span class="kw">match </span>poly.evaluate_lazy(
                                 <span class="kw-2">&amp;</span>|scalar| Value::Real(scalar),
-                                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+                                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
                                 <span class="kw-2">&amp;</span>util::load(n, row, <span class="kw-2">&amp;</span><span class="self">self</span>.cs.fixed_queries, <span class="kw-2">&amp;</span><span class="self">self</span>.fixed),
                                 <span class="kw-2">&amp;</span>util::load(n, row, <span class="kw-2">&amp;</span><span class="self">self</span>.cs.advice_queries, <span class="kw-2">&amp;</span><span class="self">self</span>.advice),
                                 <span class="kw-2">&amp;</span>util::load_instance(
@@ -3203,7 +3203,7 @@
         <span class="kw">let </span>load = |expression: <span class="kw-2">&amp;</span>Expression&lt;F&gt;, row| {
             expression.evaluate_lazy(
                 <span class="kw-2">&amp;</span>|scalar| Value::Real(scalar),
-                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
                 <span class="kw-2">&amp;</span>|query| {
                     <span class="kw">let </span>query = <span class="self">self</span>.cs.fixed_queries[query.index.unwrap()];
                     <span class="kw">let </span>column_index = query.<span class="number">0</span>.index();
@@ -3250,9 +3250,9 @@
                     <span class="macro">assert!</span>(<span class="self">self</span>.usable_rows.end &gt; <span class="number">0</span>);
 
                     <span class="comment">// We optimize on the basis that the table might have been filled so that the last
-                    // usable row now has the fill contents (it doesn&#39;t matter if there was no filling).
-                    // Note that this &quot;fill row&quot; necessarily exists in the table, and we use that fact to
-                    // slightly simplify the optimization: we&#39;re only trying to check that all input rows
+                    // usable row now has the fill contents (it doesn't matter if there was no filling).
+                    // Note that this "fill row" necessarily exists in the table, and we use that fact to
+                    // slightly simplify the optimization: we're only trying to check that all input rows
                     // are contained in the table, and so we can safely just drop input rows that
                     // match the fill row.
                     </span><span class="kw">let </span>fill_row: Vec&lt;<span class="kw">_</span>&gt; = lookup
@@ -3302,7 +3302,7 @@
                                 .collect();
 
                             <span class="kw">if </span>t != fill_row {
-                                <span class="comment">// Also keep track of the original input row, since we&#39;re going to sort.
+                                <span class="comment">// Also keep track of the original input row, since we're going to sort.
                                 </span><span class="prelude-val">Some</span>((t, input_row))
                             } <span class="kw">else </span>{
                                 <span class="prelude-val">None
@@ -3420,7 +3420,7 @@
 
             <span class="comment">// Iterate over each column of the permutation
             </span>mapping.enumerate().flat_map(<span class="kw">move </span>|(column, values)| {
-                <span class="comment">// Iterate over each row of the column to check that the cell&#39;s
+                <span class="comment">// Iterate over each row of the column to check that the cell's
                 // value is preserved by the mapping.
                 </span>values
                     .enumerate()
@@ -3473,7 +3473,7 @@
     <span class="doccomment">/// Returns `Ok(())` if this `MockProver` is satisfied, or a list of errors indicating
     /// the reasons that the circuit is not satisfied.
     /// Constraints and lookup are checked at `usable_rows`, parallelly.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
     </span><span class="kw">pub fn </span>verify_par(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Vec&lt;VerifyFailure&gt;&gt; {
         <span class="self">self</span>.verify_at_rows_par(<span class="self">self</span>.usable_rows.clone(), <span class="self">self</span>.usable_rows.clone())
     }
@@ -3481,7 +3481,7 @@
     <span class="doccomment">/// Returns `Ok(())` if this `MockProver` is satisfied, or a list of errors indicating
     /// the reasons that the circuit is not satisfied.
     /// Constraints are only checked at `gate_row_ids`, and lookup inputs are only checked at `lookup_input_row_ids`, parallelly.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
     </span><span class="kw">pub fn </span>verify_at_rows_par&lt;I: Clone + Iterator&lt;Item = usize&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         gate_row_ids: I,
@@ -3495,12 +3495,12 @@
         <span class="comment">// check all the row ids are valid
         </span>gate_row_ids.par_iter().for_each(|row_id| {
             <span class="kw">if </span>!<span class="self">self</span>.usable_rows.contains(row_id) {
-                <span class="macro">panic!</span>(<span class="string">&quot;invalid gate row id {}&quot;</span>, row_id);
+                <span class="macro">panic!</span>(<span class="string">"invalid gate row id {}"</span>, row_id);
             }
         });
         lookup_input_row_ids.par_iter().for_each(|row_id| {
             <span class="kw">if </span>!<span class="self">self</span>.usable_rows.contains(row_id) {
-                <span class="macro">panic!</span>(<span class="string">&quot;invalid gate row id {}&quot;</span>, row_id);
+                <span class="macro">panic!</span>(<span class="string">"invalid gate row id {}"</span>, row_id);
             }
         });
 
@@ -3602,7 +3602,7 @@
                         .filter_map(<span class="kw">move </span>|(poly_index, poly)| {
                             <span class="kw">match </span>poly.evaluate_lazy(
                                 <span class="kw-2">&amp;</span>|scalar| Value::Real(scalar),
-                                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+                                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
                                 <span class="kw-2">&amp;</span>util::load(n, row, <span class="kw-2">&amp;</span><span class="self">self</span>.cs.fixed_queries, <span class="kw-2">&amp;</span><span class="self">self</span>.fixed),
                                 <span class="kw-2">&amp;</span>util::load(n, row, <span class="kw-2">&amp;</span><span class="self">self</span>.cs.advice_queries, <span class="kw-2">&amp;</span><span class="self">self</span>.advice),
                                 <span class="kw-2">&amp;</span>util::load_instance(
@@ -3663,7 +3663,7 @@
         <span class="kw">let </span>load = |expression: <span class="kw-2">&amp;</span>Expression&lt;F&gt;, row| {
             expression.evaluate_lazy(
                 <span class="kw-2">&amp;</span>|scalar| Value::Real(scalar),
-                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+                <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
                 <span class="kw-2">&amp;</span>|query| {
                     <span class="self">self</span>.fixed[query.column_index]
                         [(row <span class="kw">as </span>i32 + n + query.rotation.<span class="number">0</span>) <span class="kw">as </span>usize % n <span class="kw">as </span>usize]
@@ -3703,9 +3703,9 @@
                     <span class="macro">assert!</span>(<span class="self">self</span>.usable_rows.end &gt; <span class="number">0</span>);
 
                     <span class="comment">// We optimize on the basis that the table might have been filled so that the last
-                    // usable row now has the fill contents (it doesn&#39;t matter if there was no filling).
-                    // Note that this &quot;fill row&quot; necessarily exists in the table, and we use that fact to
-                    // slightly simplify the optimization: we&#39;re only trying to check that all input rows
+                    // usable row now has the fill contents (it doesn't matter if there was no filling).
+                    // Note that this "fill row" necessarily exists in the table, and we use that fact to
+                    // slightly simplify the optimization: we're only trying to check that all input rows
                     // are contained in the table, and so we can safely just drop input rows that
                     // match the fill row.
                     </span><span class="kw">let </span>fill_row: Vec&lt;<span class="kw">_</span>&gt; = lookup
@@ -3757,7 +3757,7 @@
                                 .collect();
 
                             <span class="kw">if </span>t != fill_row {
-                                <span class="comment">// Also keep track of the original input row, since we&#39;re going to sort.
+                                <span class="comment">// Also keep track of the original input row, since we're going to sort.
                                 </span><span class="prelude-val">Some</span>((t, input_row))
                             } <span class="kw">else </span>{
                                 <span class="prelude-val">None
@@ -3869,7 +3869,7 @@
 
             <span class="comment">// Iterate over each column of the permutation
             </span>mapping.enumerate().flat_map(<span class="kw">move </span>|(column, values)| {
-                <span class="comment">// Iterate over each row of the column to check that the cell&#39;s
+                <span class="comment">// Iterate over each row of the column to check that the cell's
                 // value is preserved by the mapping.
                 </span>values
                     .enumerate()
@@ -3934,7 +3934,7 @@
                 err.emit(<span class="self">self</span>);
                 <span class="macro">eprintln!</span>();
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;circuit was not satisfied&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"circuit was not satisfied"</span>);
         }
     }
 
@@ -3949,14 +3949,14 @@
     /// ```ignore
     /// assert_eq!(prover.verify_par(), Ok(()));
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
     </span><span class="kw">pub fn </span>assert_satisfied_par(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(errs) = <span class="self">self</span>.verify_par() {
             <span class="kw">for </span>err <span class="kw">in </span>errs {
                 err.emit(<span class="self">self</span>);
                 <span class="macro">eprintln!</span>();
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;circuit was not satisfied&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"circuit was not satisfied"</span>);
         }
     }
 
@@ -3971,7 +3971,7 @@
     /// ```ignore
     /// assert_eq!(prover.verify_at_rows_par(), Ok(()));
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
     </span><span class="kw">pub fn </span>assert_satisfied_at_rows_par&lt;I: Clone + Iterator&lt;Item = usize&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         gate_row_ids: I,
@@ -3982,7 +3982,7 @@
                 err.emit(<span class="self">self</span>);
                 <span class="macro">eprintln!</span>();
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;circuit was not satisfied&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"circuit was not satisfied"</span>);
         }
     }
 
@@ -4027,7 +4027,7 @@
         <span class="kw">impl </span>Circuit&lt;Fp&gt; <span class="kw">for </span>FaultyCircuit {
             <span class="kw">type </span>Config = FaultyCircuitConfig;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>configure(meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;Fp&gt;) -&gt; <span class="self">Self</span>::Config {
@@ -4035,7 +4035,7 @@
                 <span class="kw">let </span>b = meta.advice_column();
                 <span class="kw">let </span>q = meta.selector();
 
-                meta.create_gate(<span class="string">&quot;Equality check&quot;</span>, |cells| {
+                meta.create_gate(<span class="string">"Equality check"</span>, |cells| {
                     <span class="kw">let </span>a = cells.query_advice(a, Rotation::prev());
                     <span class="kw">let </span>b = cells.query_advice(b, Rotation::cur());
                     <span class="kw">let </span>q = cells.query_selector(q);
@@ -4057,19 +4057,19 @@
                 <span class="kw-2">mut </span>layouter: <span class="kw">impl </span>Layouter&lt;Fp&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 layouter.assign_region(
-                    || <span class="string">&quot;Faulty synthesis&quot;</span>,
+                    || <span class="string">"Faulty synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the equality gate.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">1</span>)<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign a = 0.
-                        </span>region.assign_advice(|| <span class="string">&quot;a&quot;</span>, config.a, <span class="number">0</span>, || Value::known(Fp::zero()))<span class="question-mark">?</span>;
+                        </span>region.assign_advice(|| <span class="string">"a"</span>, config.a, <span class="number">0</span>, || Value::known(Fp::zero()))<span class="question-mark">?</span>;
 
                         <span class="comment">// Name Column a
-                        </span>region.name_column(|| <span class="string">&quot;This is annotated!&quot;</span>, config.a);
+                        </span>region.name_column(|| <span class="string">"This is annotated!"</span>, config.a);
 
                         <span class="comment">// Name Column b
-                        </span>region.name_column(|| <span class="string">&quot;This is also annotated!&quot;</span>, config.b);
+                        </span>region.name_column(|| <span class="string">"This is also annotated!"</span>, config.b);
 
                         <span class="comment">// BUG: Forget to assign b = 0! This could go unnoticed during
                         // development, because cell values default to zero, which in this
@@ -4084,8 +4084,8 @@
         <span class="macro">assert_eq!</span>(
             prover.verify(),
             <span class="prelude-val">Err</span>(<span class="macro">vec!</span>[VerifyFailure::CellNotAssigned {
-                gate: (<span class="number">0</span>, <span class="string">&quot;Equality check&quot;</span>).into(),
-                region: (<span class="number">0</span>, <span class="string">&quot;Faulty synthesis&quot;</span>.to_owned()).into(),
+                gate: (<span class="number">0</span>, <span class="string">"Equality check"</span>).into(),
+                region: (<span class="number">0</span>, <span class="string">"Faulty synthesis"</span>.to_owned()).into(),
                 gate_offset: <span class="number">1</span>,
                 column: Column::new(
                     <span class="number">1</span>,
@@ -4115,7 +4115,7 @@
         <span class="kw">impl </span>Circuit&lt;Fp&gt; <span class="kw">for </span>FaultyCircuit {
             <span class="kw">type </span>Config = FaultyCircuitConfig;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>configure(meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;Fp&gt;) -&gt; <span class="self">Self</span>::Config {
@@ -4124,12 +4124,12 @@
                 <span class="kw">let </span>table = meta.instance_column();
                 <span class="kw">let </span>advice_table = meta.advice_column();
 
-                meta.annotate_lookup_any_column(table, || <span class="string">&quot;Inst-Table&quot;</span>);
+                meta.annotate_lookup_any_column(table, || <span class="string">"Inst-Table"</span>);
                 meta.enable_equality(table);
-                meta.annotate_lookup_any_column(advice_table, || <span class="string">&quot;Adv-Table&quot;</span>);
+                meta.annotate_lookup_any_column(advice_table, || <span class="string">"Adv-Table"</span>);
                 meta.enable_equality(advice_table);
 
-                meta.lookup_any(<span class="string">&quot;lookup&quot;</span>, |cells| {
+                meta.lookup_any(<span class="string">"lookup"</span>, |cells| {
                     <span class="kw">let </span>a = cells.query_advice(a, Rotation::cur());
                     <span class="kw">let </span>q = cells.query_selector(q);
                     <span class="kw">let </span>advice_table = cells.query_advice(advice_table, Rotation::cur());
@@ -4168,7 +4168,7 @@
                 <span class="comment">// No assignment needed for the table as is an Instance Column.
 
                 </span>layouter.assign_region(
-                    || <span class="string">&quot;Good synthesis&quot;</span>,
+                    || <span class="string">"Good synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the lookup on rows 0 and 1.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
@@ -4177,7 +4177,7 @@
                         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
                             <span class="comment">// Load Advice lookup table with Instance lookup table values.
                             </span>region.assign_advice_from_instance(
-                                || <span class="string">&quot;Advice from instance tables&quot;</span>,
+                                || <span class="string">"Advice from instance tables"</span>,
                                 config.table,
                                 i,
                                 config.advice_table,
@@ -4187,13 +4187,13 @@
 
                         <span class="comment">// Assign a = 2 and a = 6.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 2&quot;</span>,
+                            || <span class="string">"a = 2"</span>,
                             config.a,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">2</span>)),
                         )<span class="question-mark">?</span>;
                         region.assign_advice(
-                            || <span class="string">&quot;a = 6&quot;</span>,
+                            || <span class="string">"a = 6"</span>,
                             config.a,
                             <span class="number">1</span>,
                             || Value::known(Fp::from(<span class="number">6</span>)),
@@ -4204,7 +4204,7 @@
                 )<span class="question-mark">?</span>;
 
                 layouter.assign_region(
-                    || <span class="string">&quot;Faulty synthesis&quot;</span>,
+                    || <span class="string">"Faulty synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the lookup on rows 0 and 1.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
@@ -4213,7 +4213,7 @@
                         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
                             <span class="comment">// Load Advice lookup table with Instance lookup table values.
                             </span>region.assign_advice_from_instance(
-                                || <span class="string">&quot;Advice from instance tables&quot;</span>,
+                                || <span class="string">"Advice from instance tables"</span>,
                                 config.table,
                                 i,
                                 config.advice_table,
@@ -4223,21 +4223,21 @@
 
                         <span class="comment">// Assign a = 4.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 4&quot;</span>,
+                            || <span class="string">"a = 4"</span>,
                             config.a,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">4</span>)),
                         )<span class="question-mark">?</span>;
 
-                        <span class="comment">// BUG: Assign a = 5, which doesn&#39;t exist in the table!
+                        <span class="comment">// BUG: Assign a = 5, which doesn't exist in the table!
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 5&quot;</span>,
+                            || <span class="string">"a = 5"</span>,
                             config.a,
                             <span class="number">1</span>,
                             || Value::known(Fp::from(<span class="number">5</span>)),
                         )<span class="question-mark">?</span>;
 
-                        region.name_column(|| <span class="string">&quot;Witness example&quot;</span>, config.a);
+                        region.name_column(|| <span class="string">"Witness example"</span>, config.a);
 
                         <span class="prelude-val">Ok</span>(())
                     },
@@ -4248,7 +4248,7 @@
         <span class="kw">let </span>prover = MockProver::run(
             K,
             <span class="kw-2">&amp;</span>FaultyCircuit {},
-            <span class="comment">// This is our &quot;lookup table&quot;.
+            <span class="comment">// This is our "lookup table".
             </span><span class="macro">vec!</span>[<span class="macro">vec!</span>[
                 Fp::from(<span class="number">1u64</span>),
                 Fp::from(<span class="number">2u64</span>),
@@ -4260,10 +4260,10 @@
         <span class="macro">assert_eq!</span>(
             prover.verify(),
             <span class="prelude-val">Err</span>(<span class="macro">vec!</span>[VerifyFailure::Lookup {
-                name: <span class="string">&quot;lookup&quot;</span>.to_string(),
+                name: <span class="string">"lookup"</span>.to_string(),
                 lookup_index: <span class="number">0</span>,
                 location: FailureLocation::InRegion {
-                    region: (<span class="number">1</span>, <span class="string">&quot;Faulty synthesis&quot;</span>).into(),
+                    region: (<span class="number">1</span>, <span class="string">"Faulty synthesis"</span>).into(),
                     offset: <span class="number">1</span>,
                 }
             }])
@@ -4286,16 +4286,16 @@
         <span class="kw">impl </span>Circuit&lt;Fp&gt; <span class="kw">for </span>FaultyCircuit {
             <span class="kw">type </span>Config = FaultyCircuitConfig;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>configure(meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;Fp&gt;) -&gt; <span class="self">Self</span>::Config {
                 <span class="kw">let </span>a = meta.advice_column();
                 <span class="kw">let </span>q = meta.complex_selector();
                 <span class="kw">let </span>table = meta.lookup_table_column();
-                meta.annotate_lookup_column(table, || <span class="string">&quot;Table1&quot;</span>);
+                meta.annotate_lookup_column(table, || <span class="string">"Table1"</span>);
 
-                meta.lookup(<span class="string">&quot;lookup&quot;</span>, |cells| {
+                meta.lookup(<span class="string">"lookup"</span>, |cells| {
                     <span class="kw">let </span>a = cells.query_advice(a, Rotation::cur());
                     <span class="kw">let </span>q = cells.query_selector(q);
 
@@ -4319,12 +4319,12 @@
                 <span class="kw-2">mut </span>layouter: <span class="kw">impl </span>Layouter&lt;Fp&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 layouter.assign_table(
-                    || <span class="string">&quot;Doubling table&quot;</span>,
+                    || <span class="string">"Doubling table"</span>,
                     |<span class="kw-2">mut </span>table| {
                         (<span class="number">1</span>..(<span class="number">1 </span>&lt;&lt; (K - <span class="number">1</span>)))
                             .map(|i| {
                                 table.assign_cell(
-                                    || <span class="macro">format!</span>(<span class="string">&quot;table[{}] = {}&quot;</span>, i, <span class="number">2 </span>* i),
+                                    || <span class="macro">format!</span>(<span class="string">"table[{}] = {}"</span>, i, <span class="number">2 </span>* i),
                                     config.table,
                                     i - <span class="number">1</span>,
                                     || Value::known(Fp::from(<span class="number">2 </span>* i <span class="kw">as </span>u64)),
@@ -4335,7 +4335,7 @@
                 )<span class="question-mark">?</span>;
 
                 layouter.assign_region(
-                    || <span class="string">&quot;Good synthesis&quot;</span>,
+                    || <span class="string">"Good synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the lookup on rows 0 and 1.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
@@ -4343,13 +4343,13 @@
 
                         <span class="comment">// Assign a = 2 and a = 6.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 2&quot;</span>,
+                            || <span class="string">"a = 2"</span>,
                             config.a,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">2</span>)),
                         )<span class="question-mark">?</span>;
                         region.assign_advice(
-                            || <span class="string">&quot;a = 6&quot;</span>,
+                            || <span class="string">"a = 6"</span>,
                             config.a,
                             <span class="number">1</span>,
                             || Value::known(Fp::from(<span class="number">6</span>)),
@@ -4360,7 +4360,7 @@
                 )<span class="question-mark">?</span>;
 
                 layouter.assign_region(
-                    || <span class="string">&quot;Faulty synthesis&quot;</span>,
+                    || <span class="string">"Faulty synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the lookup on rows 0 and 1.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
@@ -4368,21 +4368,21 @@
 
                         <span class="comment">// Assign a = 4.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 4&quot;</span>,
+                            || <span class="string">"a = 4"</span>,
                             config.a,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">4</span>)),
                         )<span class="question-mark">?</span>;
 
-                        <span class="comment">// BUG: Assign a = 5, which doesn&#39;t exist in the table!
+                        <span class="comment">// BUG: Assign a = 5, which doesn't exist in the table!
                         </span>region.assign_advice(
-                            || <span class="string">&quot;a = 5&quot;</span>,
+                            || <span class="string">"a = 5"</span>,
                             config.a,
                             <span class="number">1</span>,
                             || Value::known(Fp::from(<span class="number">5</span>)),
                         )<span class="question-mark">?</span>;
 
-                        region.name_column(|| <span class="string">&quot;Witness example&quot;</span>, config.a);
+                        region.name_column(|| <span class="string">"Witness example"</span>, config.a);
 
                         <span class="prelude-val">Ok</span>(())
                     },
@@ -4394,10 +4394,10 @@
         <span class="macro">assert_eq!</span>(
             prover.verify(),
             <span class="prelude-val">Err</span>(<span class="macro">vec!</span>[VerifyFailure::Lookup {
-                name: <span class="string">&quot;lookup&quot;</span>.to_string(),
+                name: <span class="string">"lookup"</span>.to_string(),
                 lookup_index: <span class="number">0</span>,
                 location: FailureLocation::InRegion {
-                    region: (<span class="number">2</span>, <span class="string">&quot;Faulty synthesis&quot;</span>).into(),
+                    region: (<span class="number">2</span>, <span class="string">"Faulty synthesis"</span>).into(),
                     offset: <span class="number">1</span>,
                 }
             }])
@@ -4422,7 +4422,7 @@
         <span class="kw">impl </span>Circuit&lt;Fp&gt; <span class="kw">for </span>FaultyCircuit {
             <span class="kw">type </span>Config = FaultyCircuitConfig;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>configure(meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;Fp&gt;) -&gt; <span class="self">Self</span>::Config {
@@ -4432,7 +4432,7 @@
                 <span class="kw">let </span>d = meta.fixed_column();
                 <span class="kw">let </span>q = meta.selector();
 
-                meta.create_gate(<span class="string">&quot;Equality check&quot;</span>, |cells| {
+                meta.create_gate(<span class="string">"Equality check"</span>, |cells| {
                     <span class="kw">let </span>a = cells.query_advice(a, Rotation::cur());
                     <span class="kw">let </span>b = cells.query_advice(b, Rotation::cur());
                     <span class="kw">let </span>c = cells.query_advice(c, Rotation::cur());
@@ -4456,27 +4456,27 @@
                 <span class="kw-2">mut </span>layouter: <span class="kw">impl </span>Layouter&lt;Fp&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 layouter.assign_region(
-                    || <span class="string">&quot;Correct synthesis&quot;</span>,
+                    || <span class="string">"Correct synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the equality gate.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign a = 1.
-                        </span>region.assign_advice(|| <span class="string">&quot;a&quot;</span>, config.a, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
+                        </span>region.assign_advice(|| <span class="string">"a"</span>, config.a, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign b = 1.
-                        </span>region.assign_advice(|| <span class="string">&quot;b&quot;</span>, config.b, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
+                        </span>region.assign_advice(|| <span class="string">"b"</span>, config.b, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign c = 5.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;c&quot;</span>,
+                            || <span class="string">"c"</span>,
                             config.c,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">5u64</span>)),
                         )<span class="question-mark">?</span>;
                         <span class="comment">// Assign d = 7.
                         </span>region.assign_fixed(
-                            || <span class="string">&quot;d&quot;</span>,
+                            || <span class="string">"d"</span>,
                             config.d,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">7u64</span>)),
@@ -4485,41 +4485,41 @@
                     },
                 )<span class="question-mark">?</span>;
                 layouter.assign_region(
-                    || <span class="string">&quot;Wrong synthesis&quot;</span>,
+                    || <span class="string">"Wrong synthesis"</span>,
                     |<span class="kw-2">mut </span>region| {
                         <span class="comment">// Enable the equality gate.
                         </span>config.q.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign a = 1.
-                        </span>region.assign_advice(|| <span class="string">&quot;a&quot;</span>, config.a, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
+                        </span>region.assign_advice(|| <span class="string">"a"</span>, config.a, <span class="number">0</span>, || Value::known(Fp::one()))<span class="question-mark">?</span>;
 
                         <span class="comment">// Assign b = 0.
-                        </span>region.assign_advice(|| <span class="string">&quot;b&quot;</span>, config.b, <span class="number">0</span>, || Value::known(Fp::zero()))<span class="question-mark">?</span>;
+                        </span>region.assign_advice(|| <span class="string">"b"</span>, config.b, <span class="number">0</span>, || Value::known(Fp::zero()))<span class="question-mark">?</span>;
 
                         <span class="comment">// Name Column a
-                        </span>region.name_column(|| <span class="string">&quot;This is Advice!&quot;</span>, config.a);
+                        </span>region.name_column(|| <span class="string">"This is Advice!"</span>, config.a);
                         <span class="comment">// Name Column b
-                        </span>region.name_column(|| <span class="string">&quot;This is Advice too!&quot;</span>, config.b);
+                        </span>region.name_column(|| <span class="string">"This is Advice too!"</span>, config.b);
 
                         <span class="comment">// Assign c = 5.
                         </span>region.assign_advice(
-                            || <span class="string">&quot;c&quot;</span>,
+                            || <span class="string">"c"</span>,
                             config.c,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">5u64</span>)),
                         )<span class="question-mark">?</span>;
                         <span class="comment">// Assign d = 7.
                         </span>region.assign_fixed(
-                            || <span class="string">&quot;d&quot;</span>,
+                            || <span class="string">"d"</span>,
                             config.d,
                             <span class="number">0</span>,
                             || Value::known(Fp::from(<span class="number">7u64</span>)),
                         )<span class="question-mark">?</span>;
 
                         <span class="comment">// Name Column c
-                        </span>region.name_column(|| <span class="string">&quot;Another one!&quot;</span>, config.c);
+                        </span>region.name_column(|| <span class="string">"Another one!"</span>, config.c);
                         <span class="comment">// Name Column d
-                        </span>region.name_column(|| <span class="string">&quot;This is a Fixed!&quot;</span>, config.d);
+                        </span>region.name_column(|| <span class="string">"This is a Fixed!"</span>, config.d);
 
                         <span class="comment">// Note that none of the terms cancel eachother. Therefore we will have a constraint that is non satisfied for
                         // the `Equalty check` gate.
@@ -4533,9 +4533,9 @@
         <span class="macro">assert_eq!</span>(
             prover.verify(),
             <span class="prelude-val">Err</span>(<span class="macro">vec!</span>[VerifyFailure::ConstraintNotSatisfied {
-                constraint: ((<span class="number">0</span>, <span class="string">&quot;Equality check&quot;</span>).into(), <span class="number">0</span>, <span class="string">&quot;&quot;</span>).into(),
+                constraint: ((<span class="number">0</span>, <span class="string">"Equality check"</span>).into(), <span class="number">0</span>, <span class="string">""</span>).into(),
                 location: FailureLocation::InRegion {
-                    region: (<span class="number">1</span>, <span class="string">&quot;Wrong synthesis&quot;</span>).into(),
+                    region: (<span class="number">1</span>, <span class="string">"Wrong synthesis"</span>).into(),
                     offset: <span class="number">0</span>,
                 },
                 cell_values: <span class="macro">vec!</span>[
@@ -4551,7 +4551,7 @@
                             <span class="number">0
                         </span>)
                             .into(),
-                        <span class="string">&quot;1&quot;</span>.to_string()
+                        <span class="string">"1"</span>.to_string()
                     ),
                     (
                         (
@@ -4565,7 +4565,7 @@
                             <span class="number">0
                         </span>)
                             .into(),
-                        <span class="string">&quot;0&quot;</span>.to_string()
+                        <span class="string">"0"</span>.to_string()
                     ),
                     (
                         (
@@ -4579,9 +4579,9 @@
                             <span class="number">0
                         </span>)
                             .into(),
-                        <span class="string">&quot;0x5&quot;</span>.to_string()
+                        <span class="string">"0x5"</span>.to_string()
                     ),
-                    (((Any::Fixed, <span class="number">0</span>).into(), <span class="number">0</span>).into(), <span class="string">&quot;0x7&quot;</span>.to_string()),
+                    (((Any::Fixed, <span class="number">0</span>).into(), <span class="number">0</span>).into(), <span class="string">"0x7"</span>.to_string()),
                 ],
             },])
         )

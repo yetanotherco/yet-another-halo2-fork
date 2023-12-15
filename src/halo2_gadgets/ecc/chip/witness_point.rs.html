@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/witness_point.rs`."><title>witness_point.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/witness_point.rs`."><title>witness_point.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -244,7 +244,7 @@
         };
 
         <span class="comment">// https://p.z.cash/halo2-0.1:ecc-witness-point
-        </span>meta.create_gate(<span class="string">&quot;witness point&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"witness point"</span>, |meta| {
             <span class="comment">// Check that the point being witnessed is either:
             // - the identity, which is mapped to (0, 0) in affine coordinates; or
             // - a valid curve point y^2 = x^3 + b, where b = 5 in the Pallas equation
@@ -253,24 +253,24 @@
             <span class="kw">let </span>x = meta.query_advice(<span class="self">self</span>.x, Rotation::cur());
             <span class="kw">let </span>y = meta.query_advice(<span class="self">self</span>.y, Rotation::cur());
 
-            <span class="comment">// We can&#39;t use `Constraints::with_selector` because that creates constraints
+            <span class="comment">// We can't use `Constraints::with_selector` because that creates constraints
             // of the form `q_point * (x * curve_eqn)`, but this was implemented without
             // parentheses, and thus evaluates as `(q_point * x) * curve_eqn`, which is
             // structurally different in the pinned verifying key.
             </span>[
-                (<span class="string">&quot;x == 0 v on_curve&quot;</span>, q_point.clone() * x * curve_eqn(meta)),
-                (<span class="string">&quot;y == 0 v on_curve&quot;</span>, q_point * y * curve_eqn(meta)),
+                (<span class="string">"x == 0 v on_curve"</span>, q_point.clone() * x * curve_eqn(meta)),
+                (<span class="string">"y == 0 v on_curve"</span>, q_point * y * curve_eqn(meta)),
             ]
         });
 
         <span class="comment">// https://p.z.cash/halo2-0.1:ecc-witness-non-identity-point
-        </span>meta.create_gate(<span class="string">&quot;witness non-identity point&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"witness non-identity point"</span>, |meta| {
             <span class="comment">// Check that the point being witnessed is a valid curve point y^2 = x^3 + b,
             // where b = 5 in the Pallas equation
 
             </span><span class="kw">let </span>q_point_non_id = meta.query_selector(<span class="self">self</span>.q_point_non_id);
 
-            Constraints::with_selector(q_point_non_id, <span class="prelude-val">Some</span>((<span class="string">&quot;on_curve&quot;</span>, curve_eqn(meta))))
+            Constraints::with_selector(q_point_non_id, <span class="prelude-val">Some</span>((<span class="string">"on_curve"</span>, curve_eqn(meta))))
         });
     }
 
@@ -278,15 +278,15 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         value: Value&lt;(Assigned&lt;pallas::Base&gt;, Assigned&lt;pallas::Base&gt;)&gt;,
         offset: usize,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Coordinates, Error&gt; {
         <span class="comment">// Assign `x` value
         </span><span class="kw">let </span>x_val = value.map(|value| value.<span class="number">0</span>);
-        <span class="kw">let </span>x_var = region.assign_advice(|| <span class="string">&quot;x&quot;</span>, <span class="self">self</span>.x, offset, || x_val)<span class="question-mark">?</span>;
+        <span class="kw">let </span>x_var = region.assign_advice(|| <span class="string">"x"</span>, <span class="self">self</span>.x, offset, || x_val)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign `y` value
         </span><span class="kw">let </span>y_val = value.map(|value| value.<span class="number">1</span>);
-        <span class="kw">let </span>y_var = region.assign_advice(|| <span class="string">&quot;y&quot;</span>, <span class="self">self</span>.y, offset, || y_val)<span class="question-mark">?</span>;
+        <span class="kw">let </span>y_var = region.assign_advice(|| <span class="string">"y"</span>, <span class="self">self</span>.y, offset, || y_val)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((x_var, y_var))
     }
@@ -296,7 +296,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         value: Value&lt;pallas::Affine&gt;,
         offset: usize,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;EccPoint, Error&gt; {
         <span class="comment">// Enable `q_point` selector
         </span><span class="self">self</span>.q_point.enable(region, offset)<span class="question-mark">?</span>;
@@ -320,7 +320,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         value: Value&lt;pallas::Affine&gt;,
         offset: usize,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;NonIdentityEccPoint, Error&gt; {
         <span class="comment">// Enable `q_point_non_id` selector
         </span><span class="self">self</span>.q_point_non_id.enable(region, offset)<span class="question-mark">?</span>;
@@ -355,10 +355,10 @@
         <span class="comment">// Witnessing the identity should return an error.
         </span>NonIdentityPoint::new(
             chip,
-            layouter.namespace(|| <span class="string">&quot;witness identity&quot;</span>),
+            layouter.namespace(|| <span class="string">"witness identity"</span>),
             Value::known(pallas::Affine::identity()),
         )
-        .expect_err(<span class="string">&quot;witnessing 𝒪 should return an error&quot;</span>);
+        .expect_err(<span class="string">"witnessing 𝒪 should return an error"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

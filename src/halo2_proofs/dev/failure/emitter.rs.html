@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev/failure/emitter.rs`."><title>emitter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev/failure/emitter.rs`."><title>emitter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -242,7 +242,7 @@
     <span class="kw">let </span>pad = width - text.len();
 
     <span class="macro">format!</span>(
-        <span class="string">&quot;{}{}{}&quot;</span>,
+        <span class="string">"{}{}{}"</span>,
         iter::repeat(p).take(pad - pad / <span class="number">2</span>).collect::&lt;String&gt;(),
         text,
         iter::repeat(p).take(pad / <span class="number">2</span>).collect::&lt;String&gt;(),
@@ -251,11 +251,11 @@
 
 <span class="kw">fn </span>column_type_and_idx(column: <span class="kw-2">&amp;</span>metadata::Column) -&gt; String {
     <span class="macro">format!</span>(
-        <span class="string">&quot;{}{}&quot;</span>,
+        <span class="string">"{}{}"</span>,
         <span class="kw">match </span>column.column_type {
-            Any::Advice(<span class="kw">_</span>) =&gt; <span class="string">&quot;A&quot;</span>,
-            Any::Fixed =&gt; <span class="string">&quot;F&quot;</span>,
-            Any::Instance =&gt; <span class="string">&quot;I&quot;</span>,
+            Any::Advice(<span class="kw">_</span>) =&gt; <span class="string">"A"</span>,
+            Any::Fixed =&gt; <span class="string">"F"</span>,
+            Any::Instance =&gt; <span class="string">"I"</span>,
         },
         column.index
     )
@@ -281,17 +281,17 @@
     </span><span class="kw">let </span>offset = <span class="kw">match </span>location {
         FailureLocation::InRegion { region, offset } =&gt; {
             col_headers
-                .push_str(<span class="macro">format!</span>(<span class="string">&quot;{}Cell layout in region &#39;{}&#39;:\n&quot;</span>, prefix, region.name).as_str());
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">&quot;{}  | Offset |&quot;</span>, prefix).as_str());
+                .push_str(<span class="macro">format!</span>(<span class="string">"{}Cell layout in region '{}':\n"</span>, prefix, region.name).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}  | Offset |"</span>, prefix).as_str());
             <span class="prelude-val">Some</span>(<span class="kw-2">*</span>offset <span class="kw">as </span>i32)
         }
         FailureLocation::OutsideRegion { row } =&gt; {
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">&quot;{}Cell layout at row {}:\n&quot;</span>, prefix, row).as_str());
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">&quot;{}  |Rotation|&quot;</span>, prefix).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}Cell layout at row {}:\n"</span>, prefix, row).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}  |Rotation|"</span>, prefix).as_str());
             <span class="prelude-val">None
         </span>}
     };
-    <span class="macro">eprint!</span>(<span class="string">&quot;\n{}&quot;</span>, col_headers);
+    <span class="macro">eprint!</span>(<span class="string">"\n{}"</span>, col_headers);
 
     <span class="kw">let </span>widths: Vec&lt;usize&gt; = columns
         .iter()
@@ -316,12 +316,12 @@
         })
         .collect();
 
-    <span class="comment">// Print the assigned cells, and their region offset or rotation + the column name at which they&#39;re assigned to.
+    <span class="comment">// Print the assigned cells, and their region offset or rotation + the column name at which they're assigned to.
     </span><span class="kw">for </span>((column, <span class="kw">_</span>), <span class="kw-2">&amp;</span>width) <span class="kw">in </span>columns.iter().zip(widths.iter()) {
         <span class="macro">eprint!</span>(
-            <span class="string">&quot;{}|&quot;</span>,
+            <span class="string">"{}|"</span>,
             padded(
-                <span class="string">&#39; &#39;</span>,
+                <span class="string">' '</span>,
                 width,
                 <span class="kw-2">&amp;</span><span class="kw">match </span>location {
                     FailureLocation::InRegion { region, offset: <span class="kw">_ </span>} =&gt; {
@@ -341,22 +341,22 @@
     }
 
     <span class="macro">eprintln!</span>();
-    <span class="macro">eprint!</span>(<span class="string">&quot;{}  +--------+&quot;</span>, prefix);
+    <span class="macro">eprint!</span>(<span class="string">"{}  +--------+"</span>, prefix);
     <span class="kw">for </span><span class="kw-2">&amp;</span>width <span class="kw">in </span>widths.iter() {
-        <span class="macro">eprint!</span>(<span class="string">&quot;{}+&quot;</span>, padded(<span class="string">&#39;-&#39;</span>, width, <span class="string">&quot;&quot;</span>));
+        <span class="macro">eprint!</span>(<span class="string">"{}+"</span>, padded(<span class="string">'-'</span>, width, <span class="string">""</span>));
     }
     <span class="macro">eprintln!</span>();
     <span class="kw">for </span>(rotation, row) <span class="kw">in </span>layout {
         <span class="macro">eprint!</span>(
-            <span class="string">&quot;{}  |{}|&quot;</span>,
+            <span class="string">"{}  |{}|"</span>,
             prefix,
-            padded(<span class="string">&#39; &#39;</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span>(offset.unwrap_or(<span class="number">0</span>) + rotation).to_string())
+            padded(<span class="string">' '</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span>(offset.unwrap_or(<span class="number">0</span>) + rotation).to_string())
         );
         <span class="kw">for </span>((col, <span class="kw">_</span>), <span class="kw-2">&amp;</span>width) <span class="kw">in </span>columns.iter().zip(widths.iter()) {
             <span class="macro">eprint!</span>(
-                <span class="string">&quot;{}|&quot;</span>,
+                <span class="string">"{}|"</span>,
                 padded(
-                    <span class="string">&#39; &#39;</span>,
+                    <span class="string">' '</span>,
                     width,
                     row.get(col).map(|s| s.as_str()).unwrap_or_default()
                 )
@@ -373,7 +373,7 @@
 ) -&gt; String {
     expr.evaluate(
         <span class="kw-2">&amp;</span>util::format_value,
-        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
         <span class="kw-2">&amp;</span>|query| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(label) = layout
                 .get(<span class="kw-2">&amp;</span>query.rotation.<span class="number">0</span>)
@@ -382,10 +382,10 @@
                 label.clone()
             } <span class="kw">else if </span>query.rotation.<span class="number">0 </span>== <span class="number">0 </span>{
                 <span class="comment">// This is most likely a merged selector
-                </span><span class="macro">format!</span>(<span class="string">&quot;S{}&quot;</span>, query.index.unwrap())
+                </span><span class="macro">format!</span>(<span class="string">"S{}"</span>, query.index.unwrap())
             } <span class="kw">else </span>{
-                <span class="comment">// No idea how we&#39;d get here...
-                </span><span class="macro">format!</span>(<span class="string">&quot;F{}@{}&quot;</span>, query.column_index, query.rotation.<span class="number">0</span>)
+                <span class="comment">// No idea how we'd get here...
+                </span><span class="macro">format!</span>(<span class="string">"F{}@{}"</span>, query.column_index, query.rotation.<span class="number">0</span>)
             }
         },
         <span class="kw-2">&amp;</span>|query| {
@@ -411,32 +411,32 @@
                 .unwrap()
                 .clone()
         },
-        <span class="kw-2">&amp;</span>|challenge| <span class="macro">format!</span>(<span class="string">&quot;C{}({})&quot;</span>, challenge.index(), challenge.phase()),
+        <span class="kw-2">&amp;</span>|challenge| <span class="macro">format!</span>(<span class="string">"C{}({})"</span>, challenge.index(), challenge.phase()),
         <span class="kw-2">&amp;</span>|a| {
-            <span class="kw">if </span>a.contains(<span class="string">&#39; &#39;</span>) {
-                <span class="macro">format!</span>(<span class="string">&quot;-({})&quot;</span>, a)
+            <span class="kw">if </span>a.contains(<span class="string">' '</span>) {
+                <span class="macro">format!</span>(<span class="string">"-({})"</span>, a)
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;-{}&quot;</span>, a)
+                <span class="macro">format!</span>(<span class="string">"-{}"</span>, a)
             }
         },
         <span class="kw-2">&amp;</span>|a, b| {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = b.strip_prefix(<span class="string">&#39;-&#39;</span>) {
-                <span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, a, b)
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = b.strip_prefix(<span class="string">'-'</span>) {
+                <span class="macro">format!</span>(<span class="string">"{} - {}"</span>, a, b)
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;{} + {}&quot;</span>, a, b)
+                <span class="macro">format!</span>(<span class="string">"{} + {}"</span>, a, b)
             }
         },
-        <span class="kw-2">&amp;</span>|a, b| <span class="kw">match </span>(a.contains(<span class="string">&#39; &#39;</span>), b.contains(<span class="string">&#39; &#39;</span>)) {
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} * {}&quot;</span>, a, b),
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} * ({})&quot;</span>, a, b),
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;({}) * {}&quot;</span>, a, b),
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;({}) * ({})&quot;</span>, a, b),
+        <span class="kw-2">&amp;</span>|a, b| <span class="kw">match </span>(a.contains(<span class="string">' '</span>), b.contains(<span class="string">' '</span>)) {
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{} * {}"</span>, a, b),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{} * ({})"</span>, a, b),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({}) * {}"</span>, a, b),
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({}) * ({})"</span>, a, b),
         },
         <span class="kw-2">&amp;</span>|a, s| {
-            <span class="kw">if </span>a.contains(<span class="string">&#39; &#39;</span>) {
-                <span class="macro">format!</span>(<span class="string">&quot;({}) * {}&quot;</span>, a, util::format_value(s))
+            <span class="kw">if </span>a.contains(<span class="string">' '</span>) {
+                <span class="macro">format!</span>(<span class="string">"({}) * {}"</span>, a, util::format_value(s))
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;{} * {}&quot;</span>, a, util::format_value(s))
+                <span class="macro">format!</span>(<span class="string">"{} * {}"</span>, a, util::format_value(s))
             }
         },
     )

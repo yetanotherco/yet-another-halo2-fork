@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla/chip/hash_to_point.rs`."><title>hash_to_point.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla/chip/hash_to_point.rs`."><title>hash_to_point.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -455,7 +455,7 @@
     #[allow(clippy::type_complexity)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>hash_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         Q: pallas::Affine,
         message: <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>SinsemillaInstructions&lt;
             pallas::Affine,
@@ -482,7 +482,7 @@
             <span class="comment">// Enable `q_sinsemilla4` on the first row.
             </span>config.q_sinsemilla4.enable(region, offset)<span class="question-mark">?</span>;
             region.assign_fixed(
-                || <span class="string">&quot;fixed y_q&quot;</span>,
+                || <span class="string">"fixed y_q"</span>,
                 config.fixed_y_q,
                 offset,
                 || Value::known(y_q),
@@ -491,10 +491,10 @@
             Value::known(y_q.into()).into()
         };
 
-        <span class="comment">// Constrain the initial x_q to equal the x-coordinate of the domain&#39;s `Q`.
+        <span class="comment">// Constrain the initial x_q to equal the x-coordinate of the domain's `Q`.
         </span><span class="kw">let </span><span class="kw-2">mut </span>x_a: X&lt;pallas::Base&gt; = {
             <span class="kw">let </span>x_a = region.assign_advice_from_constant(
-                || <span class="string">&quot;fixed x_q&quot;</span>,
+                || <span class="string">"fixed x_q"</span>,
                 config.double_and_add.x_a,
                 offset,
                 x_q.into(),
@@ -526,20 +526,20 @@
         </span><span class="kw">let </span>y_a = {
             <span class="comment">// Assign the final y_a.
             </span><span class="kw">let </span>y_a_cell =
-                region.assign_advice(|| <span class="string">&quot;y_a&quot;</span>, config.double_and_add.lambda_1, offset, || y_a.<span class="number">0</span>)<span class="question-mark">?</span>;
+                region.assign_advice(|| <span class="string">"y_a"</span>, config.double_and_add.lambda_1, offset, || y_a.<span class="number">0</span>)<span class="question-mark">?</span>;
 
             <span class="comment">// Assign lambda_2 and x_p zero values since they are queried
             // in the gate. (The actual values do not matter since they are
             // multiplied by zero.)
             </span>{
                 region.assign_advice(
-                    || <span class="string">&quot;dummy lambda2&quot;</span>,
+                    || <span class="string">"dummy lambda2"</span>,
                     config.double_and_add.lambda_2,
                     offset,
                     || Value::known(pallas::Base::zero()),
                 )<span class="question-mark">?</span>;
                 region.assign_advice(
-                    || <span class="string">&quot;dummy x_p&quot;</span>,
+                    || <span class="string">"dummy x_p"</span>,
                     config.double_and_add.x_p,
                     offset,
                     || Value::known(pallas::Base::zero()),
@@ -606,7 +606,7 @@
     /// already assigned within this region at the correct offset.
     </span><span class="kw">fn </span>hash_piece(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         piece: <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>SinsemillaInstructions&lt;
             pallas::Affine,
@@ -636,7 +636,7 @@
             <span class="comment">// Set `q_sinsemilla2` fixed column to 1 on every row but the last.
             </span><span class="kw">for </span>row <span class="kw">in </span><span class="number">0</span>..(piece.num_words() - <span class="number">1</span>) {
                 region.assign_fixed(
-                    || <span class="string">&quot;q_s2 = 1&quot;</span>,
+                    || <span class="string">"q_s2 = 1"</span>,
                     config.q_sinsemilla2,
                     offset + row,
                     || Value::known(pallas::Base::one()),
@@ -648,9 +648,9 @@
             </span>region.assign_fixed(
                 || {
                     <span class="kw">if </span>final_piece {
-                        <span class="string">&quot;q_s2 for final piece&quot;
+                        <span class="string">"q_s2 for final piece"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;q_s2 between pieces&quot;
+                        <span class="string">"q_s2 between pieces"
                     </span>}
                 },
                 config.q_sinsemilla2,
@@ -698,7 +698,7 @@
 
             <span class="comment">// Copy message and initialize running sum `z` to decompose message in-circuit
             </span><span class="kw">let </span>initial_z = piece.cell_value().copy_advice(
-                || <span class="string">&quot;z_0 (copy of message piece)&quot;</span>,
+                || <span class="string">"z_0 (copy of message piece)"</span>,
                 region,
                 config.bits,
                 offset,
@@ -721,7 +721,7 @@
                 <span class="comment">// z_{i + 1} = (z_i - m_{i + 1}) / 2^K
                 </span>z = (z - word) * inv_2_k;
                 <span class="kw">let </span>cell = region.assign_advice(
-                    || <span class="macro">format!</span>(<span class="string">&quot;z_{:?}&quot;</span>, idx + <span class="number">1</span>),
+                    || <span class="macro">format!</span>(<span class="string">"z_{:?}"</span>, idx + <span class="number">1</span>),
                     config.bits,
                     offset + idx + <span class="number">1</span>,
                     || z,
@@ -742,7 +742,7 @@
             <span class="kw">let </span>y_p = gen.map(|gen| gen.<span class="number">1</span>);
 
             <span class="comment">// Assign `x_p`
-            </span>region.assign_advice(|| <span class="string">&quot;x_p&quot;</span>, config.double_and_add.x_p, offset + row, || x_p)<span class="question-mark">?</span>;
+            </span>region.assign_advice(|| <span class="string">"x_p"</span>, config.double_and_add.x_p, offset + row, || x_p)<span class="question-mark">?</span>;
 
             <span class="comment">// Compute and assign `lambda_1`
             </span><span class="kw">let </span>lambda_1 = {
@@ -750,7 +750,7 @@
 
                 <span class="comment">// Assign lambda_1
                 </span>region.assign_advice(
-                    || <span class="string">&quot;lambda_1&quot;</span>,
+                    || <span class="string">"lambda_1"</span>,
                     config.double_and_add.lambda_1,
                     offset + row,
                     || lambda_1,
@@ -768,7 +768,7 @@
                     y_a.<span class="number">0 </span>* pallas::Base::from(<span class="number">2</span>) * (x_a.value() - x_r).invert() - lambda_1;
 
                 region.assign_advice(
-                    || <span class="string">&quot;lambda_2&quot;</span>,
+                    || <span class="string">"lambda_2"</span>,
                     config.double_and_add.lambda_2,
                     offset + row,
                     || lambda_2,
@@ -782,7 +782,7 @@
                 <span class="kw">let </span>x_a_new = lambda_2.square() - x_a.value() - x_r;
 
                 <span class="kw">let </span>x_a_cell = region.assign_advice(
-                    || <span class="string">&quot;x_a&quot;</span>,
+                    || <span class="string">"x_a"</span>,
                     config.double_and_add.x_a,
                     offset + row + <span class="number">1</span>,
                     || x_a_new,

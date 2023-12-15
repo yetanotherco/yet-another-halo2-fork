@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla/merkle/chip.rs`."><title>chip.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sinsemilla/merkle/chip.rs`."><title>chip.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -656,7 +656,7 @@
         // -------------------------------------------------------
         // |   a   |   b   |   c   |  left | right |      1      |
         // |  z1_a |  z1_b |  b_1  |  b_2  |   l   |      0      |
-        </span>meta.create_gate(<span class="string">&quot;Decomposition check&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"Decomposition check"</span>, |meta| {
             <span class="kw">let </span>q_decompose = meta.query_selector(q_decompose);
             <span class="kw">let </span>l_whole = meta.query_advice(advices[<span class="number">4</span>], Rotation::next());
 
@@ -718,10 +718,10 @@
             Constraints::with_selector(
                 q_decompose,
                 [
-                    (<span class="string">&quot;l_check&quot;</span>, a_0 - l_whole),
-                    (<span class="string">&quot;left_check&quot;</span>, left_check),
-                    (<span class="string">&quot;right_check&quot;</span>, right_check),
-                    (<span class="string">&quot;b1_b2_check&quot;</span>, b1_b2_check),
+                    (<span class="string">"l_check"</span>, a_0 - l_whole),
+                    (<span class="string">"left_check"</span>, left_check),
+                    (<span class="string">"right_check"</span>, right_check),
+                    (<span class="string">"b1_b2_check"</span>, b1_b2_check),
                 ],
             )
         });
@@ -776,7 +776,7 @@
         // `a = a_0||a_1` = `l` || (bits 0..=239 of `left`)
         </span><span class="kw">let </span>a = MessagePiece::from_subpieces(
             <span class="self">self</span>.clone(),
-            layouter.namespace(|| <span class="string">&quot;Witness a = a_0 || a_1&quot;</span>),
+            layouter.namespace(|| <span class="string">"Witness a = a_0 || a_1"</span>),
             [
                 RangeConstrained::bitrange_of(Value::known(<span class="kw-2">&amp;</span>pallas::Base::from(l <span class="kw">as </span>u64)), <span class="number">0</span>..<span class="number">10</span>),
                 RangeConstrained::bitrange_of(left.value(), <span class="number">0</span>..<span class="number">240</span>),
@@ -793,7 +793,7 @@
             // Constrain b_1 to 5 bits.
             </span><span class="kw">let </span>b_1 = RangeConstrained::witness_short(
                 <span class="kw-2">&amp;</span>config.sinsemilla_config.lookup_config(),
-                layouter.namespace(|| <span class="string">&quot;b_1&quot;</span>),
+                layouter.namespace(|| <span class="string">"b_1"</span>),
                 left.value(),
                 <span class="number">250</span>..(pallas::Base::NUM_BITS <span class="kw">as </span>usize),
             )<span class="question-mark">?</span>;
@@ -802,14 +802,14 @@
             // Constrain b_2 to 5 bits.
             </span><span class="kw">let </span>b_2 = RangeConstrained::witness_short(
                 <span class="kw-2">&amp;</span>config.sinsemilla_config.lookup_config(),
-                layouter.namespace(|| <span class="string">&quot;b_2&quot;</span>),
+                layouter.namespace(|| <span class="string">"b_2"</span>),
                 right.value(),
                 <span class="number">0</span>..<span class="number">5</span>,
             )<span class="question-mark">?</span>;
 
             <span class="kw">let </span>b = MessagePiece::from_subpieces(
                 <span class="self">self</span>.clone(),
-                layouter.namespace(|| <span class="string">&quot;Witness b = b_0 || b_1 || b_2&quot;</span>),
+                layouter.namespace(|| <span class="string">"Witness b = b_0 || b_1 || b_2"</span>),
                 [b_0, b_1.value(), b_2.value()],
             )<span class="question-mark">?</span>;
 
@@ -819,7 +819,7 @@
         <span class="comment">// c = bits 5..=254 of `right`
         </span><span class="kw">let </span>c = MessagePiece::from_subpieces(
             <span class="self">self</span>.clone(),
-            layouter.namespace(|| <span class="string">&quot;Witness c&quot;</span>),
+            layouter.namespace(|| <span class="string">"Witness c"</span>),
             [RangeConstrained::bitrange_of(
                 right.value(),
                 <span class="number">5</span>..(pallas::Base::NUM_BITS <span class="kw">as </span>usize),
@@ -834,7 +834,7 @@
         //
         // Note that MerkleCRH as-defined maps ⊥ to 0. This is for completeness outside
         // the circuit (so that the ⊥ does not propagate into the type system). The chip
-        // explicitly doesn&#39;t map ⊥ to 0; in fact it cannot, as doing so would require
+        // explicitly doesn't map ⊥ to 0; in fact it cannot, as doing so would require
         // constraints that amount to using complete addition. The rationale for excluding
         // this map is the same as why Sinsemilla uses incomplete addition: this situation
         // yields a nontrivial discrete log relation, and by assumption it is hard to find
@@ -842,7 +842,7 @@
         //
         // https://p.z.cash/proto:merkle-crh-orchard
         </span><span class="kw">let </span>(point, zs) = <span class="self">self</span>.hash_to_point(
-            layouter.namespace(|| <span class="macro">format!</span>(<span class="string">&quot;hash at l = {}&quot;</span>, l)),
+            layouter.namespace(|| <span class="macro">format!</span>(<span class="string">"hash at l = {}"</span>, l)),
             Q,
             <span class="macro">vec!</span>[a.inner(), b.inner(), c.inner()].into(),
         )<span class="question-mark">?</span>;
@@ -862,14 +862,14 @@
         // |  z1_a |  z1_b |  b_1  |  b_2  |   l   |      0      |
         </span>{
             layouter.assign_region(
-                || <span class="string">&quot;Check piece decomposition&quot;</span>,
+                || <span class="string">"Check piece decomposition"</span>,
                 |<span class="kw-2">mut </span>region| {
                     <span class="comment">// Set the fixed column `l` to the current l.
                     // Recall that l = MERKLE_DEPTH - layer - 1.
-                    // The layer with 2^n nodes is called &quot;layer n&quot;.
+                    // The layer with 2^n nodes is called "layer n".
                     </span>config.q_decompose.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
                     region.assign_advice_from_constant(
-                        || <span class="macro">format!</span>(<span class="string">&quot;l {}&quot;</span>, l),
+                        || <span class="macro">format!</span>(<span class="string">"l {}"</span>, l),
                         config.advices[<span class="number">4</span>],
                         <span class="number">1</span>,
                         pallas::Base::from(l <span class="kw">as </span>u64),
@@ -878,41 +878,41 @@
                     <span class="comment">// Offset 0
                     // Copy and assign `a` at the correct position.
                     </span>a.inner().cell_value().copy_advice(
-                        || <span class="string">&quot;copy a&quot;</span>,
+                        || <span class="string">"copy a"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         config.advices[<span class="number">0</span>],
                         <span class="number">0</span>,
                     )<span class="question-mark">?</span>;
                     <span class="comment">// Copy and assign `b` at the correct position.
                     </span>b.inner().cell_value().copy_advice(
-                        || <span class="string">&quot;copy b&quot;</span>,
+                        || <span class="string">"copy b"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         config.advices[<span class="number">1</span>],
                         <span class="number">0</span>,
                     )<span class="question-mark">?</span>;
                     <span class="comment">// Copy and assign `c` at the correct position.
                     </span>c.inner().cell_value().copy_advice(
-                        || <span class="string">&quot;copy c&quot;</span>,
+                        || <span class="string">"copy c"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         config.advices[<span class="number">2</span>],
                         <span class="number">0</span>,
                     )<span class="question-mark">?</span>;
                     <span class="comment">// Copy and assign the left node at the correct position.
-                    </span>left.copy_advice(|| <span class="string">&quot;left&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">3</span>], <span class="number">0</span>)<span class="question-mark">?</span>;
+                    </span>left.copy_advice(|| <span class="string">"left"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">3</span>], <span class="number">0</span>)<span class="question-mark">?</span>;
                     <span class="comment">// Copy and assign the right node at the correct position.
-                    </span>right.copy_advice(|| <span class="string">&quot;right&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">4</span>], <span class="number">0</span>)<span class="question-mark">?</span>;
+                    </span>right.copy_advice(|| <span class="string">"right"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">4</span>], <span class="number">0</span>)<span class="question-mark">?</span>;
 
                     <span class="comment">// Offset 1
                     // Copy and assign z_1 of SinsemillaHash(a) = a_1
-                    </span>z1_a.copy_advice(|| <span class="string">&quot;z1_a&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">0</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
+                    </span>z1_a.copy_advice(|| <span class="string">"z1_a"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">0</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
                     <span class="comment">// Copy and assign z_1 of SinsemillaHash(b) = b_1
-                    </span>z1_b.copy_advice(|| <span class="string">&quot;z1_b&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">1</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
+                    </span>z1_b.copy_advice(|| <span class="string">"z1_b"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">1</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
                     <span class="comment">// Copy `b_1`, which has been constrained to be a 5-bit value
                     </span>b_1.inner()
-                        .copy_advice(|| <span class="string">&quot;b_1&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">2</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
+                        .copy_advice(|| <span class="string">"b_1"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">2</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
                     <span class="comment">// Copy `b_2`, which has been constrained to be a 5-bit value
                     </span>b_2.inner()
-                        .copy_advice(|| <span class="string">&quot;b_2&quot;</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">3</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
+                        .copy_advice(|| <span class="string">"b_2"</span>, <span class="kw-2">&amp;mut </span>region, config.advices[<span class="number">3</span>], <span class="number">1</span>)<span class="question-mark">?</span>;
 
                     <span class="prelude-val">Ok</span>(())
                 },

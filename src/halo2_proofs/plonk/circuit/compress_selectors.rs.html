@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit/compress_selectors.rs`."><title>compress_selectors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/circuit/compress_selectors.rs`."><title>compress_selectors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -436,7 +436,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>selector_assignments = <span class="macro">vec!</span>[];
 
     <span class="comment">// All provided selectors of degree 0 are assumed to be either concrete
-    // selectors or do not appear in a gate. Let&#39;s address these first.
+    // selectors or do not appear in a gate. Let's address these first.
     </span>selectors.retain(|selector| {
         <span class="kw">if </span>selector.max_degree == <span class="number">0 </span>{
             <span class="comment">// This is a complex selector, or a selector that does not appear in any
@@ -462,7 +462,7 @@
         </span>}
     });
 
-    <span class="comment">// All of the remaining `selectors` are simple. Let&#39;s try to combine them.
+    <span class="comment">// All of the remaining `selectors` are simple. Let's try to combine them.
     // First, we compute the exclusion matrix that has (j, k) = true if selector
     // j and selector k conflict -- that is, they are both enabled on the same
     // row. This matrix is symmetric and the diagonal entries are false, so we
@@ -490,7 +490,7 @@
         }
     }
 
-    <span class="comment">// Simple selectors that we&#39;ve added to combinations already.
+    <span class="comment">// Simple selectors that we've added to combinations already.
     </span><span class="kw">let </span><span class="kw-2">mut </span>added = <span class="macro">vec!</span>[<span class="bool-val">false</span>; selectors.len()];
 
     <span class="kw">for </span>(i, selector) <span class="kw">in </span>selectors.iter().enumerate() {
@@ -508,23 +508,23 @@
         <span class="kw">let </span><span class="kw-2">mut </span>combination_added = <span class="macro">vec!</span>[i];
 
         <span class="comment">// Try to find other selectors that can join this one.
-        </span><span class="lifetime">&#39;try_selectors</span>: <span class="kw">for </span>(j, selector) <span class="kw">in </span>selectors.iter().enumerate().skip(i + <span class="number">1</span>) {
+        </span><span class="lifetime">'try_selectors</span>: <span class="kw">for </span>(j, selector) <span class="kw">in </span>selectors.iter().enumerate().skip(i + <span class="number">1</span>) {
             <span class="kw">if </span>d + combination.len() == max_degree {
                 <span class="comment">// Short circuit; nothing can be added to this
                 // combination.
-                </span><span class="kw">break </span><span class="lifetime">&#39;try_selectors</span>;
+                </span><span class="kw">break </span><span class="lifetime">'try_selectors</span>;
             }
 
             <span class="comment">// Skip selectors that have been added to previous combinations
             </span><span class="kw">if </span>added[j] {
-                <span class="kw">continue </span><span class="lifetime">&#39;try_selectors</span>;
+                <span class="kw">continue </span><span class="lifetime">'try_selectors</span>;
             }
 
             <span class="comment">// Is this selector excluded from co-existing in the same
             // combination with any of the other selectors so far?
             </span><span class="kw">for </span><span class="kw-2">&amp;</span>i <span class="kw">in </span>combination_added.iter() {
                 <span class="kw">if </span>exclusion_matrix[j][i] {
-                    <span class="kw">continue </span><span class="lifetime">&#39;try_selectors</span>;
+                    <span class="kw">continue </span><span class="lifetime">'try_selectors</span>;
                 }
             }
 
@@ -534,7 +534,7 @@
             </span><span class="kw">let </span>new_d = std::cmp::max(d, selector.max_degree - <span class="number">1</span>);
             <span class="kw">if </span>new_d + combination.len() + <span class="number">1 </span>&gt; max_degree {
                 <span class="comment">// Guess not.
-                </span><span class="kw">continue </span><span class="lifetime">&#39;try_selectors</span>;
+                </span><span class="kw">continue </span><span class="lifetime">'try_selectors</span>;
             }
 
             d = new_d;
@@ -572,7 +572,7 @@
                 .iter_mut()
                 .zip(selector.activations.iter())
             {
-                <span class="comment">// This will not overwrite another selector&#39;s activations because
+                <span class="comment">// This will not overwrite another selector's activations because
                 // we have ensured that selectors are disjoint.
                 </span><span class="kw">if </span><span class="kw-2">*</span>selector {
                     <span class="kw-2">*</span>combination = assigned_root;
@@ -668,8 +668,8 @@
             }
 
             <span class="comment">// Test that, for each selector, the provided expression
-            //  1. evaluates to zero on rows where the selector&#39;s activation is off
-            //  2. evaluates to nonzero on rows where the selector&#39;s activation is on
+            //  1. evaluates to zero on rows where the selector's activation is off
+            //  2. evaluates to nonzero on rows where the selector's activation is on
             //  3. is of degree d such that d + (selector.max_degree - 1) &lt;= max_degree
             //     OR selector.max_degree is zero
             </span><span class="kw">for </span>selector <span class="kw">in </span>selector_assignments {
@@ -684,15 +684,15 @@
                 {
                     <span class="kw">let </span>eval = selector.expression.evaluate(
                         <span class="kw-2">&amp;</span>|c| c,
-                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;should not occur in returned expressions&quot;</span>),
+                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"should not occur in returned expressions"</span>),
                         <span class="kw-2">&amp;</span>|query| {
                             <span class="comment">// Should be the correct combination in the expression
                             </span><span class="macro">assert_eq!</span>(selector.combination_index, query.index.unwrap());
                             assignment
                         },
-                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;should not occur in returned expressions&quot;</span>),
-                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;should not occur in returned expressions&quot;</span>),
-                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;should not occur in returned expressions&quot;</span>),
+                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"should not occur in returned expressions"</span>),
+                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"should not occur in returned expressions"</span>),
+                        <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"should not occur in returned expressions"</span>),
                         <span class="kw-2">&amp;</span>|a| -a,
                         <span class="kw-2">&amp;</span>|a, b| a + b,
                         <span class="kw-2">&amp;</span>|a, b| a * b,

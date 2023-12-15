@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc.rs`."><title>ecc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc.rs`."><title>ecc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -957,10 +957,10 @@
     /// [`BaseFitsInScalarInstructions`] then this may also be constructed from an element
     /// of the base field.
     </span><span class="kw">type </span>ScalarVar: Clone + Debug;
-    <span class="doccomment">/// Variable representing a full-width element of the elliptic curve&#39;s
+    <span class="doccomment">/// Variable representing a full-width element of the elliptic curve's
     /// scalar field, to be used for fixed-base scalar mul.
     </span><span class="kw">type </span>ScalarFixed: Clone + Debug;
-    <span class="doccomment">/// Variable representing a signed short element of the elliptic curve&#39;s
+    <span class="doccomment">/// Variable representing a signed short element of the elliptic curve's
     /// scalar field, to be used for fixed-base scalar mul.
     ///
     /// A `ScalarFixedShort` must be in the range [-(2^64 - 1), 2^64 - 1].
@@ -1535,7 +1535,7 @@
     <span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TestFixedBases;
     <span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FullWidth(pallas::Affine, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(u64, [pallas::Base; H])]);
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FullWidth(pallas::Affine, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(u64, [pallas::Base; H])]);
     <span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BaseField;
     <span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
@@ -1556,7 +1556,7 @@
 
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_parts(
             base: pallas::Affine,
-            zs_and_us: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(u64, [pallas::Base; H])],
+            zs_and_us: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(u64, [pallas::Base; H])],
         ) -&gt; <span class="self">Self </span>{
             FullWidth(base, zs_and_us)
         }
@@ -1666,7 +1666,7 @@
     </span><span class="kw">impl </span>Circuit&lt;pallas::Base&gt; <span class="kw">for </span>MyCircuit {
         <span class="kw">type </span>Config = EccConfig&lt;TestFixedBases&gt;;
         <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
         </span><span class="kw">type </span>Params = ();
 
         <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1720,13 +1720,13 @@
             </span><span class="kw">let </span>p_val = pallas::Point::random(rand::rngs::OsRng).to_affine(); <span class="comment">// P
             </span><span class="kw">let </span>p = <span class="kw">super</span>::NonIdentityPoint::new(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;P&quot;</span>),
+                layouter.namespace(|| <span class="string">"P"</span>),
                 Value::known(p_val),
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>p_neg = -p_val;
             <span class="kw">let </span>p_neg = <span class="kw">super</span>::NonIdentityPoint::new(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;-P&quot;</span>),
+                layouter.namespace(|| <span class="string">"-P"</span>),
                 Value::known(p_neg),
             )<span class="question-mark">?</span>;
 
@@ -1734,7 +1734,7 @@
             </span><span class="kw">let </span>q_val = pallas::Point::random(rand::rngs::OsRng).to_affine(); <span class="comment">// Q
             </span><span class="kw">let </span>q = <span class="kw">super</span>::NonIdentityPoint::new(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;Q&quot;</span>),
+                layouter.namespace(|| <span class="string">"Q"</span>),
                 Value::known(q_val),
             )<span class="question-mark">?</span>;
 
@@ -1745,23 +1745,23 @@
             </span>{
                 <span class="kw">let _ </span>= <span class="kw">super</span>::Point::new(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;identity&quot;</span>),
+                    layouter.namespace(|| <span class="string">"identity"</span>),
                     Value::known(pallas::Affine::identity()),
                 )<span class="question-mark">?</span>;
 
                 <span class="kw">super</span>::NonIdentityPoint::new(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;identity&quot;</span>),
+                    layouter.namespace(|| <span class="string">"identity"</span>),
                     Value::known(pallas::Affine::identity()),
                 )
-                .expect_err(<span class="string">&quot;Trying to witness the identity should return an error&quot;</span>);
+                .expect_err(<span class="string">"Trying to witness the identity should return an error"</span>);
             }
 
             <span class="comment">// Test witness non-identity point
             </span>{
                 <span class="kw">super</span>::chip::witness_point::tests::test_witness_non_id(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;witness non-identity point&quot;</span>),
+                    layouter.namespace(|| <span class="string">"witness non-identity point"</span>),
                 )
             }
 
@@ -1769,7 +1769,7 @@
             </span>{
                 <span class="kw">super</span>::chip::add::tests::test_add(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;complete addition&quot;</span>),
+                    layouter.namespace(|| <span class="string">"complete addition"</span>),
                     p_val,
                     <span class="kw-2">&amp;</span>p,
                     q_val,
@@ -1782,7 +1782,7 @@
             </span>{
                 <span class="kw">super</span>::chip::add_incomplete::tests::test_add_incomplete(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;incomplete addition&quot;</span>),
+                    layouter.namespace(|| <span class="string">"incomplete addition"</span>),
                     p_val,
                     <span class="kw-2">&amp;</span>p,
                     q_val,
@@ -1796,7 +1796,7 @@
             </span>{
                 <span class="kw">super</span>::chip::mul::tests::test_mul(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;variable-base scalar mul&quot;</span>),
+                    layouter.namespace(|| <span class="string">"variable-base scalar mul"</span>),
                     <span class="kw-2">&amp;</span>p,
                     p_val,
                 )<span class="question-mark">?</span>;
@@ -1806,7 +1806,7 @@
             </span>{
                 <span class="kw">super</span>::chip::mul_fixed::full_width::tests::test_mul_fixed(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;full-width fixed-base scalar mul&quot;</span>),
+                    layouter.namespace(|| <span class="string">"full-width fixed-base scalar mul"</span>),
                 )<span class="question-mark">?</span>;
             }
 
@@ -1814,7 +1814,7 @@
             </span>{
                 <span class="kw">super</span>::chip::mul_fixed::short::tests::test_mul_fixed_short(
                     chip.clone(),
-                    layouter.namespace(|| <span class="string">&quot;signed short fixed-base scalar mul&quot;</span>),
+                    layouter.namespace(|| <span class="string">"signed short fixed-base scalar mul"</span>),
                 )<span class="question-mark">?</span>;
             }
 
@@ -1822,7 +1822,7 @@
             </span>{
                 <span class="kw">super</span>::chip::mul_fixed::base_field_elem::tests::test_mul_fixed_base_field(
                     chip,
-                    layouter.namespace(|| <span class="string">&quot;fixed-base scalar mul with base field element&quot;</span>),
+                    layouter.namespace(|| <span class="string">"fixed-base scalar mul with base field element"</span>),
                 )<span class="question-mark">?</span>;
             }
 
@@ -1838,14 +1838,14 @@
         <span class="macro">assert_eq!</span>(prover.verify(), <span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;test-dev-graph&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"test-dev-graph"</span>)]
     #[test]
     </span><span class="kw">fn </span>print_ecc_chip() {
         <span class="kw">use </span>plotters::prelude::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span>root = BitMapBackend::new(<span class="string">&quot;ecc-chip-layout.png&quot;</span>, (<span class="number">1024</span>, <span class="number">7680</span>)).into_drawing_area();
+        <span class="kw">let </span>root = BitMapBackend::new(<span class="string">"ecc-chip-layout.png"</span>, (<span class="number">1024</span>, <span class="number">7680</span>)).into_drawing_area();
         root.fill(<span class="kw-2">&amp;</span>WHITE).unwrap();
-        <span class="kw">let </span>root = root.titled(<span class="string">&quot;Ecc Chip Layout&quot;</span>, (<span class="string">&quot;sans-serif&quot;</span>, <span class="number">60</span>)).unwrap();
+        <span class="kw">let </span>root = root.titled(<span class="string">"Ecc Chip Layout"</span>, (<span class="string">"sans-serif"</span>, <span class="number">60</span>)).unwrap();
 
         <span class="kw">let </span>circuit = MyCircuit { test_errors: <span class="bool-val">false </span>};
         halo2_proofs::dev::CircuitLayout::default()

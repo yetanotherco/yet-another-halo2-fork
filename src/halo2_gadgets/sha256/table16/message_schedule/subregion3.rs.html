@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/message_schedule/subregion3.rs`."><title>subregion3.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/message_schedule/subregion3.rs`."><title>subregion3.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -415,7 +415,7 @@
     <span class="comment">// W_[49..62]
     </span><span class="kw">pub fn </span>assign_subregion3(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         lower_sigma_0_v2_output: Vec&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;)&gt;,
         w: <span class="kw-2">&amp;mut </span>Vec&lt;MessageWord&gt;,
         w_halves: <span class="kw-2">&amp;mut </span>Vec&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;)&gt;,
@@ -444,13 +444,13 @@
 
             <span class="comment">// Copy sigma_0_v2(W_{i - 15}) output from Subregion 2
             </span>lower_sigma_0_v2_output[idx - <span class="number">49</span>].<span class="number">0</span>.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;sigma_0(W_{})_lo&quot;</span>, new_word_idx - <span class="number">15</span>),
+                || <span class="macro">format!</span>(<span class="string">"sigma_0(W_{})_lo"</span>, new_word_idx - <span class="number">15</span>),
                 region,
                 a_6,
                 get_word_row(new_word_idx - <span class="number">16</span>),
             )<span class="question-mark">?</span>;
             lower_sigma_0_v2_output[idx - <span class="number">49</span>].<span class="number">1</span>.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;sigma_0(W_{})_hi&quot;</span>, new_word_idx - <span class="number">15</span>),
+                || <span class="macro">format!</span>(<span class="string">"sigma_0(W_{})_hi"</span>, new_word_idx - <span class="number">15</span>),
                 region,
                 a_6,
                 get_word_row(new_word_idx - <span class="number">16</span>) + <span class="number">1</span>,
@@ -458,13 +458,13 @@
 
             <span class="comment">// Copy sigma_1(W_{i - 2})
             </span>r_0_even.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;sigma_1(W_{})_lo&quot;</span>, new_word_idx - <span class="number">2</span>),
+                || <span class="macro">format!</span>(<span class="string">"sigma_1(W_{})_lo"</span>, new_word_idx - <span class="number">2</span>),
                 region,
                 a_7,
                 get_word_row(new_word_idx - <span class="number">16</span>),
             )<span class="question-mark">?</span>;
             r_1_even.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;sigma_1(W_{})_hi&quot;</span>, new_word_idx - <span class="number">2</span>),
+                || <span class="macro">format!</span>(<span class="string">"sigma_1(W_{})_hi"</span>, new_word_idx - <span class="number">2</span>),
                 region,
                 a_7,
                 get_word_row(new_word_idx - <span class="number">16</span>) + <span class="number">1</span>,
@@ -472,13 +472,13 @@
 
             <span class="comment">// Copy W_{i - 7}
             </span>w_halves[new_word_idx - <span class="number">7</span>].<span class="number">0</span>.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;W_{}_lo&quot;</span>, new_word_idx - <span class="number">7</span>),
+                || <span class="macro">format!</span>(<span class="string">"W_{}_lo"</span>, new_word_idx - <span class="number">7</span>),
                 region,
                 a_8,
                 get_word_row(new_word_idx - <span class="number">16</span>),
             )<span class="question-mark">?</span>;
             w_halves[new_word_idx - <span class="number">7</span>].<span class="number">1</span>.copy_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;W_{}_hi&quot;</span>, new_word_idx - <span class="number">7</span>),
+                || <span class="macro">format!</span>(<span class="string">"W_{}_hi"</span>, new_word_idx - <span class="number">7</span>),
                 region,
                 a_8,
                 get_word_row(new_word_idx - <span class="number">16</span>) + <span class="number">1</span>,
@@ -503,13 +503,13 @@
 
             <span class="comment">// Assign W_i, carry_i
             </span>region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;W_{}&quot;</span>, new_word_idx),
+                || <span class="macro">format!</span>(<span class="string">"W_{}"</span>, new_word_idx),
                 a_5,
                 get_word_row(new_word_idx - <span class="number">16</span>) + <span class="number">1</span>,
                 || word.map(|word| pallas::Base::from(word <span class="kw">as </span>u64)),
             )<span class="question-mark">?</span>;
             region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;carry_{}&quot;</span>, new_word_idx),
+                || <span class="macro">format!</span>(<span class="string">"carry_{}"</span>, new_word_idx),
                 a_9,
                 get_word_row(new_word_idx - <span class="number">16</span>) + <span class="number">1</span>,
                 || carry.map(pallas::Base::from),
@@ -531,7 +531,7 @@
     <span class="doccomment">/// Pieces of length [10, 7, 2, 13]
     </span><span class="kw">fn </span>decompose_subregion3_word(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         word: Value&lt;<span class="kw-2">&amp;</span>Bits&lt;<span class="number">32</span>&gt;&gt;,
         index: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Subregion3Word, Error&gt; {
@@ -556,10 +556,10 @@
         <span class="kw">let </span>spread_a = SpreadVar::with_lookup(region, <span class="kw-2">&amp;</span><span class="self">self</span>.lookup, row + <span class="number">1</span>, spread_a)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign `b` (7-bit piece)
-        </span><span class="kw">let </span>b = AssignedBits::&lt;<span class="number">7</span>&gt;::assign_bits(region, || <span class="string">&quot;b&quot;</span>, a_4, row + <span class="number">1</span>, pieces[<span class="number">1</span>].clone())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>b = AssignedBits::&lt;<span class="number">7</span>&gt;::assign_bits(region, || <span class="string">"b"</span>, a_4, row + <span class="number">1</span>, pieces[<span class="number">1</span>].clone())<span class="question-mark">?</span>;
 
         <span class="comment">// Assign `c` (2-bit piece)
-        </span><span class="kw">let </span>c = AssignedBits::&lt;<span class="number">2</span>&gt;::assign_bits(region, || <span class="string">&quot;c&quot;</span>, a_3, row + <span class="number">1</span>, pieces[<span class="number">2</span>].clone())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>c = AssignedBits::&lt;<span class="number">2</span>&gt;::assign_bits(region, || <span class="string">"c"</span>, a_3, row + <span class="number">1</span>, pieces[<span class="number">2</span>].clone())<span class="question-mark">?</span>;
 
         <span class="comment">// Assign `d` (13-bit piece) lookup
         </span><span class="kw">let </span>spread_d = pieces[<span class="number">3</span>].clone().map(SpreadWord::try_new);
@@ -578,7 +578,7 @@
 
     <span class="kw">fn </span>lower_sigma_1(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         word: Subregion3Word,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;), Error&gt; {
         <span class="kw">let </span>a_3 = <span class="self">self</span>.extras[<span class="number">0</span>];
@@ -589,7 +589,7 @@
         <span class="kw">let </span>row = get_word_row(word.index) + <span class="number">3</span>;
 
         <span class="comment">// Assign `spread_a` and copy constraint
-        </span>word.spread_a.copy_advice(|| <span class="string">&quot;spread_a&quot;</span>, region, a_4, row)<span class="question-mark">?</span>;
+        </span>word.spread_a.copy_advice(|| <span class="string">"spread_a"</span>, region, a_4, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Split `b` (7-bit chunk) into (2, 2, 3)-bit `b_lo`, `b_mid` and `b_hi`.
         // Assign `b_lo`, `spread_b_lo`, `b_mid`, `spread_b_mid`, `b_hi`, `spread_b_hi`.
@@ -616,19 +616,19 @@
         }
 
         <span class="comment">// Assign `b` and copy constraint
-        </span>word.b.copy_advice(|| <span class="string">&quot;b&quot;</span>, region, a_6, row)<span class="question-mark">?</span>;
+        </span>word.b.copy_advice(|| <span class="string">"b"</span>, region, a_6, row)<span class="question-mark">?</span>;
 
         <span class="comment">// Assign `c` and copy constraint
-        </span>word.c.copy_advice(|| <span class="string">&quot;c&quot;</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
+        </span>word.c.copy_advice(|| <span class="string">"c"</span>, region, a_3, row + <span class="number">1</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Witness `spread_c`
         </span>{
             <span class="kw">let </span>spread_c = word.c.value().map(spread_bits);
-            AssignedBits::&lt;<span class="number">4</span>&gt;::assign_bits(region, || <span class="string">&quot;spread_c&quot;</span>, a_4, row + <span class="number">1</span>, spread_c)<span class="question-mark">?</span>;
+            AssignedBits::&lt;<span class="number">4</span>&gt;::assign_bits(region, || <span class="string">"spread_c"</span>, a_4, row + <span class="number">1</span>, spread_c)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Assign `spread_d` and copy constraint
-        </span>word.spread_d.copy_advice(|| <span class="string">&quot;spread_d&quot;</span>, region, a_5, row)<span class="question-mark">?</span>;
+        </span>word.spread_d.copy_advice(|| <span class="string">"spread_d"</span>, region, a_5, row)<span class="question-mark">?</span>;
 
         <span class="comment">// (10, 7, 2, 13)
         // Calculate R_0^{even}, R_0^{odd}, R_1^{even}, R_1^{odd}

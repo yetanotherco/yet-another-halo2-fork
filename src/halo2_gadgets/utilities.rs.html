@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/utilities.rs`."><title>utilities.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/utilities.rs`."><title>utilities.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -574,10 +574,10 @@
         value: Value&lt;F&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Var, Error&gt; {
         layouter.assign_region(
-            || <span class="string">&quot;load private&quot;</span>,
+            || <span class="string">"load private"</span>,
             |<span class="kw-2">mut </span>region| {
                 region
-                    .assign_advice(|| <span class="string">&quot;load private&quot;</span>, column, <span class="number">0</span>, || value)
+                    .assign_advice(|| <span class="string">"load private"</span>, column, <span class="number">0</span>, || value)
                     .map(<span class="self">Self</span>::Var::from)
             },
         )
@@ -783,7 +783,7 @@
         <span class="kw">impl</span>&lt;<span class="kw">const </span>RANGE: usize&gt; Circuit&lt;pallas::Base&gt; <span class="kw">for </span>MyCircuit&lt;RANGE&gt; {
             <span class="kw">type </span>Config = Config;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -794,7 +794,7 @@
                 <span class="kw">let </span>selector = meta.selector();
                 <span class="kw">let </span>advice = meta.advice_column();
 
-                meta.create_gate(<span class="string">&quot;range check&quot;</span>, |meta| {
+                meta.create_gate(<span class="string">"range check"</span>, |meta| {
                     <span class="kw">let </span>selector = meta.query_selector(selector);
                     <span class="kw">let </span>advice = meta.query_advice(advice, Rotation::cur());
 
@@ -810,11 +810,11 @@
                 <span class="kw-2">mut </span>layouter: <span class="kw">impl </span>Layouter&lt;pallas::Base&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 layouter.assign_region(
-                    || <span class="string">&quot;range constrain&quot;</span>,
+                    || <span class="string">"range constrain"</span>,
                     |<span class="kw-2">mut </span>region| {
                         config.selector.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">0</span>)<span class="question-mark">?</span>;
                         region.assign_advice(
-                            || <span class="macro">format!</span>(<span class="string">&quot;witness {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>),
+                            || <span class="macro">format!</span>(<span class="string">"witness {}"</span>, <span class="self">self</span>.<span class="number">0</span>),
                             config.advice,
                             <span class="number">0</span>,
                             || Value::known(pallas::Base::from(<span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>u64)),
@@ -838,12 +838,12 @@
             <span class="macro">assert_eq!</span>(
                 prover.verify(),
                 <span class="prelude-val">Err</span>(<span class="macro">vec!</span>[VerifyFailure::ConstraintNotSatisfied {
-                    constraint: ((<span class="number">0</span>, <span class="string">&quot;range check&quot;</span>).into(), <span class="number">0</span>, <span class="string">&quot;&quot;</span>).into(),
+                    constraint: ((<span class="number">0</span>, <span class="string">"range check"</span>).into(), <span class="number">0</span>, <span class="string">""</span>).into(),
                     location: FailureLocation::InRegion {
-                        region: (<span class="number">0</span>, <span class="string">&quot;range constrain&quot;</span>).into(),
+                        region: (<span class="number">0</span>, <span class="string">"range constrain"</span>).into(),
                         offset: <span class="number">0</span>,
                     },
-                    cell_values: <span class="macro">vec!</span>[(((Any::advice(), <span class="number">0</span>).into(), <span class="number">0</span>).into(), <span class="string">&quot;0x8&quot;</span>.to_string())],
+                    cell_values: <span class="macro">vec!</span>[(((Any::advice(), <span class="number">0</span>).into(), <span class="number">0</span>).into(), <span class="string">"0x8"</span>.to_string())],
                 }])
             );
         }
@@ -930,7 +930,7 @@
 
     <span class="macro">prop_compose! </span>{
         <span class="kw">fn </span>arb_scalar()(bytes <span class="kw">in </span>prop::array::uniform32(<span class="number">0u8</span>..)) -&gt; pallas::Scalar {
-            <span class="comment">// Instead of rejecting out-of-range bytes, let&#39;s reduce them.
+            <span class="comment">// Instead of rejecting out-of-range bytes, let's reduce them.
             </span><span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">64</span>];
             buf[..<span class="number">32</span>].copy_from_slice(<span class="kw-2">&amp;</span>bytes);
             pallas::Scalar::from_uniform_bytes(<span class="kw-2">&amp;</span>buf)

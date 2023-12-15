@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression.rs`."><title>compression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression.rs`."><title>compression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -1515,7 +1515,7 @@
 
         <span class="comment">// Decompose `A,B,C,D` words into (2, 11, 9, 10)-bit chunks.
         // `c` is split into (3, 3, 3)-bit c_lo, c_mid, c_hi.
-        </span>meta.create_gate(<span class="string">&quot;decompose ABCD&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"decompose ABCD"</span>, |meta| {
             <span class="kw">let </span>s_decompose_abcd = meta.query_selector(s_decompose_abcd);
             <span class="kw">let </span>a = meta.query_advice(a_3, Rotation::next()); <span class="comment">// 2-bit chunk
             </span><span class="kw">let </span>spread_a = meta.query_advice(a_4, Rotation::next());
@@ -1562,7 +1562,7 @@
         <span class="comment">// Decompose `E,F,G,H` words into (6, 5, 14, 7)-bit chunks.
         // `a` is split into (3, 3)-bit a_lo, a_hi
         // `b` is split into (2, 3)-bit b_lo, b_hi
-        </span>meta.create_gate(<span class="string">&quot;Decompose EFGH&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"Decompose EFGH"</span>, |meta| {
             <span class="kw">let </span>s_decompose_efgh = meta.query_selector(s_decompose_efgh);
             <span class="kw">let </span>a_lo = meta.query_advice(a_3, Rotation::next()); <span class="comment">// 3-bit chunk
             </span><span class="kw">let </span>spread_a_lo = meta.query_advice(a_4, Rotation::next());
@@ -1608,7 +1608,7 @@
 
         <span class="comment">// s_upper_sigma_0 on abcd words
         // (2, 11, 9, 10)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;s_upper_sigma_0&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_upper_sigma_0"</span>, |meta| {
             <span class="kw">let </span>s_upper_sigma_0 = meta.query_selector(s_upper_sigma_0);
             <span class="kw">let </span>spread_r0_even = meta.query_advice(a_2, Rotation::prev());
             <span class="kw">let </span>spread_r0_odd = meta.query_advice(a_2, Rotation::cur());
@@ -1639,7 +1639,7 @@
 
         <span class="comment">// s_upper_sigma_1 on efgh words
         // (6, 5, 14, 7)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;s_upper_sigma_1&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_upper_sigma_1"</span>, |meta| {
             <span class="kw">let </span>s_upper_sigma_1 = meta.query_selector(s_upper_sigma_1);
             <span class="kw">let </span>spread_r0_even = meta.query_advice(a_2, Rotation::prev());
             <span class="kw">let </span>spread_r0_odd = meta.query_advice(a_2, Rotation::cur());
@@ -1669,7 +1669,7 @@
 
         <span class="comment">// s_ch on efgh words
         // First part of choice gate on (E, F, G), E ∧ F
-        </span>meta.create_gate(<span class="string">&quot;s_ch&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_ch"</span>, |meta| {
             <span class="kw">let </span>s_ch = meta.query_selector(s_ch);
             <span class="kw">let </span>spread_p0_even = meta.query_advice(a_2, Rotation::prev());
             <span class="kw">let </span>spread_p0_odd = meta.query_advice(a_2, Rotation::cur());
@@ -1695,7 +1695,7 @@
 
         <span class="comment">// s_ch_neg on efgh words
         // Second part of Choice gate on (E, F, G), ¬E ∧ G
-        </span>meta.create_gate(<span class="string">&quot;s_ch_neg&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_ch_neg"</span>, |meta| {
             <span class="kw">let </span>s_ch_neg = meta.query_selector(s_ch_neg);
             <span class="kw">let </span>spread_q0_even = meta.query_advice(a_2, Rotation::prev());
             <span class="kw">let </span>spread_q0_odd = meta.query_advice(a_2, Rotation::cur());
@@ -1724,7 +1724,7 @@
         });
 
         <span class="comment">// s_maj on abcd words
-        </span>meta.create_gate(<span class="string">&quot;s_maj&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_maj"</span>, |meta| {
             <span class="kw">let </span>s_maj = meta.query_selector(s_maj);
             <span class="kw">let </span>spread_m0_even = meta.query_advice(a_2, Rotation::prev());
             <span class="kw">let </span>spread_m0_odd = meta.query_advice(a_2, Rotation::cur());
@@ -1752,8 +1752,8 @@
             )
         });
 
-        <span class="comment">// s_h_prime to compute H&#39; = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
-        </span>meta.create_gate(<span class="string">&quot;s_h_prime&quot;</span>, |meta| {
+        <span class="comment">// s_h_prime to compute H' = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
+        </span>meta.create_gate(<span class="string">"s_h_prime"</span>, |meta| {
             <span class="kw">let </span>s_h_prime = meta.query_selector(s_h_prime);
             <span class="kw">let </span>h_prime_lo = meta.query_advice(a_7, Rotation::next());
             <span class="kw">let </span>h_prime_hi = meta.query_advice(a_8, Rotation::next());
@@ -1792,7 +1792,7 @@
         });
 
         <span class="comment">// s_a_new
-        </span>meta.create_gate(<span class="string">&quot;s_a_new&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_a_new"</span>, |meta| {
             <span class="kw">let </span>s_a_new = meta.query_selector(s_a_new);
             <span class="kw">let </span>a_new_lo = meta.query_advice(a_8, Rotation::cur());
             <span class="kw">let </span>a_new_hi = meta.query_advice(a_8, Rotation::next());
@@ -1819,7 +1819,7 @@
         });
 
         <span class="comment">// s_e_new
-        </span>meta.create_gate(<span class="string">&quot;s_e_new&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_e_new"</span>, |meta| {
             <span class="kw">let </span>s_e_new = meta.query_selector(s_e_new);
             <span class="kw">let </span>e_new_lo = meta.query_advice(a_8, Rotation::cur());
             <span class="kw">let </span>e_new_hi = meta.query_advice(a_8, Rotation::next());
@@ -1842,7 +1842,7 @@
         });
 
         <span class="comment">// s_digest for final round
-        </span>meta.create_gate(<span class="string">&quot;s_digest&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_digest"</span>, |meta| {
             <span class="kw">let </span>s_digest = meta.query_selector(s_digest);
             <span class="kw">let </span>lo_0 = meta.query_advice(a_3, Rotation::cur());
             <span class="kw">let </span>hi_0 = meta.query_advice(a_4, Rotation::cur());
@@ -1890,7 +1890,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;State, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new_state = State::empty_state();
         layouter.assign_region(
-            || <span class="string">&quot;initialize_with_iv&quot;</span>,
+            || <span class="string">"initialize_with_iv"</span>,
             |<span class="kw-2">mut </span>region| {
                 new_state = <span class="self">self</span>.initialize_iv(<span class="kw-2">&amp;mut </span>region, init_state)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())
@@ -1908,7 +1908,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;State, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>new_state = State::empty_state();
         layouter.assign_region(
-            || <span class="string">&quot;initialize_with_state&quot;</span>,
+            || <span class="string">"initialize_with_state"</span>,
             |<span class="kw-2">mut </span>region| {
                 new_state = <span class="self">self</span>.initialize_state(<span class="kw-2">&amp;mut </span>region, init_state.clone())<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())
@@ -1926,7 +1926,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;State, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>state = State::empty_state();
         layouter.assign_region(
-            || <span class="string">&quot;compress&quot;</span>,
+            || <span class="string">"compress"</span>,
             |<span class="kw-2">mut </span>region| {
                 state = initialized_state.clone();
                 <span class="kw">for </span>(idx, w_halves) <span class="kw">in </span>w_halves.iter().enumerate() {
@@ -1946,7 +1946,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;[BlockWord; DIGEST_SIZE], Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>digest = [BlockWord(Value::known(<span class="number">0</span>)); DIGEST_SIZE];
         layouter.assign_region(
-            || <span class="string">&quot;digest&quot;</span>,
+            || <span class="string">"digest"</span>,
             |<span class="kw-2">mut </span>region| {
                 digest = <span class="self">self</span>.assign_digest(<span class="kw-2">&amp;mut </span>region, state.clone())<span class="question-mark">?</span>;
 
@@ -1976,7 +1976,7 @@
         <span class="kw">impl </span>Circuit&lt;pallas::Base&gt; <span class="kw">for </span>MyCircuit {
             <span class="kw">type </span>Config = Table16Config;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1994,7 +1994,7 @@
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 Table16Chip::load(config.clone(), <span class="kw-2">&amp;mut </span>layouter)<span class="question-mark">?</span>;
 
-                <span class="comment">// Test vector: &quot;abc&quot;
+                <span class="comment">// Test vector: "abc"
                 </span><span class="kw">let </span>input: [BlockWord; BLOCK_SIZE] = msg_schedule_test_input();
 
                 <span class="kw">let </span>(<span class="kw">_</span>, w_halves) = config.message_schedule.process(<span class="kw-2">&amp;mut </span>layouter, input)<span class="question-mark">?</span>;
@@ -2022,7 +2022,7 @@
 
         <span class="kw">let </span>prover = <span class="kw">match </span>MockProver::&lt;pallas::Base&gt;::run(<span class="number">17</span>, <span class="kw-2">&amp;</span>circuit, <span class="macro">vec!</span>[]) {
             <span class="prelude-val">Ok</span>(prover) =&gt; prover,
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{:?}&quot;</span>, e),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">"{:?}"</span>, e),
         };
         <span class="macro">assert_eq!</span>(prover.verify(), <span class="prelude-val">Ok</span>(()));
     }

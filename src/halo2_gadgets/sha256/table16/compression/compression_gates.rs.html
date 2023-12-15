@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression/compression_gates.rs`."><title>compression_gates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/compression/compression_gates.rs`."><title>compression_gates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -492,8 +492,8 @@
         spread_word_hi: Expression&lt;F&gt;,
     ) -&gt; Constraints&lt;
         F,
-        (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;),
-        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt;,
+        (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;),
+        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt;,
     &gt; {
         <span class="kw">let </span>check_spread_and_range =
             Gate::three_bit_spread_and_range(c_lo.clone(), spread_c_lo.clone())
@@ -528,10 +528,10 @@
         Constraints::with_selector(
             s_decompose_abcd,
             check_spread_and_range
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;range_check_tag_b&quot;</span>, range_check_tag_b)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;range_check_tag_d&quot;</span>, range_check_tag_d)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;dense_check&quot;</span>, dense_check)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;spread_check&quot;</span>, spread_check))),
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"range_check_tag_b"</span>, range_check_tag_b)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"range_check_tag_d"</span>, range_check_tag_d)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"dense_check"</span>, dense_check)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"spread_check"</span>, spread_check))),
         )
     }
 
@@ -560,8 +560,8 @@
         spread_word_hi: Expression&lt;F&gt;,
     ) -&gt; Constraints&lt;
         F,
-        (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;),
-        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt;,
+        (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;),
+        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt;,
     &gt; {
         <span class="kw">let </span>check_spread_and_range =
             Gate::three_bit_spread_and_range(a_lo.clone(), spread_a_lo.clone())
@@ -599,10 +599,10 @@
         Constraints::with_selector(
             s_decompose_efgh,
             check_spread_and_range
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;range_check_tag_c&quot;</span>, range_check_tag_c)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;range_check_tag_d&quot;</span>, range_check_tag_d)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;dense_check&quot;</span>, dense_check)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;spread_check&quot;</span>, spread_check))),
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"range_check_tag_c"</span>, range_check_tag_c)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"range_check_tag_d"</span>, range_check_tag_d)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"dense_check"</span>, dense_check)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"spread_check"</span>, spread_check))),
         )
     }
 
@@ -621,7 +621,7 @@
         spread_c_mid: Expression&lt;F&gt;,
         spread_c_hi: Expression&lt;F&gt;,
         spread_d: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>spread_witness = spread_r0_even
             + spread_r0_odd * F::from(<span class="number">2</span>)
             + (spread_r1_even + spread_r1_odd * F::from(<span class="number">2</span>)) * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
@@ -646,7 +646,7 @@
         <span class="kw">let </span>xor = xor_0 + xor_1 + xor_2;
         <span class="kw">let </span>check = spread_witness + (xor * -F::ONE);
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_upper_sigma_0&quot;</span>, s_upper_sigma_0 * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_upper_sigma_0"</span>, s_upper_sigma_0 * check))
     }
 
     <span class="comment">// s_upper_sigma_1 on efgh words
@@ -664,7 +664,7 @@
         spread_b_hi: Expression&lt;F&gt;,
         spread_c: Expression&lt;F&gt;,
         spread_d: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>spread_witness = spread_r0_even
             + spread_r0_odd * F::from(<span class="number">2</span>)
             + (spread_r1_even + spread_r1_odd * F::from(<span class="number">2</span>)) * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
@@ -690,7 +690,7 @@
         <span class="kw">let </span>xor = xor_0 + xor_1 + xor_2;
         <span class="kw">let </span>check = spread_witness + (xor * -F::ONE);
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_upper_sigma_1&quot;</span>, s_upper_sigma_1 * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_upper_sigma_1"</span>, s_upper_sigma_1 * check))
     }
 
     <span class="comment">// First part of choice gate on (E, F, G), E ∧ F
@@ -705,7 +705,7 @@
         spread_e_hi: Expression&lt;F&gt;,
         spread_f_lo: Expression&lt;F&gt;,
         spread_f_hi: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>lhs_lo = spread_e_lo + spread_f_lo;
         <span class="kw">let </span>lhs_hi = spread_e_hi + spread_f_hi;
         <span class="kw">let </span>lhs = lhs_lo + lhs_hi * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
@@ -716,7 +716,7 @@
 
         <span class="kw">let </span>check = lhs + rhs * -F::ONE;
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_ch&quot;</span>, s_ch * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_ch"</span>, s_ch * check))
     }
 
     <span class="comment">// Second part of Choice gate on (E, F, G), ¬E ∧ G
@@ -735,8 +735,8 @@
         spread_g_hi: Expression&lt;F&gt;,
     ) -&gt; Constraints&lt;
         F,
-        (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;),
-        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt;,
+        (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;),
+        <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt;,
     &gt; {
         <span class="kw">let </span>neg_check = {
             <span class="kw">let </span>evens = <span class="self">Self</span>::ones() * F::from(MASK_EVEN_32 <span class="kw">as </span>u64);
@@ -746,8 +746,8 @@
             </span><span class="kw">let </span>hi_check = spread_e_neg_hi.clone() + spread_e_hi + (evens * (-F::ONE));
 
             std::iter::empty()
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;lo_check&quot;</span>, lo_check)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;hi_check&quot;</span>, hi_check)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"lo_check"</span>, lo_check)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"hi_check"</span>, hi_check)))
         };
 
         <span class="kw">let </span>lhs_lo = spread_e_neg_lo + spread_g_lo;
@@ -758,7 +758,7 @@
         <span class="kw">let </span>rhs_odd = spread_q0_odd + spread_q1_odd * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
         <span class="kw">let </span>rhs = rhs_even + rhs_odd * F::from(<span class="number">2</span>);
 
-        Constraints::with_selector(s_ch_neg, neg_check.chain(<span class="prelude-val">Some</span>((<span class="string">&quot;s_ch_neg&quot;</span>, lhs - rhs))))
+        Constraints::with_selector(s_ch_neg, neg_check.chain(<span class="prelude-val">Some</span>((<span class="string">"s_ch_neg"</span>, lhs - rhs))))
     }
 
     <span class="comment">// Majority gate on (A, B, C)
@@ -775,7 +775,7 @@
         spread_b_hi: Expression&lt;F&gt;,
         spread_c_lo: Expression&lt;F&gt;,
         spread_c_hi: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>maj_even = spread_m_0_even + spread_m_1_even * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
         <span class="kw">let </span>maj_odd = spread_m_0_odd + spread_m_1_odd * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
         <span class="kw">let </span>maj = maj_even + maj_odd * F::from(<span class="number">2</span>);
@@ -785,10 +785,10 @@
         <span class="kw">let </span>c = spread_c_lo + spread_c_hi * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>);
         <span class="kw">let </span>sum = a + b + c;
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;maj&quot;</span>, s_maj * (sum - maj)))
+        <span class="prelude-val">Some</span>((<span class="string">"maj"</span>, s_maj * (sum - maj)))
     }
 
-    <span class="comment">// s_h_prime to get H&#39; = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
+    <span class="comment">// s_h_prime to get H' = H + Ch(E, F, G) + s_upper_sigma_1(E) + K + W
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>s_h_prime(
         s_h_prime: Expression&lt;F&gt;,
@@ -807,7 +807,7 @@
         k_hi: Expression&lt;F&gt;,
         w_lo: Expression&lt;F&gt;,
         w_hi: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>lo = h_lo + ch_lo + ch_neg_lo + sigma_e_lo + k_lo + w_lo;
         <span class="kw">let </span>hi = h_hi + ch_hi + ch_neg_hi + sigma_e_hi + k_hi + w_hi;
 
@@ -816,10 +816,10 @@
 
         <span class="kw">let </span>check = sum - (h_prime_carry * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>)) - h_prime;
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_h_prime&quot;</span>, s_h_prime * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_h_prime"</span>, s_h_prime * check))
     }
 
-    <span class="comment">// s_a_new to get A_new = H&#39; + Maj(A, B, C) + s_upper_sigma_0(A)
+    <span class="comment">// s_a_new to get A_new = H' + Maj(A, B, C) + s_upper_sigma_0(A)
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>s_a_new(
         s_a_new: Expression&lt;F&gt;,
@@ -832,7 +832,7 @@
         maj_abc_hi: Expression&lt;F&gt;,
         h_prime_lo: Expression&lt;F&gt;,
         h_prime_hi: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>lo = sigma_a_lo + maj_abc_lo + h_prime_lo;
         <span class="kw">let </span>hi = sigma_a_hi + maj_abc_hi + h_prime_hi;
         <span class="kw">let </span>sum = lo + hi * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">16</span>);
@@ -840,10 +840,10 @@
 
         <span class="kw">let </span>check = sum - (a_new_carry * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>)) - a_new;
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_a_new&quot;</span>, s_a_new * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_a_new"</span>, s_a_new * check))
     }
 
-    <span class="comment">// s_e_new to get E_new = H&#39; + D
+    <span class="comment">// s_e_new to get E_new = H' + D
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>s_e_new(
         s_e_new: Expression&lt;F&gt;,
@@ -854,7 +854,7 @@
         d_hi: Expression&lt;F&gt;,
         h_prime_lo: Expression&lt;F&gt;,
         h_prime_hi: Expression&lt;F&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;F&gt;)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;F&gt;)&gt; {
         <span class="kw">let </span>lo = h_prime_lo + d_lo;
         <span class="kw">let </span>hi = h_prime_hi + d_hi;
         <span class="kw">let </span>sum = lo + hi * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">16</span>);
@@ -862,7 +862,7 @@
 
         <span class="kw">let </span>check = sum - (e_new_carry * F::from(<span class="number">1 </span>&lt;&lt; <span class="number">32</span>)) - e_new;
 
-        <span class="prelude-val">Some</span>((<span class="string">&quot;s_e_new&quot;</span>, s_e_new * check))
+        <span class="prelude-val">Some</span>((<span class="string">"s_e_new"</span>, s_e_new * check))
     }
 
     <span class="comment">// s_digest on final round
@@ -889,10 +889,10 @@
         Constraints::with_selector(
             s_digest,
             [
-                (<span class="string">&quot;check_lo_hi_0&quot;</span>, check_lo_hi(lo_0, hi_0, word_0)),
-                (<span class="string">&quot;check_lo_hi_1&quot;</span>, check_lo_hi(lo_1, hi_1, word_1)),
-                (<span class="string">&quot;check_lo_hi_2&quot;</span>, check_lo_hi(lo_2, hi_2, word_2)),
-                (<span class="string">&quot;check_lo_hi_3&quot;</span>, check_lo_hi(lo_3, hi_3, word_3)),
+                (<span class="string">"check_lo_hi_0"</span>, check_lo_hi(lo_0, hi_0, word_0)),
+                (<span class="string">"check_lo_hi_1"</span>, check_lo_hi(lo_1, hi_1, word_1)),
+                (<span class="string">"check_lo_hi_2"</span>, check_lo_hi(lo_2, hi_2, word_2)),
+                (<span class="string">"check_lo_hi_3"</span>, check_lo_hi(lo_3, hi_3, word_3)),
             ],
         )
     }

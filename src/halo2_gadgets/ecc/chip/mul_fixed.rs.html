@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul_fixed.rs`."><title>mul_fixed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul_fixed.rs`."><title>mul_fixed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -594,20 +594,20 @@
         <span class="comment">// Check relationships between `add_config` and `add_incomplete_config`.
         </span><span class="macro">assert_eq!</span>(
             config.add_config.x_p, config.add_incomplete_config.x_p,
-            <span class="string">&quot;add and add_incomplete are used internally in mul_fixed.&quot;
+            <span class="string">"add and add_incomplete are used internally in mul_fixed."
         </span>);
         <span class="macro">assert_eq!</span>(
             config.add_config.y_p, config.add_incomplete_config.y_p,
-            <span class="string">&quot;add and add_incomplete are used internally in mul_fixed.&quot;
+            <span class="string">"add and add_incomplete are used internally in mul_fixed."
         </span>);
         <span class="kw">for </span>advice <span class="kw">in </span>[config.window, config.u].iter() {
             <span class="macro">assert_ne!</span>(
                 <span class="kw-2">*</span>advice, config.add_config.x_qr,
-                <span class="string">&quot;Do not overlap with output columns of add.&quot;
+                <span class="string">"Do not overlap with output columns of add."
             </span>);
             <span class="macro">assert_ne!</span>(
                 <span class="kw-2">*</span>advice, config.add_config.y_qr,
-                <span class="string">&quot;Do not overlap with output columns of add.&quot;
+                <span class="string">"Do not overlap with output columns of add."
             </span>);
         }
 
@@ -626,7 +626,7 @@
     /// scalar is witnessed directly as three-bit windows instead of being decomposed
     /// via a running sum.
     </span><span class="kw">fn </span>running_sum_coords_gate(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;pallas::Base&gt;) {
-        meta.create_gate(<span class="string">&quot;Running sum coordinates check&quot;</span>, |meta| {
+        meta.create_gate(<span class="string">"Running sum coordinates check"</span>, |meta| {
             <span class="kw">let </span>q_mul_fixed_running_sum =
                 meta.query_selector(<span class="self">self</span>.running_sum_config.q_range_check());
 
@@ -645,9 +645,9 @@
     </span><span class="attr">#[allow(clippy::op_ref)]
     </span><span class="kw">fn </span>coords_check(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        meta: <span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        meta: <span class="kw-2">&amp;mut </span>VirtualCells&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         window: Expression&lt;pallas::Base&gt;,
-    ) -&gt; Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Expression&lt;pallas::Base&gt;)&gt; {
+    ) -&gt; Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Expression&lt;pallas::Base&gt;)&gt; {
         <span class="kw">let </span>y_p = meta.query_advice(<span class="self">self</span>.add_config.y_p, Rotation::cur());
         <span class="kw">let </span>x_p = meta.query_advice(<span class="self">self</span>.add_config.x_p, Rotation::cur());
         <span class="kw">let </span>z = meta.query_fixed(<span class="self">self</span>.fixed_z, Rotation::cur());
@@ -677,16 +677,16 @@
             y_p.square() - x_p.clone().square() * x_p - Expression::Constant(pallas::Affine::b());
 
         <span class="macro">vec!</span>[
-            (<span class="string">&quot;check x&quot;</span>, x_check),
-            (<span class="string">&quot;check y&quot;</span>, y_check),
-            (<span class="string">&quot;on-curve&quot;</span>, on_curve),
+            (<span class="string">"check x"</span>, x_check),
+            (<span class="string">"check y"</span>, y_check),
+            (<span class="string">"on-curve"</span>, on_curve),
         ]
     }
 
     <span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">fn </span>assign_region_inner&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         scalar: <span class="kw-2">&amp;</span>ScalarFixed,
         base: <span class="kw-2">&amp;</span>F,
@@ -710,7 +710,7 @@
     <span class="doccomment">/// [Specification](https://p.z.cash/halo2-0.1:ecc-fixed-mul-load-base).
     </span><span class="kw">fn </span>assign_fixed_constants&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         base: <span class="kw-2">&amp;</span>F,
         coords_check_toggle: Selector,
@@ -735,7 +735,7 @@
                 region.assign_fixed(
                     || {
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;Lagrange interpolation coeff for window: {:?}, k: {:?}&quot;</span>,
+                            <span class="string">"Lagrange interpolation coeff for window: {:?}, k: {:?}"</span>,
                             window, k
                         )
                     },
@@ -753,7 +753,7 @@
 
             <span class="comment">// Assign z-values for each window
             </span>region.assign_fixed(
-                || <span class="macro">format!</span>(<span class="string">&quot;z-value for window: {:?}&quot;</span>, window),
+                || <span class="macro">format!</span>(<span class="string">"z-value for window: {:?}"</span>, window),
                 <span class="self">self</span>.fixed_z,
                 window + offset,
                 || {
@@ -769,7 +769,7 @@
     <span class="doccomment">/// Assigns the values used to process a window.
     </span><span class="kw">fn </span>process_window&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         w: usize,
         k_usize: Value&lt;usize&gt;,
@@ -791,7 +791,7 @@
                 x.into()
             });
             <span class="kw">let </span>x = region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;mul_b_x, window {}&quot;</span>, w),
+                || <span class="macro">format!</span>(<span class="string">"mul_b_x, window {}"</span>, w),
                 <span class="self">self</span>.add_config.x_p,
                 offset + w,
                 || x,
@@ -803,7 +803,7 @@
                 y.into()
             });
             <span class="kw">let </span>y = region.assign_advice(
-                || <span class="macro">format!</span>(<span class="string">&quot;mul_b_y, window {}&quot;</span>, w),
+                || <span class="macro">format!</span>(<span class="string">"mul_b_y, window {}"</span>, w),
                 <span class="self">self</span>.add_config.y_p,
                 offset + w,
                 || y,
@@ -814,14 +814,14 @@
 
         <span class="comment">// Assign u = (y_p + z_w).sqrt()
         </span><span class="kw">let </span>u_val = k_usize.map(|k| pallas::Base::from_repr(base_u[w][k]).unwrap());
-        region.assign_advice(|| <span class="string">&quot;u&quot;</span>, <span class="self">self</span>.u, offset + w, || u_val)<span class="question-mark">?</span>;
+        region.assign_advice(|| <span class="string">"u"</span>, <span class="self">self</span>.u, offset + w, || u_val)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(mul_b)
     }
 
     <span class="kw">fn </span>initialize_accumulator&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         base: <span class="kw-2">&amp;</span>F,
         scalar: <span class="kw-2">&amp;</span>ScalarFixed,
@@ -837,7 +837,7 @@
 
     <span class="kw">fn </span>add_incomplete&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         <span class="kw-2">mut </span>acc: NonIdentityEccPoint,
         base: <span class="kw-2">&amp;</span>F,
@@ -877,7 +877,7 @@
     <span class="doccomment">/// Assigns the values used to process a window that does not contain the MSB.
     </span><span class="kw">fn </span>process_lower_bits&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         w: usize,
         k: Value&lt;pallas::Scalar&gt;,
@@ -893,7 +893,7 @@
     <span class="doccomment">/// Assigns the values used to process the window containing the MSB.
     </span><span class="kw">fn </span>process_msb&lt;F: FixedPoint&lt;pallas::Affine&gt;, <span class="kw">const </span>NUM_WINDOWS: usize&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         base: <span class="kw-2">&amp;</span>F,
         scalar: <span class="kw-2">&amp;</span>ScalarFixed,
@@ -970,13 +970,13 @@
                 scalar
                     .running_sum
                     .as_ref()
-                    .expect(<span class="string">&quot;EccScalarFixedShort has been constrained&quot;</span>)
+                    .expect(<span class="string">"EccScalarFixedShort has been constrained"</span>)
                     .to_vec(),
             ),
             <span class="self">Self</span>::FullWidth(scalar) =&gt; scalar
                 .windows
                 .as_ref()
-                .expect(<span class="string">&quot;EccScalarFixed has been witnessed&quot;</span>)
+                .expect(<span class="string">"EccScalarFixed has been witnessed"</span>)
                 .iter()
                 .map(|bits| {
                     <span class="comment">// This assumes that the endianness of the encodings of pallas::Base

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/message_schedule.rs`."><title>message_schedule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16/message_schedule.rs`."><title>message_schedule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -572,7 +572,7 @@
         <span class="kw">let </span>a_9 = extras[<span class="number">5</span>];
 
         <span class="comment">// s_word for W_[16..64]
-        </span>meta.create_gate(<span class="string">&quot;s_word for W_[16..64]&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_word for W_[16..64]"</span>, |meta| {
             <span class="kw">let </span>s_word = meta.query_selector(s_word);
 
             <span class="kw">let </span>sigma_0_lo = meta.query_advice(a_6, Rotation::prev());
@@ -606,7 +606,7 @@
         });
 
         <span class="comment">// s_decompose_0 for all words
-        </span>meta.create_gate(<span class="string">&quot;s_decompose_0&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_decompose_0"</span>, |meta| {
             <span class="kw">let </span>s_decompose_0 = meta.query_selector(s_decompose_0);
             <span class="kw">let </span>lo = meta.query_advice(a_3, Rotation::cur());
             <span class="kw">let </span>hi = meta.query_advice(a_4, Rotation::cur());
@@ -617,7 +617,7 @@
 
         <span class="comment">// s_decompose_1 for W_[1..14]
         // (3, 4, 11, 14)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;s_decompose_1&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_decompose_1"</span>, |meta| {
             <span class="kw">let </span>s_decompose_1 = meta.query_selector(s_decompose_1);
             <span class="kw">let </span>a = meta.query_advice(a_3, Rotation::next()); <span class="comment">// 3-bit chunk
             </span><span class="kw">let </span>b = meta.query_advice(a_4, Rotation::next()); <span class="comment">// 4-bit chunk
@@ -632,7 +632,7 @@
 
         <span class="comment">// s_decompose_2 for W_[14..49]
         // (3, 4, 3, 7, 1, 1, 13)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;s_decompose_2&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_decompose_2"</span>, |meta| {
             <span class="kw">let </span>s_decompose_2 = meta.query_selector(s_decompose_2);
             <span class="kw">let </span>a = meta.query_advice(a_3, Rotation::prev()); <span class="comment">// 3-bit chunk
             </span><span class="kw">let </span>b = meta.query_advice(a_1, Rotation::next()); <span class="comment">// 4-bit chunk
@@ -650,7 +650,7 @@
 
         <span class="comment">// s_decompose_3 for W_49 to W_61
         // (10, 7, 2, 13)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;s_decompose_3&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"s_decompose_3"</span>, |meta| {
             <span class="kw">let </span>s_decompose_3 = meta.query_selector(s_decompose_3);
             <span class="kw">let </span>a = meta.query_advice(a_1, Rotation::next()); <span class="comment">// 10-bit chunk
             </span><span class="kw">let </span>tag_a = meta.query_advice(a_0, Rotation::next());
@@ -665,7 +665,7 @@
 
         <span class="comment">// sigma_0 v1 on W_[1..14]
         // (3, 4, 11, 14)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;sigma_0 v1&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"sigma_0 v1"</span>, |meta| {
             ScheduleGate::s_lower_sigma_0(
                 meta.query_selector(s_lower_sigma_0),
                 meta.query_advice(a_2, Rotation::prev()), <span class="comment">// spread_r0_even
@@ -686,7 +686,7 @@
 
         <span class="comment">// sigma_0 v2 on W_[14..49]
         // (3, 4, 3, 7, 1, 1, 13)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;sigma_0 v2&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"sigma_0 v2"</span>, |meta| {
             ScheduleGate::s_lower_sigma_0_v2(
                 meta.query_selector(s_lower_sigma_0_v2),
                 meta.query_advice(a_2, Rotation::prev()), <span class="comment">// spread_r0_even
@@ -711,7 +711,7 @@
 
         <span class="comment">// sigma_1 v2 on W_14 to W_48
         // (3, 4, 3, 7, 1, 1, 13)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;sigma_1 v2&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"sigma_1 v2"</span>, |meta| {
             ScheduleGate::s_lower_sigma_1_v2(
                 meta.query_selector(s_lower_sigma_1_v2),
                 meta.query_advice(a_2, Rotation::prev()), <span class="comment">// spread_r0_even
@@ -736,7 +736,7 @@
 
         <span class="comment">// sigma_1 v1 on W_49 to W_61
         // (10, 7, 2, 13)-bit chunks
-        </span>meta.create_gate(<span class="string">&quot;sigma_1 v1&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"sigma_1 v1"</span>, |meta| {
             ScheduleGate::s_lower_sigma_1(
                 meta.query_selector(s_lower_sigma_1),
                 meta.query_advice(a_2, Rotation::prev()), <span class="comment">// spread_r0_even
@@ -789,7 +789,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>w_halves = Vec::&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;)&gt;::with_capacity(ROUNDS);
 
         layouter.assign_region(
-            || <span class="string">&quot;process message block&quot;</span>,
+            || <span class="string">"process message block"</span>,
             |<span class="kw-2">mut </span>region| {
                 w = Vec::&lt;MessageWord&gt;::with_capacity(ROUNDS);
                 w_halves = Vec::&lt;(AssignedBits&lt;<span class="number">16</span>&gt;, AssignedBits&lt;<span class="number">16</span>&gt;)&gt;::with_capacity(ROUNDS);
@@ -883,7 +883,7 @@
         <span class="kw">impl </span>Circuit&lt;pallas::Base&gt; <span class="kw">for </span>MyCircuit {
             <span class="kw">type </span>Config = Table16Config;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -903,7 +903,7 @@
                 </span>SpreadTableChip::load(config.lookup.clone(), <span class="kw-2">&amp;mut </span>layouter)<span class="question-mark">?</span>;
 
                 <span class="comment">// Provide input
-                // Test vector: &quot;abc&quot;
+                // Test vector: "abc"
                 </span><span class="kw">let </span>inputs: [BlockWord; BLOCK_SIZE] = msg_schedule_test_input();
 
                 <span class="comment">// Run message_scheduler to get W_[0..64]
@@ -922,7 +922,7 @@
 
         <span class="kw">let </span>prover = <span class="kw">match </span>MockProver::&lt;pallas::Base&gt;::run(<span class="number">17</span>, <span class="kw-2">&amp;</span>circuit, <span class="macro">vec!</span>[]) {
             <span class="prelude-val">Ok</span>(prover) =&gt; prover,
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{:?}&quot;</span>, e),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">"{:?}"</span>, e),
         };
         <span class="macro">assert_eq!</span>(prover.verify(), <span class="prelude-val">Ok</span>(()));
     }

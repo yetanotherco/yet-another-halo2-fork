@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16.rs`."><title>table16.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/sha256/table16.rs`."><title>table16.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -657,7 +657,7 @@
 
 <span class="kw">impl</span>&lt;<span class="kw">const </span>LEN: usize&gt; AssignedBits&lt;LEN&gt; {
     <span class="kw">fn </span>assign_bits&lt;A, AR, T: TryInto&lt;[bool; LEN]&gt; + std::fmt::Debug + Clone&gt;(
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         annotation: A,
         column: <span class="kw">impl </span>Into&lt;Column&lt;Any&gt;&gt;,
         offset: usize,
@@ -683,7 +683,7 @@
                     value.clone()
                 })
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot assign to instance column&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Cannot assign to instance column"</span>),
         }
         .map(AssignedBits)
     }
@@ -695,7 +695,7 @@
     }
 
     <span class="kw">fn </span>assign&lt;A, AR&gt;(
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         annotation: A,
         column: <span class="kw">impl </span>Into&lt;Column&lt;Any&gt;&gt;,
         offset: usize,
@@ -718,7 +718,7 @@
                     value.clone()
                 })
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot assign to instance column&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Cannot assign to instance column"</span>),
         }
         .map(AssignedBits)
     }
@@ -730,7 +730,7 @@
     }
 
     <span class="kw">fn </span>assign&lt;A, AR&gt;(
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         annotation: A,
         column: <span class="kw">impl </span>Into&lt;Column&lt;Any&gt;&gt;,
         offset: usize,
@@ -753,7 +753,7 @@
                     value.clone()
                 })
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot assign to instance column&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Cannot assign to instance column"</span>),
         }
         .map(AssignedBits)
     }
@@ -912,7 +912,7 @@
     #[allow(clippy::type_complexity)]
     </span><span class="kw">fn </span>assign_spread_outputs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         lookup: <span class="kw-2">&amp;</span>SpreadInputs,
         a_3: Column&lt;Advice&gt;,
         row: usize,
@@ -952,7 +952,7 @@
         <span class="comment">// Assign and copy R_1^{odd}
         </span>r_1_odd
             .spread
-            .copy_advice(|| <span class="string">&quot;Assign and copy R_1^{odd}&quot;</span>, region, a_3, row)<span class="question-mark">?</span>;
+            .copy_advice(|| <span class="string">"Assign and copy R_1^{odd}"</span>, region, a_3, row)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((
             (r_0_even.dense, r_1_even.dense),
@@ -964,7 +964,7 @@
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">fn </span>assign_sigma_outputs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         lookup: <span class="kw-2">&amp;</span>SpreadInputs,
         a_3: Column&lt;Advice&gt;,
         row: usize,
@@ -982,7 +982,7 @@
 }
 
 <span class="attr">#[cfg(test)]
-#[cfg(feature = <span class="string">&quot;test-dev-graph&quot;</span>)]
+#[cfg(feature = <span class="string">"test-dev-graph"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{Sha256, BLOCK_SIZE};
     <span class="kw">use super</span>::{message_schedule::msg_schedule_test_input, Table16Chip, Table16Config};
@@ -1000,7 +1000,7 @@
         <span class="kw">impl </span>Circuit&lt;pallas::Base&gt; <span class="kw">for </span>MyCircuit {
             <span class="kw">type </span>Config = Table16Config;
             <span class="kw">type </span>FloorPlanner = SimpleFloorPlanner;
-            <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span><span class="kw">type </span>Params = ();
 
             <span class="kw">fn </span>without_witnesses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -1019,7 +1019,7 @@
                 <span class="kw">let </span>table16_chip = Table16Chip::construct(config.clone());
                 Table16Chip::load(config, <span class="kw-2">&amp;mut </span>layouter)<span class="question-mark">?</span>;
 
-                <span class="comment">// Test vector: &quot;abc&quot;
+                <span class="comment">// Test vector: "abc"
                 </span><span class="kw">let </span>test_input = msg_schedule_test_input();
 
                 <span class="comment">// Create a message of length 31 blocks
@@ -1028,17 +1028,17 @@
                     input.extend_from_slice(<span class="kw-2">&amp;</span>test_input);
                 }
 
-                Sha256::digest(table16_chip, layouter.namespace(|| <span class="string">&quot;&#39;abc&#39; * 31&quot;</span>), <span class="kw-2">&amp;</span>input)<span class="question-mark">?</span>;
+                Sha256::digest(table16_chip, layouter.namespace(|| <span class="string">"'abc' * 31"</span>), <span class="kw-2">&amp;</span>input)<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(())
             }
         }
 
         <span class="kw">let </span>root =
-            BitMapBackend::new(<span class="string">&quot;sha-256-table16-chip-layout.png&quot;</span>, (<span class="number">1024</span>, <span class="number">3480</span>)).into_drawing_area();
+            BitMapBackend::new(<span class="string">"sha-256-table16-chip-layout.png"</span>, (<span class="number">1024</span>, <span class="number">3480</span>)).into_drawing_area();
         root.fill(<span class="kw-2">&amp;</span>WHITE).unwrap();
         <span class="kw">let </span>root = root
-            .titled(<span class="string">&quot;16-bit Table SHA-256 Chip&quot;</span>, (<span class="string">&quot;sans-serif&quot;</span>, <span class="number">60</span>))
+            .titled(<span class="string">"16-bit Table SHA-256 Chip"</span>, (<span class="string">"sans-serif"</span>, <span class="number">60</span>))
             .unwrap();
 
         <span class="kw">let </span>circuit = MyCircuit {};

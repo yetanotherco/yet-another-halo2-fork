@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/lookup/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/lookup/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -546,16 +546,16 @@
     /// - constructs A_compressed = \theta^{m-1} A_0 + theta^{m-2} A_1 + ... + \theta A_{m-2} + A_{m-1}
     ///   and S_compressed = \theta^{m-1} S_0 + theta^{m-2} S_1 + ... + \theta S_{m-2} + S_{m-1},
     /// - permutes A_compressed and S_compressed using permute_expression_pair() helper,
-    ///   obtaining A&#39; and S&#39;, and
-    /// - constructs Permuted&lt;C&gt; struct using permuted_input_value = A&#39;, and
-    ///   permuted_table_expression = S&#39;.
+    ///   obtaining A' and S', and
+    /// - constructs Permuted&lt;C&gt; struct using permuted_input_value = A', and
+    ///   permuted_table_expression = S'.
     /// The Permuted&lt;C&gt; struct is used to update the Lookup, and is then returned.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>commit_permuted&lt;
-        <span class="lifetime">&#39;a</span>,
-        <span class="lifetime">&#39;params</span>: <span class="lifetime">&#39;a</span>,
+        <span class="lifetime">'a</span>,
+        <span class="lifetime">'params</span>: <span class="lifetime">'a</span>,
         C,
-        P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
+        P: Params&lt;<span class="lifetime">'params</span>, C&gt;,
         E: EncodedChallenge&lt;C&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;C, E&gt;,
@@ -565,10 +565,10 @@
         params: <span class="kw-2">&amp;</span>P,
         domain: <span class="kw-2">&amp;</span>EvaluationDomain&lt;C::Scalar&gt;,
         theta: ChallengeTheta&lt;C&gt;,
-        advice_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
-        fixed_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
-        instance_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
-        challenges: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[C::Scalar],
+        advice_values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
+        fixed_values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
+        instance_values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Polynomial&lt;C::Scalar, LagrangeCoeff&gt;],
+        challenges: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[C::Scalar],
         <span class="kw-2">mut </span>rng: R,
         transcript: <span class="kw-2">&amp;mut </span>T,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Permuted&lt;C&gt;, Error&gt;
@@ -655,8 +655,8 @@
     /// is used to populate the Product&lt;C&gt; struct. The Product&lt;C&gt; struct is
     /// added to the Lookup and finally returned by the method.
     </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>commit_product&lt;
-        <span class="lifetime">&#39;params</span>,
-        P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
+        <span class="lifetime">'params</span>,
+        P: Params&lt;<span class="lifetime">'params</span>, C&gt;,
         E: EncodedChallenge&lt;C&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;C, E&gt;,
@@ -674,12 +674,12 @@
         //
         // Numerator: (\theta^{m-1} a_0(\omega^i) + \theta^{m-2} a_1(\omega^i) + ... + \theta a_{m-2}(\omega^i) + a_{m-1}(\omega^i) + \beta)
         //            * (\theta^{m-1} s_0(\omega^i) + \theta^{m-2} s_1(\omega^i) + ... + \theta s_{m-2}(\omega^i) + s_{m-1}(\omega^i) + \gamma)
-        // Denominator: (a&#39;(\omega^i) + \beta) (s&#39;(\omega^i) + \gamma)
+        // Denominator: (a'(\omega^i) + \beta) (s'(\omega^i) + \gamma)
         //
         // where a_j(X) is the jth input expression in this lookup,
-        // where a&#39;(X) is the compression of the permuted input expressions,
+        // where a'(X) is the compression of the permuted input expressions,
         // s_j(X) is the jth table expression in this lookup,
-        // s&#39;(X) is the compression of the permuted table expressions,
+        // s'(X) is the compression of the permuted table expressions,
         // and i is the ith row of the expression.
         </span><span class="kw">let </span><span class="kw-2">mut </span>lookup_product = <span class="macro">vec!</span>[C::Scalar::ZERO; params.n() <span class="kw">as </span>usize];
         <span class="comment">// Denominator uses the permuted input expression and permuted table expression
@@ -713,13 +713,13 @@
         //
         // Numerator: (\theta^{m-1} a_0(\omega^i) + \theta^{m-2} a_1(\omega^i) + ... + \theta a_{m-2}(\omega^i) + a_{m-1}(\omega^i) + \beta)
         //            * (\theta^{m-1} s_0(\omega^i) + \theta^{m-2} s_1(\omega^i) + ... + \theta s_{m-2}(\omega^i) + s_{m-1}(\omega^i) + \gamma)
-        // Denominator: (a&#39;(\omega^i) + \beta) (s&#39;(\omega^i) + \gamma)
+        // Denominator: (a'(\omega^i) + \beta) (s'(\omega^i) + \gamma)
         //
         // where there are m input expressions and m table expressions,
         // a_j(\omega^i) is the jth input expression in this lookup,
-        // a&#39;j(\omega^i) is the permuted input expression,
+        // a'j(\omega^i) is the permuted input expression,
         // s_j(\omega^i) is the jth table expression in this lookup,
-        // s&#39;(\omega^i) is the permuted table expression,
+        // s'(\omega^i) is the permuted table expression,
         // and i is the ith row of the expression.
 
         // Compute the evaluations of the lookup product polynomial
@@ -730,7 +730,7 @@
                 <span class="kw-2">*</span>state <span class="kw-2">*</span>= <span class="kw-2">&amp;</span>cur;
                 <span class="prelude-val">Some</span>(<span class="kw-2">*</span>state)
             })
-            <span class="comment">// Take all rows including the &quot;last&quot; row which should
+            <span class="comment">// Take all rows including the "last" row which should
             // be a boolean (and ideally 1, else soundness is broken)
             </span>.take(params.n() <span class="kw">as </span>usize - blinding_factors)
             <span class="comment">// Chain random blinding factors.
@@ -739,7 +739,7 @@
         <span class="macro">assert_eq!</span>(z.len(), params.n() <span class="kw">as </span>usize);
         <span class="kw">let </span>z = pk.vk.domain.lagrange_from_vec(z);
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;sanity-checks&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"sanity-checks"</span>)]
         </span><span class="comment">// This test works only with intermediate representations in this method.
         // It can be used for debugging purposes.
         </span>{
@@ -749,7 +749,7 @@
             <span class="comment">// l_0(X) * (1 - z(X)) = 0
             </span><span class="macro">assert_eq!</span>(z[<span class="number">0</span>], C::Scalar::ONE);
 
-            <span class="comment">// z(\omega X) (a&#39;(X) + \beta) (s&#39;(X) + \gamma)
+            <span class="comment">// z(\omega X) (a'(X) + \beta) (s'(X) + \gamma)
             // - z(X) (\theta^{m-1} a_0(X) + ... + a_{m-1}(X) + \beta) (\theta^{m-1} s_0(X) + ... + s_{m-1}(X) + \gamma)
             </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..u {
                 <span class="kw">let </span><span class="kw-2">mut </span>left = z[i + <span class="number">1</span>];
@@ -828,11 +828,11 @@
 }
 
 <span class="kw">impl</span>&lt;C: CurveAffine&gt; Evaluated&lt;C&gt; {
-    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>open&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        pk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProvingKey&lt;C&gt;,
+    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>open&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        pk: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProvingKey&lt;C&gt;,
         x: ChallengeX&lt;C&gt;,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = ProverQuery&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt; + Clone {
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = ProverQuery&lt;<span class="lifetime">'a</span>, C&gt;&gt; + Clone {
         <span class="kw">let </span>x_inv = pk.vk.domain.rotate_omega(<span class="kw-2">*</span>x, Rotation::prev());
         <span class="kw">let </span>x_next = pk.vk.domain.rotate_omega(<span class="kw-2">*</span>x, Rotation::next());
 
@@ -873,12 +873,12 @@
 <span class="kw">type </span>ExpressionPair&lt;F&gt; = (Polynomial&lt;F, LagrangeCoeff&gt;, Polynomial&lt;F, LagrangeCoeff&gt;);
 
 <span class="doccomment">/// Given a vector of input values A and a vector of table values S,
-/// this method permutes A and S to produce A&#39; and S&#39;, such that:
-/// - like values in A&#39; are vertically adjacent to each other; and
-/// - the first row in a sequence of like values in A&#39; is the row
-///   that has the corresponding value in S&#39;.
-/// This method returns (A&#39;, S&#39;) if no errors are encountered.
-</span><span class="kw">fn </span>permute_expression_pair&lt;<span class="lifetime">&#39;params</span>, C: CurveAffine, P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;, R: RngCore&gt;(
+/// this method permutes A and S to produce A' and S', such that:
+/// - like values in A' are vertically adjacent to each other; and
+/// - the first row in a sequence of like values in A' is the row
+///   that has the corresponding value in S'.
+/// This method returns (A', S') if no errors are encountered.
+</span><span class="kw">fn </span>permute_expression_pair&lt;<span class="lifetime">'params</span>, C: CurveAffine, P: Params&lt;<span class="lifetime">'params</span>, C&gt;, R: RngCore&gt;(
     pk: <span class="kw-2">&amp;</span>ProvingKey&lt;C&gt;,
     params: <span class="kw-2">&amp;</span>P,
     domain: <span class="kw-2">&amp;</span>EvaluationDomain&lt;C::Scalar&gt;,
@@ -943,7 +943,7 @@
     <span class="macro">assert_eq!</span>(permuted_input_expression.len(), params.n() <span class="kw">as </span>usize);
     <span class="macro">assert_eq!</span>(permuted_table_coeffs.len(), params.n() <span class="kw">as </span>usize);
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sanity-checks&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"sanity-checks"</span>)]
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(a, b) <span class="kw">in </span>permuted_input_expression

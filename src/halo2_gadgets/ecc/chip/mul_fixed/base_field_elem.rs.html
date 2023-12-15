@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul_fixed/base_field_elem.rs`."><title>base_field_elem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul_fixed/base_field_elem.rs`."><title>base_field_elem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -590,7 +590,7 @@
         <span class="kw">for </span>canon_advice <span class="kw">in </span>config.canon_advices.iter() {
             <span class="macro">assert!</span>(
                 !add_incomplete_advices.contains(canon_advice),
-                <span class="string">&quot;Deconflict canon_advice columns with incomplete addition columns.&quot;
+                <span class="string">"Deconflict canon_advice columns with incomplete addition columns."
             </span>);
         }
 
@@ -602,7 +602,7 @@
     <span class="kw">fn </span>create_gate(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;mut </span>ConstraintSystem&lt;pallas::Base&gt;) {
         <span class="comment">// Check that the base field element is canonical.
         // https://p.z.cash/halo2-0.1:ecc-fixed-mul-base-canonicity
-        </span>meta.create_gate(<span class="string">&quot;Canonicity checks&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"Canonicity checks"</span>, |meta| {
             <span class="kw">let </span>q_mul_fixed_base_field = meta.query_selector(<span class="self">self</span>.q_mul_fixed_base_field);
 
             <span class="kw">let </span>alpha = meta.query_advice(<span class="self">self</span>.canon_advices[<span class="number">0</span>], Rotation::prev());
@@ -635,9 +635,9 @@
                     - (alpha_1.clone() + alpha_2.clone() * pallas::Base::from(<span class="number">1 </span>&lt;&lt; <span class="number">2</span>));
 
                 std::iter::empty()
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;alpha_1_range_check&quot;</span>, alpha_1_range_check)))
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;alpha_2_range_check&quot;</span>, alpha_2_range_check)))
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;z_84_alpha_check&quot;</span>, z_84_alpha_check)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"alpha_1_range_check"</span>, alpha_1_range_check)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"alpha_2_range_check"</span>, alpha_2_range_check)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"z_84_alpha_check"</span>, z_84_alpha_check)))
             };
 
             <span class="comment">// Check α_0_prime = α_0 + 2^130 - t_p
@@ -678,17 +678,17 @@
                 </span><span class="kw">let </span>a_43 = z_43_alpha - z_44_alpha * <span class="kw-2">*</span>H_BASE;
 
                 std::iter::empty()
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;MSB = 1 =&gt; alpha_1 = 0&quot;</span>, alpha_2.clone() * alpha_1)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"MSB = 1 =&gt; alpha_1 = 0"</span>, alpha_2.clone() * alpha_1)))
                     .chain(<span class="prelude-val">Some</span>((
-                        <span class="string">&quot;MSB = 1 =&gt; alpha_0_hi_120 = 0&quot;</span>,
+                        <span class="string">"MSB = 1 =&gt; alpha_0_hi_120 = 0"</span>,
                         alpha_2.clone() * alpha_0_hi_120,
                     )))
                     .chain(<span class="prelude-val">Some</span>((
-                        <span class="string">&quot;MSB = 1 =&gt; a_43 = 0 or 1&quot;</span>,
+                        <span class="string">"MSB = 1 =&gt; a_43 = 0 or 1"</span>,
                         alpha_2.clone() * bool_check(a_43),
                     )))
                     .chain(<span class="prelude-val">Some</span>((
-                        <span class="string">&quot;MSB = 1 =&gt; z_13_alpha_0_prime = 0&quot;</span>,
+                        <span class="string">"MSB = 1 =&gt; z_13_alpha_0_prime = 0"</span>,
                         alpha_2 * z_13_alpha_0_prime,
                     )))
             };
@@ -697,7 +697,7 @@
                 q_mul_fixed_base_field,
                 canon_checks
                     .chain(decomposition_checks)
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;alpha_0_prime check&quot;</span>, alpha_0_prime_check))),
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"alpha_0_prime check"</span>, alpha_0_prime_check))),
             )
         });
     }
@@ -712,7 +712,7 @@
         </span>&lt;Fixed <span class="kw">as </span>FixedPoints&lt;pallas::Affine&gt;&gt;::Base: <span class="kw">super</span>::<span class="kw">super</span>::FixedPoint&lt;pallas::Affine&gt;,
     {
         <span class="kw">let </span>(scalar, acc, mul_b) = layouter.assign_region(
-            || <span class="string">&quot;Base-field elem fixed-base mul (incomplete addition)&quot;</span>,
+            || <span class="string">"Base-field elem fixed-base mul (incomplete addition)"</span>,
             |<span class="kw-2">mut </span>region| {
                 <span class="kw">let </span>offset = <span class="number">0</span>;
 
@@ -746,7 +746,7 @@
 
         <span class="comment">// Add to the accumulator and return the final result as `[scalar]B`.
         </span><span class="kw">let </span>result = layouter.assign_region(
-            || <span class="string">&quot;Base-field elem fixed-base mul (complete addition)&quot;</span>,
+            || <span class="string">"Base-field elem fixed-base mul (complete addition)"</span>,
             |<span class="kw-2">mut </span>region| {
                 <span class="self">self</span>.super_config.add_config.assign_region(
                     <span class="kw-2">&amp;</span>mul_b.clone().into(),
@@ -816,7 +816,7 @@
                 alpha_0 + two_pow_130 - t_p
             });
             <span class="kw">let </span>zs = <span class="self">self</span>.lookup_config.witness_check(
-                layouter.namespace(|| <span class="string">&quot;Lookup range check alpha_0 + 2^130 - t_p&quot;</span>),
+                layouter.namespace(|| <span class="string">"Lookup range check alpha_0 + 2^130 - t_p"</span>),
                 alpha_0_prime,
                 <span class="number">13</span>,
                 <span class="bool-val">false</span>,
@@ -827,7 +827,7 @@
         };
 
         layouter.assign_region(
-            || <span class="string">&quot;Canonicity checks&quot;</span>,
+            || <span class="string">"Canonicity checks"</span>,
             |<span class="kw-2">mut </span>region| {
                 <span class="comment">// Activate canonicity check gate
                 </span><span class="self">self</span>.q_mul_fixed_base_field.enable(<span class="kw-2">&amp;mut </span>region, <span class="number">1</span>)<span class="question-mark">?</span>;
@@ -837,11 +837,11 @@
                     <span class="kw">let </span>offset = <span class="number">0</span>;
 
                     <span class="comment">// Copy α
-                    </span>alpha.copy_advice(|| <span class="string">&quot;Copy α&quot;</span>, <span class="kw-2">&amp;mut </span>region, <span class="self">self</span>.canon_advices[<span class="number">0</span>], offset)<span class="question-mark">?</span>;
+                    </span>alpha.copy_advice(|| <span class="string">"Copy α"</span>, <span class="kw-2">&amp;mut </span>region, <span class="self">self</span>.canon_advices[<span class="number">0</span>], offset)<span class="question-mark">?</span>;
 
                     <span class="comment">// z_84_alpha = the top three bits of alpha.
                     </span>z_84_alpha.copy_advice(
-                        || <span class="string">&quot;Copy z_84_alpha&quot;</span>,
+                        || <span class="string">"Copy z_84_alpha"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         <span class="self">self</span>.canon_advices[<span class="number">2</span>],
                         offset,
@@ -854,7 +854,7 @@
                     <span class="comment">// Copy alpha_0_prime = alpha_0 + 2^130 - t_p.
                     // We constrain this in the custom gate to be derived correctly.
                     </span>alpha_0_prime.copy_advice(
-                        || <span class="string">&quot;Copy α_0 + 2^130 - t_p&quot;</span>,
+                        || <span class="string">"Copy α_0 + 2^130 - t_p"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         <span class="self">self</span>.canon_advices[<span class="number">0</span>],
                         offset,
@@ -866,7 +866,7 @@
                     // Witness α_1 = α[252..=253]
                     </span><span class="kw">let </span>alpha_1 = alpha.value().map(|alpha| bitrange_subset(alpha, <span class="number">252</span>..<span class="number">254</span>));
                     region.assign_advice(
-                        || <span class="string">&quot;α_1 = α[252..=253]&quot;</span>,
+                        || <span class="string">"α_1 = α[252..=253]"</span>,
                         <span class="self">self</span>.canon_advices[<span class="number">1</span>],
                         offset,
                         || alpha_1,
@@ -875,7 +875,7 @@
                     <span class="comment">// Witness the MSB α_2 = α[254]
                     </span><span class="kw">let </span>alpha_2 = alpha.value().map(|alpha| bitrange_subset(alpha, <span class="number">254</span>..<span class="number">255</span>));
                     region.assign_advice(
-                        || <span class="string">&quot;α_2 = α[254]&quot;</span>,
+                        || <span class="string">"α_2 = α[254]"</span>,
                         <span class="self">self</span>.canon_advices[<span class="number">2</span>],
                         offset,
                         || alpha_2,
@@ -887,7 +887,7 @@
                     <span class="kw">let </span>offset = <span class="number">2</span>;
                     <span class="comment">// Copy z_13_alpha_0_prime
                     </span>z_13_alpha_0_prime.copy_advice(
-                        || <span class="string">&quot;Copy z_13_alpha_0_prime&quot;</span>,
+                        || <span class="string">"Copy z_13_alpha_0_prime"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         <span class="self">self</span>.canon_advices[<span class="number">0</span>],
                         offset,
@@ -895,7 +895,7 @@
 
                     <span class="comment">// Copy z_44_alpha
                     </span>z_44_alpha.copy_advice(
-                        || <span class="string">&quot;Copy z_44_alpha&quot;</span>,
+                        || <span class="string">"Copy z_44_alpha"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         <span class="self">self</span>.canon_advices[<span class="number">1</span>],
                         offset,
@@ -903,7 +903,7 @@
 
                     <span class="comment">// Copy z_43_alpha
                     </span>z_43_alpha.copy_advice(
-                        || <span class="string">&quot;Copy z_43_alpha&quot;</span>,
+                        || <span class="string">"Copy z_43_alpha"</span>,
                         <span class="kw-2">&amp;mut </span>region,
                         <span class="self">self</span>.canon_advices[<span class="number">2</span>],
                         offset,
@@ -946,7 +946,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         test_single_base(
             chip.clone(),
-            layouter.namespace(|| <span class="string">&quot;base_field_elem&quot;</span>),
+            layouter.namespace(|| <span class="string">"base_field_elem"</span>),
             FixedPointBaseField::from_inner(chip, BaseField),
             BaseField.generator(),
         )
@@ -974,10 +974,10 @@
             </span><span class="kw">let </span>scalar = pallas::Scalar::from_repr(scalar_val.to_repr()).unwrap();
             <span class="kw">let </span>expected = NonIdentityPoint::new(
                 chip,
-                layouter.namespace(|| <span class="string">&quot;expected point&quot;</span>),
+                layouter.namespace(|| <span class="string">"expected point"</span>),
                 Value::known((base_val * scalar).to_affine()),
             )<span class="question-mark">?</span>;
-            result.constrain_equal(layouter.namespace(|| <span class="string">&quot;constrain result&quot;</span>), <span class="kw-2">&amp;</span>expected)
+            result.constrain_equal(layouter.namespace(|| <span class="string">"constrain result"</span>), <span class="kw-2">&amp;</span>expected)
         }
 
         <span class="comment">// [a]B
@@ -985,15 +985,15 @@
             <span class="kw">let </span>scalar_fixed = pallas::Base::random(rng);
             <span class="kw">let </span>result = {
                 <span class="kw">let </span>scalar_fixed = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;random base field element&quot;</span>),
+                    layouter.namespace(|| <span class="string">"random base field element"</span>),
                     column,
                     Value::known(scalar_fixed),
                 )<span class="question-mark">?</span>;
-                base.mul(layouter.namespace(|| <span class="string">&quot;random [a]B&quot;</span>), scalar_fixed)<span class="question-mark">?
+                base.mul(layouter.namespace(|| <span class="string">"random [a]B"</span>), scalar_fixed)<span class="question-mark">?
             </span>};
             constrain_equal_non_id(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;random [a]B&quot;</span>),
+                layouter.namespace(|| <span class="string">"random [a]B"</span>),
                 base_val,
                 scalar_fixed,
                 result,
@@ -1006,22 +1006,22 @@
         // 5333333333333333333333333333333333333333332711161673731021062440252244051273333333333 in octal.)
         </span>{
             <span class="kw">let </span>h = pallas::Base::from(H <span class="kw">as </span>u64);
-            <span class="kw">let </span>scalar_fixed = <span class="string">&quot;1333333333333333333333333333333333333333333333333333333333333333333333333333333333334&quot;
+            <span class="kw">let </span>scalar_fixed = <span class="string">"1333333333333333333333333333333333333333333333333333333333333333333333333333333333334"
                         </span>.chars()
                         .fold(pallas::Base::zero(), |acc, c| {
                             acc * <span class="kw-2">&amp;</span>h + <span class="kw-2">&amp;</span>pallas::Base::from(c.to_digit(<span class="number">8</span>).unwrap() <span class="kw">as </span>u64)
                         });
             <span class="kw">let </span>result = {
                 <span class="kw">let </span>scalar_fixed = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;mul with double&quot;</span>),
+                    layouter.namespace(|| <span class="string">"mul with double"</span>),
                     column,
                     Value::known(scalar_fixed),
                 )<span class="question-mark">?</span>;
-                base.mul(layouter.namespace(|| <span class="string">&quot;mul with double&quot;</span>), scalar_fixed)<span class="question-mark">?
+                base.mul(layouter.namespace(|| <span class="string">"mul with double"</span>), scalar_fixed)<span class="question-mark">?
             </span>};
             constrain_equal_non_id(
                 chip.clone(),
-                layouter.namespace(|| <span class="string">&quot;mul with double&quot;</span>),
+                layouter.namespace(|| <span class="string">"mul with double"</span>),
                 base_val,
                 scalar_fixed,
                 result,
@@ -1034,11 +1034,11 @@
             <span class="kw">let </span>scalar_fixed = pallas::Base::zero();
             <span class="kw">let </span>result = {
                 <span class="kw">let </span>scalar_fixed = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;zero&quot;</span>),
+                    layouter.namespace(|| <span class="string">"zero"</span>),
                     column,
                     Value::known(scalar_fixed),
                 )<span class="question-mark">?</span>;
-                base.mul(layouter.namespace(|| <span class="string">&quot;mul by zero&quot;</span>), scalar_fixed)<span class="question-mark">?
+                base.mul(layouter.namespace(|| <span class="string">"mul by zero"</span>), scalar_fixed)<span class="question-mark">?
             </span>};
             result
                 .inner()
@@ -1051,15 +1051,15 @@
             <span class="kw">let </span>scalar_fixed = -pallas::Base::one();
             <span class="kw">let </span>result = {
                 <span class="kw">let </span>scalar_fixed = chip.load_private(
-                    layouter.namespace(|| <span class="string">&quot;-1&quot;</span>),
+                    layouter.namespace(|| <span class="string">"-1"</span>),
                     column,
                     Value::known(scalar_fixed),
                 )<span class="question-mark">?</span>;
-                base.mul(layouter.namespace(|| <span class="string">&quot;mul by -1&quot;</span>), scalar_fixed)<span class="question-mark">?
+                base.mul(layouter.namespace(|| <span class="string">"mul by -1"</span>), scalar_fixed)<span class="question-mark">?
             </span>};
             constrain_equal_non_id(
                 chip,
-                layouter.namespace(|| <span class="string">&quot;mul by -1&quot;</span>),
+                layouter.namespace(|| <span class="string">"mul by -1"</span>),
                 base_val,
                 scalar_fixed,
                 result,

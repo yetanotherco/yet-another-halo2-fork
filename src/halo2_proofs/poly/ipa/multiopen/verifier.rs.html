@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/ipa/multiopen/verifier.rs`."><title>verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/ipa/multiopen/verifier.rs`."><title>verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -177,31 +177,31 @@
 
 <span class="doccomment">/// IPA multi-open verifier
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>VerifierIPA&lt;<span class="lifetime">&#39;params</span>, C: CurveAffine&gt; {
-    params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>ParamsIPA&lt;C&gt;,
+</span><span class="kw">pub struct </span>VerifierIPA&lt;<span class="lifetime">'params</span>, C: CurveAffine&gt; {
+    params: <span class="kw-2">&amp;</span><span class="lifetime">'params </span>ParamsIPA&lt;C&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;params</span>, C: CurveAffine&gt; Verifier&lt;<span class="lifetime">&#39;params</span>, IPACommitmentScheme&lt;C&gt;&gt;
-    <span class="kw">for </span>VerifierIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, C: CurveAffine&gt; Verifier&lt;<span class="lifetime">'params</span>, IPACommitmentScheme&lt;C&gt;&gt;
+    <span class="kw">for </span>VerifierIPA&lt;<span class="lifetime">'params</span>, C&gt;
 {
-    <span class="kw">type </span>Guard = GuardIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;;
-    <span class="kw">type </span>MSMAccumulator = MSMIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;;
+    <span class="kw">type </span>Guard = GuardIPA&lt;<span class="lifetime">'params</span>, C&gt;;
+    <span class="kw">type </span>MSMAccumulator = MSMIPA&lt;<span class="lifetime">'params</span>, C&gt;;
 
     <span class="kw">const </span>QUERY_INSTANCE: bool = <span class="bool-val">true</span>;
 
-    <span class="kw">fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>ParamsVerifierIPA&lt;C&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">'params </span>ParamsVerifierIPA&lt;C&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ params }
     }
 
-    <span class="kw">fn </span>verify_proof&lt;<span class="lifetime">&#39;com</span>, E: EncodedChallenge&lt;C&gt;, T: TranscriptRead&lt;C, E&gt;, I&gt;(
+    <span class="kw">fn </span>verify_proof&lt;<span class="lifetime">'com</span>, E: EncodedChallenge&lt;C&gt;, T: TranscriptRead&lt;C, E&gt;, I&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         transcript: <span class="kw-2">&amp;mut </span>T,
         queries: I,
-        <span class="kw-2">mut </span>msm: MSMIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;,
+        <span class="kw-2">mut </span>msm: MSMIPA&lt;<span class="lifetime">'params</span>, C&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Guard, Error&gt;
     <span class="kw">where
-        </span><span class="lifetime">&#39;params</span>: <span class="lifetime">&#39;com</span>,
-        I: IntoIterator&lt;Item = VerifierQuery&lt;<span class="lifetime">&#39;com</span>, C, MSMIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;&gt;&gt; + Clone,
+        </span><span class="lifetime">'params</span>: <span class="lifetime">'com</span>,
+        I: IntoIterator&lt;Item = VerifierQuery&lt;<span class="lifetime">'com</span>, C, MSMIPA&lt;<span class="lifetime">'params</span>, C&gt;&gt;&gt; + Clone,
     {
         <span class="comment">// Sample x_1 for compressing openings at the same point sets together
         </span><span class="kw">let </span>x_1: ChallengeX1&lt;<span class="kw">_</span>&gt; = transcript.squeeze_challenge_scalar();
@@ -227,7 +227,7 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>accumulate = |set_idx: usize,
-                                  new_commitment: CommitmentReference&lt;C, MSMIPA&lt;<span class="lifetime">&#39;params</span>, C&gt;&gt;,
+                                  new_commitment: CommitmentReference&lt;C, MSMIPA&lt;<span class="lifetime">'params</span>, C&gt;&gt;,
                                   evals: Vec&lt;C::Scalar&gt;| {
                 <span class="kw">let </span>(q_commitment, x_1_power) = <span class="kw-2">&amp;mut </span>q_commitments[set_idx];
                 <span class="kw">match </span>new_commitment {
@@ -247,7 +247,7 @@
             };
 
             <span class="comment">// Each commitment corresponds to evaluations at a set of points.
-            // For each set, we collapse each commitment&#39;s evals pointwise.
+            // For each set, we collapse each commitment's evals pointwise.
             // Run in order of increasing x_1 powers.
             </span><span class="kw">for </span>commitment_data <span class="kw">in </span>commitment_map.into_iter().rev() {
                 accumulate(

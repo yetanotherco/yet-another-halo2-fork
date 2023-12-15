@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/transcript.rs`."><title>transcript.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/transcript.rs`."><title>transcript.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -580,33 +580,33 @@
 <span class="kw">use </span>std::io::{<span class="self">self</span>, Read, Write};
 <span class="kw">use </span>std::marker::PhantomData;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message soliciting a challenge
+<span class="doccomment">/// Prefix to a prover's message soliciting a challenge
 </span><span class="kw">const </span>BLAKE2B_PREFIX_CHALLENGE: u8 = <span class="number">0</span>;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message containing a curve point
+<span class="doccomment">/// Prefix to a prover's message containing a curve point
 </span><span class="kw">const </span>BLAKE2B_PREFIX_POINT: u8 = <span class="number">1</span>;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message containing a scalar
+<span class="doccomment">/// Prefix to a prover's message containing a scalar
 </span><span class="kw">const </span>BLAKE2B_PREFIX_SCALAR: u8 = <span class="number">2</span>;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message soliciting a challenge
+<span class="doccomment">/// Prefix to a prover's message soliciting a challenge
 </span><span class="kw">const </span>KECCAK256_PREFIX_CHALLENGE: u8 = <span class="number">0</span>;
 
-<span class="doccomment">/// First prefix to a prover&#39;s message soliciting a challenge
+<span class="doccomment">/// First prefix to a prover's message soliciting a challenge
 /// Not included in the growing state!
 </span><span class="kw">const </span>KECCAK256_PREFIX_CHALLENGE_LO: u8 = <span class="number">10</span>;
 
-<span class="doccomment">/// Second prefix to a prover&#39;s message soliciting a challenge
+<span class="doccomment">/// Second prefix to a prover's message soliciting a challenge
 /// Not included in the growing state!
 </span><span class="kw">const </span>KECCAK256_PREFIX_CHALLENGE_HI: u8 = <span class="number">11</span>;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message containing a curve point
+<span class="doccomment">/// Prefix to a prover's message containing a curve point
 </span><span class="kw">const </span>KECCAK256_PREFIX_POINT: u8 = <span class="number">1</span>;
 
-<span class="doccomment">/// Prefix to a prover&#39;s message containing a scalar
+<span class="doccomment">/// Prefix to a prover's message containing a scalar
 </span><span class="kw">const </span>KECCAK256_PREFIX_SCALAR: u8 = <span class="number">2</span>;
 
-<span class="doccomment">/// Generic transcript view (from either the prover or verifier&#39;s perspective)
+<span class="doccomment">/// Generic transcript view (from either the prover or verifier's perspective)
 </span><span class="kw">pub trait </span>Transcript&lt;C: CurveAffine, E: EncodedChallenge&lt;C&gt;&gt; {
     <span class="doccomment">/// Squeeze an encoded verifier challenge from the transcript.
     </span><span class="kw">fn </span>squeeze_challenge(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E;
@@ -693,7 +693,7 @@
         Blake2bRead {
             state: Blake2bParams::new()
                 .hash_length(<span class="number">64</span>)
-                .personal(<span class="string">b&quot;Halo2-Transcript&quot;</span>)
+                .personal(<span class="string">b"Halo2-Transcript"</span>)
                 .to_state(),
             reader,
             _marker: PhantomData,
@@ -709,7 +709,7 @@
     <span class="doccomment">/// Initialize a transcript given an input buffer.
     </span><span class="kw">fn </span>init(reader: R) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>state = Keccak256::new();
-        state.update(<span class="string">b&quot;Halo2-Transcript&quot;</span>);
+        state.update(<span class="string">b"Halo2-Transcript"</span>);
         Keccak256Read {
             state,
             reader,
@@ -727,7 +727,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>compressed = C::Repr::default();
         <span class="self">self</span>.reader.read_exact(compressed.as_mut())<span class="question-mark">?</span>;
         <span class="kw">let </span>point: C = Option::from(C::from_bytes(<span class="kw-2">&amp;</span>compressed)).ok_or_else(|| {
-            io::Error::new(io::ErrorKind::Other, <span class="string">&quot;invalid point encoding in proof&quot;</span>)
+            io::Error::new(io::ErrorKind::Other, <span class="string">"invalid point encoding in proof"</span>)
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.common_point(point)<span class="question-mark">?</span>;
 
@@ -740,7 +740,7 @@
         <span class="kw">let </span>scalar: C::Scalar = Option::from(C::Scalar::from_repr(data)).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;invalid field element encoding in proof&quot;</span>,
+                <span class="string">"invalid field element encoding in proof"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.common_scalar(scalar)<span class="question-mark">?</span>;
@@ -758,7 +758,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>compressed = C::Repr::default();
         <span class="self">self</span>.reader.read_exact(compressed.as_mut())<span class="question-mark">?</span>;
         <span class="kw">let </span>point: C = Option::from(C::from_bytes(<span class="kw-2">&amp;</span>compressed)).ok_or_else(|| {
-            io::Error::new(io::ErrorKind::Other, <span class="string">&quot;invalid point encoding in proof&quot;</span>)
+            io::Error::new(io::ErrorKind::Other, <span class="string">"invalid point encoding in proof"</span>)
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.common_point(point)<span class="question-mark">?</span>;
 
@@ -771,7 +771,7 @@
         <span class="kw">let </span>scalar: C::Scalar = Option::from(C::Scalar::from_repr(data)).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;invalid field element encoding in proof&quot;</span>,
+                <span class="string">"invalid field element encoding in proof"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.common_scalar(scalar)<span class="question-mark">?</span>;
@@ -796,7 +796,7 @@
         <span class="kw">let </span>coords: Coordinates&lt;C&gt; = Option::from(point.coordinates()).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;cannot write points at infinity to the transcript&quot;</span>,
+                <span class="string">"cannot write points at infinity to the transcript"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.state.update(coords.x().to_repr().as_ref());
@@ -840,7 +840,7 @@
         <span class="kw">let </span>coords: Coordinates&lt;C&gt; = Option::from(point.coordinates()).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;cannot write points at infinity to the transcript&quot;</span>,
+                <span class="string">"cannot write points at infinity to the transcript"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.state.update(coords.x().to_repr().as_ref());
@@ -883,7 +883,7 @@
         Blake2bWrite {
             state: Blake2bParams::new()
                 .hash_length(<span class="number">64</span>)
-                .personal(<span class="string">b&quot;Halo2-Transcript&quot;</span>)
+                .personal(<span class="string">b"Halo2-Transcript"</span>)
                 .to_state(),
             writer,
             _marker: PhantomData,
@@ -904,7 +904,7 @@
     <span class="doccomment">/// Initialize a transcript given an output buffer.
     </span><span class="kw">fn </span>init(writer: W) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>state = Keccak256::new();
-        state.update(<span class="string">b&quot;Halo2-Transcript&quot;</span>);
+        state.update(<span class="string">b"Halo2-Transcript"</span>);
         Keccak256Write {
             state,
             writer,
@@ -970,7 +970,7 @@
         <span class="kw">let </span>coords: Coordinates&lt;C&gt; = Option::from(point.coordinates()).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;cannot write points at infinity to the transcript&quot;</span>,
+                <span class="string">"cannot write points at infinity to the transcript"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.state.update(coords.x().to_repr().as_ref());
@@ -1014,7 +1014,7 @@
         <span class="kw">let </span>coords: Coordinates&lt;C&gt; = Option::from(point.coordinates()).ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::Other,
-                <span class="string">&quot;cannot write points at infinity to the transcript&quot;</span>,
+                <span class="string">"cannot write points at infinity to the transcript"</span>,
             )
         })<span class="question-mark">?</span>;
         <span class="self">self</span>.state.update(coords.x().to_repr().as_ref());
@@ -1097,7 +1097,7 @@
                 .to_repr()
                 .as_ref()
                 .try_into()
-                .expect(<span class="string">&quot;Scalar fits into 256 bits&quot;</span>),
+                .expect(<span class="string">"Scalar fits into 256 bits"</span>),
             PhantomData,
         )
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs`."><title>prover.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -336,7 +336,7 @@
 <span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::ops::MulAssign;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;multicore&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::multicore::ParallelIterator;
 
 <span class="kw">fn </span>div_by_vanishing&lt;F: Field&gt;(poly: Polynomial&lt;F, Coeff&gt;, roots: <span class="kw-2">&amp;</span>[F]) -&gt; Vec&lt;F&gt; {
@@ -347,13 +347,13 @@
     poly
 }
 
-<span class="kw">struct </span>CommitmentExtension&lt;<span class="lifetime">&#39;a</span>, C: CurveAffine&gt; {
-    commitment: Commitment&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt;,
+<span class="kw">struct </span>CommitmentExtension&lt;<span class="lifetime">'a</span>, C: CurveAffine&gt; {
+    commitment: Commitment&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">'a</span>, C&gt;&gt;,
     low_degree_equivalent: Polynomial&lt;C::Scalar, Coeff&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C: CurveAffine&gt; Commitment&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt; {
-    <span class="kw">fn </span>extend(<span class="kw-2">&amp;</span><span class="self">self</span>, points: <span class="kw-2">&amp;</span>[C::Scalar]) -&gt; CommitmentExtension&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C: CurveAffine&gt; Commitment&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">'a</span>, C&gt;&gt; {
+    <span class="kw">fn </span>extend(<span class="kw-2">&amp;</span><span class="self">self</span>, points: <span class="kw-2">&amp;</span>[C::Scalar]) -&gt; CommitmentExtension&lt;<span class="lifetime">'a</span>, C&gt; {
         <span class="kw">let </span>poly = lagrange_interpolate(points, <span class="kw-2">&amp;</span><span class="self">self</span>.evals()[..]);
 
         <span class="kw">let </span>low_degree_equivalent = Polynomial {
@@ -368,7 +368,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C: CurveAffine&gt; CommitmentExtension&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C: CurveAffine&gt; CommitmentExtension&lt;<span class="lifetime">'a</span>, C&gt; {
     <span class="kw">fn </span>linearisation_contribution(<span class="kw-2">&amp;</span><span class="self">self</span>, u: C::Scalar) -&gt; Polynomial&lt;C::Scalar, Coeff&gt; {
         <span class="kw">let </span>p_x = <span class="self">self</span>.commitment.get().poly;
         <span class="kw">let </span>r_eval = eval_polynomial(<span class="kw-2">&amp;</span><span class="self">self</span>.low_degree_equivalent.values[..], u);
@@ -390,13 +390,13 @@
     }
 }
 
-<span class="kw">struct </span>RotationSetExtension&lt;<span class="lifetime">&#39;a</span>, C: CurveAffine&gt; {
-    commitments: Vec&lt;CommitmentExtension&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt;,
+<span class="kw">struct </span>RotationSetExtension&lt;<span class="lifetime">'a</span>, C: CurveAffine&gt; {
+    commitments: Vec&lt;CommitmentExtension&lt;<span class="lifetime">'a</span>, C&gt;&gt;,
     points: Vec&lt;C::Scalar&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C: CurveAffine&gt; RotationSet&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt; {
-    <span class="kw">fn </span>extend(<span class="self">self</span>, commitments: Vec&lt;CommitmentExtension&lt;<span class="lifetime">&#39;a</span>, C&gt;&gt;) -&gt; RotationSetExtension&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C: CurveAffine&gt; RotationSet&lt;C::Scalar, PolynomialPointer&lt;<span class="lifetime">'a</span>, C&gt;&gt; {
+    <span class="kw">fn </span>extend(<span class="self">self</span>, commitments: Vec&lt;CommitmentExtension&lt;<span class="lifetime">'a</span>, C&gt;&gt;) -&gt; RotationSetExtension&lt;<span class="lifetime">'a</span>, C&gt; {
         RotationSetExtension {
             commitments,
             points: <span class="self">self</span>.points,
@@ -406,20 +406,20 @@
 
 <span class="doccomment">/// Concrete KZG prover with SHPLONK variant
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ProverSHPLONK&lt;<span class="lifetime">&#39;a</span>, E: Engine&gt; {
-    params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ParamsKZG&lt;E&gt;,
+</span><span class="kw">pub struct </span>ProverSHPLONK&lt;<span class="lifetime">'a</span>, E: Engine&gt; {
+    params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ParamsKZG&lt;E&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E: Engine&gt; ProverSHPLONK&lt;<span class="lifetime">&#39;a</span>, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E: Engine&gt; ProverSHPLONK&lt;<span class="lifetime">'a</span>, E&gt; {
     <span class="doccomment">/// Given parameters creates new prover instance
-    </span><span class="kw">pub fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ params }
     }
 }
 
 <span class="doccomment">/// Create a multi-opening proof
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;params</span>, E: Engine + Debug&gt; Prover&lt;<span class="lifetime">&#39;params</span>, KZGCommitmentScheme&lt;E&gt;&gt;
-    <span class="kw">for </span>ProverSHPLONK&lt;<span class="lifetime">&#39;params</span>, E&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: Engine + Debug&gt; Prover&lt;<span class="lifetime">'params</span>, KZGCommitmentScheme&lt;E&gt;&gt;
+    <span class="kw">for </span>ProverSHPLONK&lt;<span class="lifetime">'params</span>, E&gt;
 <span class="kw">where
     </span>E::Scalar: Ord + PrimeField,
     E::G1Affine: SerdeCurveAffine,
@@ -427,13 +427,13 @@
 {
     <span class="kw">const </span>QUERY_INSTANCE: bool = <span class="bool-val">false</span>;
 
-    <span class="kw">fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">'params </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ params }
     }
 
     <span class="doccomment">/// Create a multi-opening proof
     </span><span class="kw">fn </span>create_proof&lt;
-        <span class="lifetime">&#39;com</span>,
+        <span class="lifetime">'com</span>,
         Ch: EncodedChallenge&lt;E::G1Affine&gt;,
         T: TranscriptWrite&lt;E::G1Affine, Ch&gt;,
         R,
@@ -445,7 +445,7 @@
         queries: I,
     ) -&gt; io::Result&lt;()&gt;
     <span class="kw">where
-        </span>I: IntoIterator&lt;Item = ProverQuery&lt;<span class="lifetime">&#39;com</span>, E::G1Affine&gt;&gt; + Clone,
+        </span>I: IntoIterator&lt;Item = ProverQuery&lt;<span class="lifetime">'com</span>, E::G1Affine&gt;&gt; + Clone,
         R: RngCore,
     {
         <span class="comment">// TODO: explore if it is safe to use same challenge

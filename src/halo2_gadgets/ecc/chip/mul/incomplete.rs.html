@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul/incomplete.rs`."><title>incomplete.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_gadgets/src/ecc/chip/mul/incomplete.rs`."><title>incomplete.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="halo2_gadgets" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -549,25 +549,25 @@
             </span><span class="kw">let </span>gradient_2 = lambda2_cur * (x_a_cur - x_a_next) - y_a_cur - y_a_next;
 
             std::iter::empty()
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;bool_check&quot;</span>, bool_check)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;gradient_1&quot;</span>, gradient_1)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;secant_line&quot;</span>, secant_line)))
-                .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;gradient_2&quot;</span>, gradient_2)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"bool_check"</span>, bool_check)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"gradient_1"</span>, gradient_1)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"secant_line"</span>, secant_line)))
+                .chain(<span class="prelude-val">Some</span>((<span class="string">"gradient_2"</span>, gradient_2)))
         };
 
         <span class="comment">// q_mul_1 == 1 checks
         // https://p.z.cash/halo2-0.1:ecc-var-mul-incomplete-first-row
-        </span>meta.create_gate(<span class="string">&quot;q_mul_1 == 1 checks&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"q_mul_1 == 1 checks"</span>, |meta| {
             <span class="kw">let </span>q_mul_1 = meta.query_selector(<span class="self">self</span>.q_mul_1);
 
             <span class="kw">let </span>y_a_next = y_a(meta, Rotation::next());
             <span class="kw">let </span>y_a_witnessed = meta.query_advice(<span class="self">self</span>.double_and_add.lambda_1, Rotation::cur());
-            Constraints::with_selector(q_mul_1, <span class="prelude-val">Some</span>((<span class="string">&quot;init y_a&quot;</span>, y_a_witnessed - y_a_next)))
+            Constraints::with_selector(q_mul_1, <span class="prelude-val">Some</span>((<span class="string">"init y_a"</span>, y_a_witnessed - y_a_next)))
         });
 
         <span class="comment">// q_mul_2 == 1 checks
         // https://p.z.cash/halo2-0.1:ecc-var-mul-incomplete-main-loop?partial
-        </span>meta.create_gate(<span class="string">&quot;q_mul_2 == 1 checks&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"q_mul_2 == 1 checks"</span>, |meta| {
             <span class="kw">let </span>q_mul_2 = meta.query_selector(<span class="self">self</span>.q_mul_2);
 
             <span class="kw">let </span>y_a_next = y_a(meta, Rotation::next());
@@ -589,15 +589,15 @@
             Constraints::with_selector(
                 q_mul_2,
                 std::iter::empty()
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;x_p_check&quot;</span>, x_p_check)))
-                    .chain(<span class="prelude-val">Some</span>((<span class="string">&quot;y_p_check&quot;</span>, y_p_check)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"x_p_check"</span>, x_p_check)))
+                    .chain(<span class="prelude-val">Some</span>((<span class="string">"y_p_check"</span>, y_p_check)))
                     .chain(for_loop(meta, y_a_next)),
             )
         });
 
         <span class="comment">// q_mul_3 == 1 checks
         // https://p.z.cash/halo2-0.1:ecc-var-mul-incomplete-last-row?partial
-        </span>meta.create_gate(<span class="string">&quot;q_mul_3 == 1 checks&quot;</span>, |meta| {
+        </span>meta.create_gate(<span class="string">"q_mul_3 == 1 checks"</span>, |meta| {
             <span class="kw">let </span>q_mul_3 = meta.query_selector(<span class="self">self</span>.q_mul_3);
             <span class="kw">let </span>y_a_final = meta.query_advice(<span class="self">self</span>.double_and_add.lambda_1, Rotation::next());
             Constraints::with_selector(q_mul_3, for_loop(meta, y_a_final))
@@ -606,7 +606,7 @@
 
     <span class="doccomment">/// We perform incomplete addition on all but the last three bits of the
     /// decomposed scalar.
-    /// We split the bits in the incomplete addition range into &quot;hi&quot; and &quot;lo&quot;
+    /// We split the bits in the incomplete addition range into "hi" and "lo"
     /// halves and process them side by side, using the same rows but with
     /// non-overlapping columns. The base is never the identity point even at
     /// the boundary between halves.
@@ -614,7 +614,7 @@
     </span><span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>double_and_add(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">&#39;_</span>, pallas::Base&gt;,
+        region: <span class="kw-2">&amp;mut </span>Region&lt;<span class="lifetime">'_</span>, pallas::Base&gt;,
         offset: usize,
         base: <span class="kw-2">&amp;</span>NonIdentityEccPoint,
         bits: <span class="kw-2">&amp;</span>[Value&lt;bool&gt;],
@@ -656,17 +656,17 @@
         <span class="comment">// Initialise double-and-add
         </span><span class="kw">let </span>(<span class="kw-2">mut </span>x_a, <span class="kw-2">mut </span>y_a, <span class="kw-2">mut </span>z) = {
             <span class="comment">// Initialise the running `z` sum for the scalar bits.
-            </span><span class="kw">let </span>z = acc.<span class="number">2</span>.copy_advice(|| <span class="string">&quot;starting z&quot;</span>, region, <span class="self">self</span>.z, offset)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>z = acc.<span class="number">2</span>.copy_advice(|| <span class="string">"starting z"</span>, region, <span class="self">self</span>.z, offset)<span class="question-mark">?</span>;
 
             <span class="comment">// Initialise acc
             </span><span class="kw">let </span>x_a = acc.<span class="number">0</span>.copy_advice(
-                || <span class="string">&quot;starting x_a&quot;</span>,
+                || <span class="string">"starting x_a"</span>,
                 region,
                 <span class="self">self</span>.double_and_add.x_a,
                 offset + <span class="number">1</span>,
             )<span class="question-mark">?</span>;
             <span class="kw">let </span>y_a = acc.<span class="number">1</span>.copy_advice(
-                || <span class="string">&quot;starting y_a&quot;</span>,
+                || <span class="string">"starting y_a"</span>,
                 region,
                 <span class="self">self</span>.double_and_add.lambda_1,
                 offset,
@@ -689,12 +689,12 @@
                 .value()
                 .zip(k.as_ref())
                 .map(|(z_val, k)| pallas::Base::from(<span class="number">2</span>) * z_val + pallas::Base::from(<span class="kw-2">*</span>k <span class="kw">as </span>u64));
-            z = region.assign_advice(|| <span class="string">&quot;z&quot;</span>, <span class="self">self</span>.z, row + offset, || z_val)<span class="question-mark">?</span>;
+            z = region.assign_advice(|| <span class="string">"z"</span>, <span class="self">self</span>.z, row + offset, || z_val)<span class="question-mark">?</span>;
             zs.push(Z(z.clone()));
 
             <span class="comment">// Assign `x_p`, `y_p`
-            </span>region.assign_advice(|| <span class="string">&quot;x_p&quot;</span>, <span class="self">self</span>.double_and_add.x_p, row + offset, || x_p)<span class="question-mark">?</span>;
-            region.assign_advice(|| <span class="string">&quot;y_p&quot;</span>, <span class="self">self</span>.y_p, row + offset, || y_p)<span class="question-mark">?</span>;
+            </span>region.assign_advice(|| <span class="string">"x_p"</span>, <span class="self">self</span>.double_and_add.x_p, row + offset, || x_p)<span class="question-mark">?</span>;
+            region.assign_advice(|| <span class="string">"y_p"</span>, <span class="self">self</span>.y_p, row + offset, || y_p)<span class="question-mark">?</span>;
 
             <span class="comment">// If the bit is set, use `y`; if the bit is not set, use `-y`
             </span><span class="kw">let </span>y_p = y_p
@@ -708,7 +708,7 @@
                 .zip(x_p)
                 .map(|(((y_a, y_p), x_a), x_p)| (y_a - y_p) * (x_a - x_p).invert());
             region.assign_advice(
-                || <span class="string">&quot;lambda1&quot;</span>,
+                || <span class="string">"lambda1"</span>,
                 <span class="self">self</span>.double_and_add.lambda_1,
                 row + offset,
                 || lambda1,
@@ -730,7 +730,7 @@
                         y_a * pallas::Base::from(<span class="number">2</span>) * (x_a - x_r).invert() - lambda1
                     });
             region.assign_advice(
-                || <span class="string">&quot;lambda2&quot;</span>,
+                || <span class="string">"lambda2"</span>,
                 <span class="self">self</span>.double_and_add.lambda_2,
                 row + offset,
                 || lambda2,
@@ -741,7 +741,7 @@
             y_a = lambda2 * (x_a.value() - x_a_new) - y_a;
             <span class="kw">let </span>x_a_val = x_a_new;
             x_a = region.assign_advice(
-                || <span class="string">&quot;x_a&quot;</span>,
+                || <span class="string">"x_a"</span>,
                 <span class="self">self</span>.double_and_add.x_a,
                 row + offset + <span class="number">1</span>,
                 || x_a_val,
@@ -750,7 +750,7 @@
 
         <span class="comment">// Witness final y_a
         </span><span class="kw">let </span>y_a = region.assign_advice(
-            || <span class="string">&quot;y_a&quot;</span>,
+            || <span class="string">"y_a"</span>,
             <span class="self">self</span>.double_and_add.lambda_1,
             offset + NUM_BITS,
             || y_a,

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/shuffle/verifier.rs`."><title>verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (a1a37735c 2023-11-23)" data-channel="nightly" data-search-js="search-f4028ef4dd0903c7.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f06f02fd918e3bb3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk/shuffle/verifier.rs`."><title>verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e883e87179a81222.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (de686cbc6 2023-12-14)" data-channel="nightly" data-search-js="search-874d56868bf05518.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../../../static.files/storage-bc37acceda91d44a.js"></script><script defer src="../../../../static.files/src-script-1a1b62b930d385c3.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -206,19 +206,19 @@
 
 <span class="kw">impl</span>&lt;C: CurveAffine&gt; Evaluated&lt;C&gt; {
     <span class="attr">#[allow(clippy::too_many_arguments)]
-    </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>expressions&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>expressions&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         l_0: C::Scalar,
         l_last: C::Scalar,
         l_blind: C::Scalar,
-        argument: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Argument&lt;C::Scalar&gt;,
+        argument: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Argument&lt;C::Scalar&gt;,
         theta: ChallengeTheta&lt;C&gt;,
         gamma: ChallengeGamma&lt;C&gt;,
         advice_evals: <span class="kw-2">&amp;</span>[C::Scalar],
         fixed_evals: <span class="kw-2">&amp;</span>[C::Scalar],
         instance_evals: <span class="kw-2">&amp;</span>[C::Scalar],
         challenges: <span class="kw-2">&amp;</span>[C::Scalar],
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = C::Scalar&gt; + <span class="lifetime">&#39;a </span>{
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = C::Scalar&gt; + <span class="lifetime">'a </span>{
         <span class="kw">let </span>active_rows = C::Scalar::ONE - (l_last + l_blind);
 
         <span class="kw">let </span>product_expression = || {
@@ -229,7 +229,7 @@
                     .map(|expression| {
                         expression.evaluate(
                             <span class="kw-2">&amp;</span>|scalar| scalar,
-                            <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;virtual selectors are removed during optimization&quot;</span>),
+                            <span class="kw-2">&amp;</span>|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"virtual selectors are removed during optimization"</span>),
                             <span class="kw-2">&amp;</span>|query| fixed_evals[query.index.unwrap()],
                             <span class="kw-2">&amp;</span>|query| advice_evals[query.index.unwrap()],
                             <span class="kw-2">&amp;</span>|query| instance_evals[query.index.unwrap()],
@@ -254,7 +254,7 @@
 
         std::iter::empty()
             .chain(
-                <span class="comment">// l_0(X) * (1 - z&#39;(X)) = 0
+                <span class="comment">// l_0(X) * (1 - z'(X)) = 0
                 </span><span class="prelude-val">Some</span>(l_0 * <span class="kw-2">&amp;</span>(C::Scalar::ONE - <span class="kw-2">&amp;</span><span class="self">self</span>.product_eval)),
             )
             .chain(
@@ -267,11 +267,11 @@
             )
     }
 
-    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>queries&lt;<span class="lifetime">&#39;r</span>, M: MSM&lt;C&gt; + <span class="lifetime">&#39;r</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>,
-        vk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>VerifyingKey&lt;C&gt;,
+    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>queries&lt;<span class="lifetime">'r</span>, M: MSM&lt;C&gt; + <span class="lifetime">'r</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="self">self</span>,
+        vk: <span class="kw-2">&amp;</span><span class="lifetime">'r </span>VerifyingKey&lt;C&gt;,
         x: ChallengeX&lt;C&gt;,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = VerifierQuery&lt;<span class="lifetime">&#39;r</span>, C, M&gt;&gt; + Clone {
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = VerifierQuery&lt;<span class="lifetime">'r</span>, C, M&gt;&gt; + Clone {
         <span class="kw">let </span>x_next = vk.domain.rotate_omega(<span class="kw-2">*</span>x, Rotation::next());
 
         iter::empty()
