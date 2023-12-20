@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["MERKLE_CRH_PERSONALIZATION"],"mod":["chip"],"struct":["MerklePath"],"trait":["MerkleInstructions"]};
