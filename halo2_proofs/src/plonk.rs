@@ -13,12 +13,14 @@ use crate::helpers::{
     polynomial_slice_byte_length, read_polynomial_vec, write_polynomial_slice, SerdeCurveAffine,
     SerdePrimeField,
 };
+use crate::poly::Rotation;
 use crate::poly::{
     commitment::Params, Coeff, EvaluationDomain, ExtendedLagrangeCoeff, LagrangeCoeff,
     PinnedEvaluationDomain, Polynomial,
 };
 use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
 use crate::SerdeFormat;
+use serde::{Deserialize, Serialize};
 
 mod assigned;
 mod circuit;
@@ -44,7 +46,7 @@ use std::io;
 
 /// This is a verifying key which allows for the verification of proofs for a
 /// particular circuit.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VerifyingKey<C: CurveAffine> {
     domain: EvaluationDomain<C::Scalar>,
     fixed_commitments: Vec<C>,
@@ -163,6 +165,18 @@ where
             #[cfg(feature = "circuit-params")]
             params,
         )
+    }
+
+    /// Remove debug info from the verifying key.
+    pub fn strip(mut self) -> Self {
+        self.cs.general_column_annotations.clear();
+        for gate in self.cs.gates.iter_mut() {
+            gate.name.clear();
+            gate.constraint_names.clear();
+            gate.queried_cells.clear();
+            gate.queried_selectors.clear();
+        }
+        self
     }
 }
 

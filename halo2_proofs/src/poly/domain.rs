@@ -12,13 +12,14 @@ use group::{
     ff::{BatchInvert, Field, PrimeField},
     Group,
 };
+use serde::{Deserialize, Serialize};
 
 use std::marker::PhantomData;
 
 /// This structure contains precomputed constants and other details needed for
 /// performing operations on an evaluation domain of size $2^k$ and an extended
 /// domain of size $2^{k} * j$ with $j \neq 0$.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EvaluationDomain<F: Field> {
     n: u64,
     k: u32,
