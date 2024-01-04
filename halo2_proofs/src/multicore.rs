@@ -8,15 +8,15 @@ compile_error!(
 );
 
 pub use maybe_rayon::{
-    iter::{
-        IndexedParallelIterator, IntoParallelIterator, IntoParallelRefMutIterator, ParallelIterator,
-    },
+    iter::{IntoParallelIterator, IntoParallelRefMutIterator, ParallelIterator},
     join, scope, Scope,
 };
 
 #[cfg(feature = "multicore")]
 pub use maybe_rayon::{
-    current_num_threads, iter::IntoParallelRefIterator, slice::ParallelSliceMut,
+    current_num_threads,
+    iter::{IndexedParallelIterator, IntoParallelRefIterator},
+    slice::ParallelSliceMut,
 };
 
 #[cfg(not(feature = "multicore"))]
@@ -38,6 +38,7 @@ pub trait TryFoldAndReduce<T, E> {
     ) -> Result<T, E>;
 }
 
+#[cfg(feature = "multicore")]
 impl<T, E, I> TryFoldAndReduce<T, E> for I
 where
     T: Send + Sync,
@@ -51,5 +52,19 @@ where
     ) -> Result<T, E> {
         self.try_fold(&identity, &fold_op)
             .try_reduce(&identity, |a, b| fold_op(a, Ok(b)))
+    }
+}
+
+#[cfg(not(feature = "multicore"))]
+impl<T, E, I> TryFoldAndReduce<T, E> for I
+where
+    I: std::iter::Iterator<Item = Result<T, E>>,
+{
+    fn try_fold_and_reduce(
+        mut self,
+        identity: impl Fn() -> T + Send + Sync,
+        fold_op: impl Fn(T, Result<T, E>) -> Result<T, E> + Send + Sync,
+    ) -> Result<T, E> {
+        self.try_fold(identity(), fold_op)
     }
 }
