@@ -2305,6 +2305,34 @@
 <a href="#2288" id="2288">2288</a>
 <a href="#2289" id="2289">2289</a>
 <a href="#2290" id="2290">2290</a>
+<a href="#2291" id="2291">2291</a>
+<a href="#2292" id="2292">2292</a>
+<a href="#2293" id="2293">2293</a>
+<a href="#2294" id="2294">2294</a>
+<a href="#2295" id="2295">2295</a>
+<a href="#2296" id="2296">2296</a>
+<a href="#2297" id="2297">2297</a>
+<a href="#2298" id="2298">2298</a>
+<a href="#2299" id="2299">2299</a>
+<a href="#2300" id="2300">2300</a>
+<a href="#2301" id="2301">2301</a>
+<a href="#2302" id="2302">2302</a>
+<a href="#2303" id="2303">2303</a>
+<a href="#2304" id="2304">2304</a>
+<a href="#2305" id="2305">2305</a>
+<a href="#2306" id="2306">2306</a>
+<a href="#2307" id="2307">2307</a>
+<a href="#2308" id="2308">2308</a>
+<a href="#2309" id="2309">2309</a>
+<a href="#2310" id="2310">2310</a>
+<a href="#2311" id="2311">2311</a>
+<a href="#2312" id="2312">2312</a>
+<a href="#2313" id="2313">2313</a>
+<a href="#2314" id="2314">2314</a>
+<a href="#2315" id="2315">2315</a>
+<a href="#2316" id="2316">2316</a>
+<a href="#2317" id="2317">2317</a>
+<a href="#2318" id="2318">2318</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Tools for developing circuits.
 
 </span><span class="kw">use </span>std::collections::HashMap;
@@ -2626,10 +2654,13 @@
     current_phase: sealed::Phase,
 }
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">enum </span>InstanceValue&lt;F: Field&gt; {
-    Assigned(F),
-    Padding,
+<span class="doccomment">/// Instance Value
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>InstanceValue&lt;F: Field&gt; {
+    <span class="doccomment">/// Assigned instance value
+    </span>Assigned(F),
+    <span class="doccomment">/// Padding
+    </span>Padding,
 }
 
 <span class="kw">impl</span>&lt;F: Field&gt; InstanceValue&lt;F&gt; {
@@ -3994,9 +4025,34 @@
         }
     }
 
+    <span class="doccomment">/// Returns the constraint system
+    </span><span class="kw">pub fn </span>cs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ConstraintSystem&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cs
+    }
+
+    <span class="doccomment">/// Returns the usable rows
+    </span><span class="kw">pub fn </span>usable_rows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Range&lt;usize&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.usable_rows
+    }
+
+    <span class="doccomment">/// Returns the list of Advice Columns used within a MockProver instance and the associated values contained on each Cell.
+    </span><span class="kw">pub fn </span>advice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;CellValue&lt;F&gt;&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.advice
+    }
+
     <span class="doccomment">/// Returns the list of Fixed Columns used within a MockProver instance and the associated values contained on each Cell.
     </span><span class="kw">pub fn </span>fixed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;CellValue&lt;F&gt;&gt;&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fixed
+    }
+
+    <span class="doccomment">/// Returns the list of Selector Columns used within a MockProver instance and the associated values contained on each Cell.
+    </span><span class="kw">pub fn </span>selectors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;bool&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.selectors
+    }
+
+    <span class="doccomment">/// Returns the list of Instance Columns used within a MockProver instance and the associated values contained on each Cell.
+    </span><span class="kw">pub fn </span>instance(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;InstanceValue&lt;F&gt;&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.instance
     }
 
     <span class="doccomment">/// Returns the permutation argument (`Assembly`) used within a MockProver instance.
