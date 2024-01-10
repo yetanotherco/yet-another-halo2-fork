@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk.rs`."><title>plonk.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-4e54bb2b497cc83f.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (ca663b06c 2024-01-08)" data-channel="nightly" data-search-js="search-1cefe72944ee87e6.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0b2e2def73e61cbe.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/plonk.rs`."><title>plonk.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-4e54bb2b497cc83f.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (190f4c961 2024-01-09)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0b2e2def73e61cbe.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -488,6 +488,23 @@
 <a href="#471" id="471">471</a>
 <a href="#472" id="472">472</a>
 <a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an implementation of a variant of (Turbo)[PLONK][plonk]
 //! that is designed specifically for the polynomial commitment scheme described
 //! in the [Halo][halo] paper.
@@ -550,6 +567,9 @@
     </span>compress_selectors: bool,
 }
 
+<span class="comment">// Current version of the VK
+</span><span class="kw">const </span>VERSION: u8 = <span class="number">0x03</span>;
+
 <span class="kw">impl</span>&lt;C: SerdeCurveAffine&gt; VerifyingKey&lt;C&gt;
 <span class="kw">where
     </span>C::Scalar: SerdePrimeField + FromUniformBytes&lt;<span class="number">64</span>&gt;,
@@ -565,8 +585,11 @@
     /// WITHOUT performing the expensive Montgomery reduction.
     </span><span class="kw">pub fn </span>write&lt;W: io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W, format: SerdeFormat) -&gt; io::Result&lt;()&gt; {
         <span class="comment">// Version byte that will be checked on read.
-        </span>writer.write_all(<span class="kw-2">&amp;</span>[<span class="number">0x02</span>])<span class="question-mark">?</span>;
-        writer.write_all(<span class="kw-2">&amp;</span><span class="self">self</span>.domain.k().to_le_bytes())<span class="question-mark">?</span>;
+        </span>writer.write_all(<span class="kw-2">&amp;</span>[VERSION])<span class="question-mark">?</span>;
+        <span class="kw">let </span>k = <span class="kw-2">&amp;</span><span class="self">self</span>.domain.k();
+        <span class="macro">assert!</span>(<span class="kw-2">*</span>k &lt;= C::Scalar::S);
+        <span class="comment">// k value fits in 1 byte
+        </span>writer.write_all(<span class="kw-2">&amp;</span>[<span class="kw-2">*</span>k <span class="kw">as </span>u8])<span class="question-mark">?</span>;
         writer.write_all(<span class="kw-2">&amp;</span>[<span class="self">self</span>.compress_selectors <span class="kw">as </span>u8])<span class="question-mark">?</span>;
         writer.write_all(<span class="kw-2">&amp;</span>(<span class="self">self</span>.fixed_commitments.len() <span class="kw">as </span>u32).to_le_bytes())<span class="question-mark">?</span>;
         <span class="kw">for </span>commitment <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.fixed_commitments {
@@ -604,15 +627,26 @@
     ) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>version_byte = [<span class="number">0u8</span>; <span class="number">1</span>];
         reader.read_exact(<span class="kw-2">&amp;mut </span>version_byte)<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="number">0x02 </span>!= version_byte[<span class="number">0</span>] {
+        <span class="kw">if </span>VERSION != version_byte[<span class="number">0</span>] {
             <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
                 io::ErrorKind::InvalidData,
                 <span class="string">"unexpected version byte"</span>,
             ));
         }
-        <span class="kw">let </span><span class="kw-2">mut </span>k = [<span class="number">0u8</span>; <span class="number">4</span>];
+
+        <span class="kw">let </span><span class="kw-2">mut </span>k = [<span class="number">0u8</span>; <span class="number">1</span>];
         reader.read_exact(<span class="kw-2">&amp;mut </span>k)<span class="question-mark">?</span>;
-        <span class="kw">let </span>k = u32::from_le_bytes(k);
+        <span class="kw">let </span>k = u8::from_le_bytes(k);
+        <span class="kw">if </span>k <span class="kw">as </span>u32 &gt; C::Scalar::S {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
+                io::ErrorKind::InvalidData,
+                <span class="macro">format!</span>(
+                    <span class="string">"circuit size value (k): {} exceeds maxium: {}"</span>,
+                    k,
+                    C::Scalar::S
+                ),
+            ));
+        }
         <span class="kw">let </span><span class="kw-2">mut </span>compress_selectors = [<span class="number">0u8</span>; <span class="number">1</span>];
         reader.read_exact(<span class="kw-2">&amp;mut </span>compress_selectors)<span class="question-mark">?</span>;
         <span class="kw">if </span>compress_selectors[<span class="number">0</span>] != <span class="number">0 </span>&amp;&amp; compress_selectors[<span class="number">0</span>] != <span class="number">1 </span>{
@@ -623,7 +657,7 @@
         }
         <span class="kw">let </span>compress_selectors = compress_selectors[<span class="number">0</span>] == <span class="number">1</span>;
         <span class="kw">let </span>(domain, cs, <span class="kw">_</span>) = keygen::create_domain::&lt;C, ConcreteCircuit&gt;(
-            k,
+            k <span class="kw">as </span>u32,
             <span class="attr">#[cfg(feature = <span class="string">"circuit-params"</span>)]
             </span>params,
         );
