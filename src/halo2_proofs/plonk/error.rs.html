@@ -148,11 +148,6 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::error;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::io;
@@ -218,11 +213,10 @@
             Error::ConstraintSystemFailure =&gt; <span class="macro">write!</span>(f, <span class="string">"The constraint system is not satisfied"</span>),
             Error::BoundsFailure =&gt; <span class="macro">write!</span>(f, <span class="string">"An out-of-bounds index was passed to the backend"</span>),
             Error::Opening =&gt; <span class="macro">write!</span>(f, <span class="string">"Multi-opening proof was invalid"</span>),
-            Error::Transcript(e) =&gt; <span class="macro">write!</span>(f, <span class="string">"Transcript error: {}"</span>, e),
+            Error::Transcript(e) =&gt; <span class="macro">write!</span>(f, <span class="string">"Transcript error: {e}"</span>),
             Error::NotEnoughRowsAvailable { current_k } =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">"k = {} is too small for the given circuit. Try using a larger value of k"</span>,
-                current_k,
+                <span class="string">"k = {current_k} is too small for the given circuit. Try using a larger value of k"</span>,
             ),
             Error::InstanceTooLarge =&gt; <span class="macro">write!</span>(f, <span class="string">"Instance vectors are larger than the circuit"</span>),
             Error::NotEnoughColumnsForConstants =&gt; {
@@ -233,10 +227,9 @@
             }
             Error::ColumnNotInPermutation(column) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">"Column {:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column"</span>,
-                column
+                <span class="string">"Column {column:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column"</span>,
             ),
-            Error::TableError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, error)
+            Error::TableError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">"{error}"</span>)
         }
     }
 }
@@ -269,23 +262,20 @@
             TableError::ColumnNotAssigned(col) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">"{:?} not fully assigned. Help: assign a value at offset 0."</span>,
-                    col
+                    <span class="string">"{col:?} not fully assigned. Help: assign a value at offset 0."</span>,
                 )
             }
             TableError::UnevenColumnLengths((col, col_len), (table, table_len)) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">"{:?} has length {} while {:?} has length {}"</span>,
-                col, col_len, table, table_len
+                <span class="string">"{col:?} has length {col_len} while {table:?} has length {table_len}"</span>,
             ),
             TableError::UsedColumn(col) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{:?} has already been used"</span>, col)
+                <span class="macro">write!</span>(f, <span class="string">"{col:?} has already been used"</span>)
             }
             TableError::OverwriteDefault(col, default, val) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">"Attempted to overwrite default value {} with {} in {:?}"</span>,
-                    default, val, col
+                    <span class="string">"Attempted to overwrite default value {default} with {val} in {col:?}"</span>,
                 )
             }
         }

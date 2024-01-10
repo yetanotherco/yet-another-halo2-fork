@@ -114,9 +114,9 @@
 <span class="kw">use </span><span class="kw">crate</span>::poly::{commitment::Blind, Polynomial};
 <span class="kw">use </span><span class="kw">crate</span>::transcript::{EncodedChallenge, TranscriptWrite};
 
-<span class="kw">use </span>ff::PrimeField;
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2curves::pairing::Engine;
+<span class="kw">use </span>halo2curves::CurveExt;
 <span class="kw">use </span>rand_core::RngCore;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::io;
@@ -131,8 +131,8 @@
 <span class="doccomment">/// Create a multi-opening proof
 </span><span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: Engine + Debug&gt; Prover&lt;<span class="lifetime">'params</span>, KZGCommitmentScheme&lt;E&gt;&gt; <span class="kw">for </span>ProverGWC&lt;<span class="lifetime">'params</span>, E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">const </span>QUERY_INSTANCE: bool = <span class="bool-val">false</span>;

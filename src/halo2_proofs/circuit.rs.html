@@ -1184,7 +1184,7 @@
                     <span class="kw">if </span>is_second_frame {
                         <span class="comment">// Resolve this instruction pointer to a symbol name.
                         </span>backtrace::resolve_frame(frame, |symbol| {
-                            gadget_name = symbol.name().map(|name| <span class="macro">format!</span>(<span class="string">"{:#}"</span>, name));
+                            gadget_name = symbol.name().map(|name| <span class="macro">format!</span>(<span class="string">"{name:#}"</span>));
                         });
 
                         <span class="comment">// We are done!

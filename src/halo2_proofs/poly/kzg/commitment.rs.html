@@ -432,10 +432,6 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::arithmetic::{best_multiexp, g_to_lagrange, parallelize};
 <span class="kw">use </span><span class="kw">crate</span>::helpers::SerdeCurveAffine;
 <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{Blind, CommitmentScheme, Params, ParamsProver, ParamsVerifier};
@@ -445,6 +441,7 @@
 <span class="kw">use </span>ff::{Field, PrimeField};
 <span class="kw">use </span>group::{prime::PrimeCurveAffine, Curve, Group};
 <span class="kw">use </span>halo2curves::pairing::Engine;
+<span class="kw">use </span>halo2curves::CurveExt;
 <span class="kw">use </span>rand_core::{OsRng, RngCore};
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -472,11 +469,11 @@
 
 <span class="kw">impl</span>&lt;E: Engine + Debug&gt; CommitmentScheme <span class="kw">for </span>KZGCommitmentScheme&lt;E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
-    <span class="kw">type </span>Scalar = E::Scalar;
+    <span class="kw">type </span>Scalar = E::Fr;
     <span class="kw">type </span>Curve = E::G1Affine;
 
     <span class="kw">type </span>ParamsProver = ParamsKZG&lt;E&gt;;
@@ -493,19 +490,20 @@
 
 <span class="kw">impl</span>&lt;E: Engine + Debug&gt; ParamsKZG&lt;E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
+    </span>E::G1Affine: SerdeCurveAffine,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
 {
     <span class="doccomment">/// Initializes parameters for the curve, draws toxic secret from given rng.
     /// MUST NOT be used in production.
     </span><span class="kw">pub fn </span>setup&lt;R: RngCore&gt;(k: u32, rng: R) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Largest root of unity exponent of the Engine is `2^E::Scalar::S`, so we can
-        // only support FFTs of polynomials below degree `2^E::Scalar::S`.
-        </span><span class="macro">assert!</span>(k &lt;= E::Scalar::S);
+        <span class="comment">// Largest root of unity exponent of the Engine is `2^E::Fr::S`, so we can
+        // only support FFTs of polynomials below degree `2^E::Fr::S`.
+        </span><span class="macro">assert!</span>(k &lt;= E::Fr::S);
         <span class="kw">let </span>n: u64 = <span class="number">1 </span>&lt;&lt; k;
 
         <span class="comment">// Calculate g = [G1, [s] G1, [s^2] G1, ..., [s^(n-1)] G1] in parallel.
         </span><span class="kw">let </span>g1 = E::G1Affine::generator();
-        <span class="kw">let </span>s = &lt;E::Scalar&gt;::random(rng);
+        <span class="kw">let </span>s = &lt;E::Fr&gt;::random(rng);
 
         <span class="kw">let </span><span class="kw-2">mut </span>g_projective = <span class="macro">vec!</span>[E::G1::identity(); n <span class="kw">as </span>usize];
         parallelize(<span class="kw-2">&amp;mut </span>g_projective, |g, start| {
@@ -526,14 +524,14 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>g_lagrange_projective = <span class="macro">vec!</span>[E::G1::identity(); n <span class="kw">as </span>usize];
-        <span class="kw">let </span><span class="kw-2">mut </span>root = E::Scalar::ROOT_OF_UNITY;
-        <span class="kw">for _ in </span>k..E::Scalar::S {
+        <span class="kw">let </span><span class="kw-2">mut </span>root = E::Fr::ROOT_OF_UNITY;
+        <span class="kw">for _ in </span>k..E::Fr::S {
             root = root.square();
         }
-        <span class="kw">let </span>n_inv = E::Scalar::from(n)
+        <span class="kw">let </span>n_inv = E::Fr::from(n)
             .invert()
             .expect(<span class="string">"inversion should be ok for n = 1&lt;&lt;k"</span>);
-        <span class="kw">let </span>multiplier = (s.pow_vartime([n]) - E::Scalar::ONE) * n_inv;
+        <span class="kw">let </span>multiplier = (s.pow_vartime([n]) - E::Fr::ONE) * n_inv;
         parallelize(<span class="kw-2">&amp;mut </span>g_lagrange_projective, |g, start| {
             <span class="kw">for </span>(idx, g) <span class="kw">in </span>g.iter_mut().enumerate() {
                 <span class="kw">let </span>offset = start + idx;
@@ -602,8 +600,7 @@
     <span class="doccomment">/// Writes parameters to buffer
     </span><span class="kw">pub fn </span>write_custom&lt;W: io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W, format: SerdeFormat) -&gt; io::Result&lt;()&gt;
     <span class="kw">where
-        </span>E::G1Affine: SerdeCurveAffine,
-        E::G2Affine: SerdeCurveAffine,
+        </span>E::G2Affine: SerdeCurveAffine,
     {
         writer.write_all(<span class="kw-2">&amp;</span><span class="self">self</span>.k.to_le_bytes())<span class="question-mark">?</span>;
         <span class="kw">for </span>el <span class="kw">in </span><span class="self">self</span>.g.iter() {
@@ -620,8 +617,7 @@
     <span class="doccomment">/// Reads params from a buffer.
     </span><span class="kw">pub fn </span>read_custom&lt;R: io::Read&gt;(reader: <span class="kw-2">&amp;mut </span>R, format: SerdeFormat) -&gt; io::Result&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
-        </span>E::G1Affine: SerdeCurveAffine,
-        E::G2Affine: SerdeCurveAffine,
+        </span>E::G2Affine: SerdeCurveAffine,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>k = [<span class="number">0u8</span>; <span class="number">4</span>];
         reader.read_exact(<span class="kw-2">&amp;mut </span>k[..])<span class="question-mark">?</span>;
@@ -712,8 +708,8 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: Engine + Debug&gt; Params&lt;<span class="lifetime">'params</span>, E::G1Affine&gt; <span class="kw">for </span>ParamsKZG&lt;E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">type </span>MSM = MSMKZG&lt;E&gt;;
@@ -740,11 +736,7 @@
         MSMKZG::new()
     }
 
-    <span class="kw">fn </span>commit_lagrange(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Scalar, LagrangeCoeff&gt;,
-        <span class="kw">_</span>: Blind&lt;E::Scalar&gt;,
-    ) -&gt; E::G1 {
+    <span class="kw">fn </span>commit_lagrange(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, LagrangeCoeff&gt;, <span class="kw">_</span>: Blind&lt;E::Fr&gt;) -&gt; E::G1 {
         <span class="kw">let </span><span class="kw-2">mut </span>scalars = Vec::with_capacity(poly.len());
         scalars.extend(poly.iter());
         <span class="kw">let </span>bases = <span class="kw-2">&amp;</span><span class="self">self</span>.g_lagrange;
@@ -766,16 +758,16 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: Engine + Debug&gt; ParamsVerifier&lt;<span class="lifetime">'params</span>, E::G1Affine&gt; <span class="kw">for </span>ParamsKZG&lt;E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: Engine + Debug&gt; ParamsProver&lt;<span class="lifetime">'params</span>, E::G1Affine&gt; <span class="kw">for </span>ParamsKZG&lt;E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">type </span>ParamsVerifier = ParamsVerifierKZG&lt;E&gt;;
@@ -788,7 +780,7 @@
         <span class="self">Self</span>::setup(k, OsRng)
     }
 
-    <span class="kw">fn </span>commit(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Scalar, Coeff&gt;, <span class="kw">_</span>: Blind&lt;E::Scalar&gt;) -&gt; E::G1 {
+    <span class="kw">fn </span>commit(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, Coeff&gt;, <span class="kw">_</span>: Blind&lt;E::Fr&gt;) -&gt; E::G1 {
         <span class="kw">let </span><span class="kw-2">mut </span>scalars = Vec::with_capacity(poly.len());
         scalars.extend(poly.iter());
         <span class="kw">let </span>bases = <span class="kw-2">&amp;</span><span class="self">self</span>.g;

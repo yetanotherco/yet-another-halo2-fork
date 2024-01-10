@@ -2599,7 +2599,6 @@
 <a href="#2582" id="2582">2582</a>
 <a href="#2583" id="2583">2583</a>
 <a href="#2584" id="2584">2584</a>
-<a href="#2585" id="2585">2585</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{lookup, permutation, shuffle, Assigned, Error};
 <span class="kw">use </span><span class="kw">crate</span>::circuit::layouter::SyncDeps;
 <span class="kw">use </span><span class="kw">crate</span>::dev::metadata;
@@ -3712,7 +3711,7 @@
 
     <span class="kw">fn </span>write_identifier&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Expression::Constant(scalar) =&gt; <span class="macro">write!</span>(writer, <span class="string">"{:?}"</span>, scalar),
+            Expression::Constant(scalar) =&gt; <span class="macro">write!</span>(writer, <span class="string">"{scalar:?}"</span>),
             Expression::Selector(selector) =&gt; <span class="macro">write!</span>(writer, <span class="string">"selector[{}]"</span>, selector.<span class="number">0</span>),
             Expression::Fixed(query) =&gt; {
                 <span class="macro">write!</span>(
@@ -3759,7 +3758,7 @@
             }
             Expression::Scaled(a, f) =&gt; {
                 a.write_identifier(writer)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(writer, <span class="string">"*{:?}"</span>, f)
+                <span class="macro">write!</span>(writer, <span class="string">"*{f:?}"</span>)
             }
         }
     }
@@ -4808,7 +4807,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(previous_phase) = phase.prev() {
             <span class="self">self</span>.assert_phase_exists(
                 previous_phase,
-                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {:?}"</span>, phase).as_str(),
+                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {phase:?}"</span>).as_str(),
             );
         }
 
@@ -4833,7 +4832,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(previous_phase) = phase.prev() {
             <span class="self">self</span>.assert_phase_exists(
                 previous_phase,
-                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {:?}"</span>, phase).as_str(),
+                <span class="macro">format!</span>(<span class="string">"Column&lt;Advice&gt; in later phase {phase:?}"</span>).as_str(),
             );
         }
 
@@ -4866,7 +4865,7 @@
         <span class="kw">let </span>phase = phase.to_sealed();
         <span class="self">self</span>.assert_phase_exists(
             phase,
-            <span class="macro">format!</span>(<span class="string">"Challenge usable after phase {:?}"</span>, phase).as_str(),
+            <span class="macro">format!</span>(<span class="string">"Challenge usable after phase {phase:?}"</span>).as_str(),
         );
 
         <span class="kw">let </span>tmp = Challenge {
@@ -4887,9 +4886,8 @@
             .find(|advice_column_phase| <span class="kw-2">**</span>advice_column_phase == phase)
             .unwrap_or_else(|| {
                 <span class="macro">panic!</span>(
-                    <span class="string">"No Column&lt;Advice&gt; is used in phase {:?} while allocating a new {:?}"</span>,
-                    phase, resource
-                )
+                    <span class="string">"No Column&lt;Advice&gt; is used in phase {phase:?} while allocating a new {resource:?}"
+                </span>)
             });
     }
 

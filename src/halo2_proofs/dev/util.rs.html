@@ -241,11 +241,11 @@
         <span class="string">"-1"</span>.into()
     } <span class="kw">else </span>{
         <span class="comment">// Format value as hex.
-        </span><span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, v);
+        </span><span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{v:?}"</span>);
         <span class="comment">// Remove leading zeroes.
         </span><span class="kw">let </span>s = s.strip_prefix(<span class="string">"0x"</span>).unwrap();
         <span class="kw">let </span>s = s.trim_start_matches(<span class="string">'0'</span>);
-        <span class="macro">format!</span>(<span class="string">"0x{}"</span>, s)
+        <span class="macro">format!</span>(<span class="string">"0x{s}"</span>)
     }
 }
 

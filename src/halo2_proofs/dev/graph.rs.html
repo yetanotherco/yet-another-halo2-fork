@@ -257,7 +257,7 @@
         .into_iter()
         .map(|(name, gadget_name)| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(gadget_name) = gadget_name {
-                <span class="macro">format!</span>(<span class="string">"[{}] {}"</span>, gadget_name, name)
+                <span class="macro">format!</span>(<span class="string">"[{gadget_name}] {name}"</span>)
             } <span class="kw">else </span>{
                 name
             }

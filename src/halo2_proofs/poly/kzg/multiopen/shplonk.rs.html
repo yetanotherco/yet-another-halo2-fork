@@ -262,21 +262,15 @@
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>prover;
 <span class="kw">mod </span>verifier;
 
-<span class="kw">use </span><span class="kw">crate</span>::multicore::IntoParallelIterator;
+<span class="kw">use </span><span class="kw">crate</span>::multicore::{IntoParallelIterator, ParallelIterator};
 <span class="kw">use crate</span>::{poly::query::Query, transcript::ChallengeScalar};
 <span class="kw">use </span>ff::Field;
 <span class="kw">pub use </span>prover::ProverSHPLONK;
 <span class="kw">use </span>std::collections::BTreeSet;
 <span class="kw">pub use </span>verifier::VerifierSHPLONK;
-
-<span class="attr">#[cfg(feature = <span class="string">"multicore"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::multicore::ParallelIterator;
 
 <span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">struct </span>U {}

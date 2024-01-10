@@ -284,16 +284,16 @@
         FailureLocation::InRegion { region, offset } =&gt; {
             col_headers
                 .push_str(<span class="macro">format!</span>(<span class="string">"{}Cell layout in region '{}':\n"</span>, prefix, region.name).as_str());
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}  | Offset |"</span>, prefix).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{prefix}  | Offset |"</span>).as_str());
             <span class="prelude-val">Some</span>(<span class="kw-2">*</span>offset <span class="kw">as </span>i32)
         }
         FailureLocation::OutsideRegion { row } =&gt; {
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}Cell layout at row {}:\n"</span>, prefix, row).as_str());
-            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{}  |Rotation|"</span>, prefix).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{prefix}Cell layout at row {row}:\n"</span>).as_str());
+            col_headers.push_str(<span class="macro">format!</span>(<span class="string">"{prefix}  |Rotation|"</span>).as_str());
             <span class="prelude-val">None
         </span>}
     };
-    <span class="macro">eprint!</span>(<span class="string">"\n{}"</span>, col_headers);
+    <span class="macro">eprint!</span>(<span class="string">"\n{col_headers}"</span>);
 
     <span class="kw">let </span>widths: Vec&lt;usize&gt; = columns
         .iter()
@@ -343,7 +343,7 @@
     }
 
     <span class="macro">eprintln!</span>();
-    <span class="macro">eprint!</span>(<span class="string">"{}  +--------+"</span>, prefix);
+    <span class="macro">eprint!</span>(<span class="string">"{prefix}  +--------+"</span>);
     <span class="kw">for </span><span class="kw-2">&amp;</span>width <span class="kw">in </span>widths.iter() {
         <span class="macro">eprint!</span>(<span class="string">"{}+"</span>, padded(<span class="string">'-'</span>, width, <span class="string">""</span>));
     }
@@ -416,23 +416,23 @@
         <span class="kw-2">&amp;</span>|challenge| <span class="macro">format!</span>(<span class="string">"C{}({})"</span>, challenge.index(), challenge.phase()),
         <span class="kw-2">&amp;</span>|a| {
             <span class="kw">if </span>a.contains(<span class="string">' '</span>) {
-                <span class="macro">format!</span>(<span class="string">"-({})"</span>, a)
+                <span class="macro">format!</span>(<span class="string">"-({a})"</span>)
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">"-{}"</span>, a)
+                <span class="macro">format!</span>(<span class="string">"-{a}"</span>)
             }
         },
         <span class="kw-2">&amp;</span>|a, b| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = b.strip_prefix(<span class="string">'-'</span>) {
-                <span class="macro">format!</span>(<span class="string">"{} - {}"</span>, a, b)
+                <span class="macro">format!</span>(<span class="string">"{a} - {b}"</span>)
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">"{} + {}"</span>, a, b)
+                <span class="macro">format!</span>(<span class="string">"{a} + {b}"</span>)
             }
         },
         <span class="kw-2">&amp;</span>|a, b| <span class="kw">match </span>(a.contains(<span class="string">' '</span>), b.contains(<span class="string">' '</span>)) {
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{} * {}"</span>, a, b),
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{} * ({})"</span>, a, b),
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({}) * {}"</span>, a, b),
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({}) * ({})"</span>, a, b),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{a} * {b}"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{a} * ({b})"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({a}) * {b}"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">format!</span>(<span class="string">"({a}) * ({b})"</span>),
         },
         <span class="kw-2">&amp;</span>|a, s| {
             <span class="kw">if </span>a.contains(<span class="string">' '</span>) {

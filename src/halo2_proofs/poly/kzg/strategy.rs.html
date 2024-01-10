@@ -169,6 +169,33 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{
     commitment::{KZGCommitmentScheme, ParamsKZG},
     msm::DualMSM,
@@ -181,30 +208,41 @@
         strategy::{Guard, VerificationStrategy},
     },
 };
-<span class="kw">use </span>ff::{Field, PrimeField};
-<span class="kw">use </span>halo2curves::pairing::{Engine, MultiMillerLoop};
+<span class="kw">use </span>ff::Field;
+<span class="kw">use </span>halo2curves::{
+    pairing::{Engine, MultiMillerLoop},
+    CurveAffine, CurveExt,
+};
 <span class="kw">use </span>rand_core::OsRng;
 <span class="kw">use </span>std::fmt::Debug;
 
 <span class="doccomment">/// Wrapper for linear verification accumulator
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>GuardKZG&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; {
+</span><span class="kw">pub struct </span>GuardKZG&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="kw">pub</span>(<span class="kw">crate</span>) msm_accumulator: DualMSM&lt;<span class="lifetime">'params</span>, E&gt;,
 }
 
 <span class="doccomment">/// Define accumulator type as `DualMSM`
 </span><span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E&gt; Guard&lt;KZGCommitmentScheme&lt;E&gt;&gt; <span class="kw">for </span>GuardKZG&lt;<span class="lifetime">'params</span>, E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E: MultiMillerLoop + Debug,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E: MultiMillerLoop + Debug,
+    E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">type </span>MSMAccumulator = DualMSM&lt;<span class="lifetime">'params</span>, E&gt;;
 }
 
 <span class="doccomment">/// KZG specific operations
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; GuardKZG&lt;<span class="lifetime">'params</span>, E&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; GuardKZG&lt;<span class="lifetime">'params</span>, E&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(msm_accumulator: DualMSM&lt;<span class="lifetime">'params</span>, E&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ msm_accumulator }
     }
@@ -212,11 +250,19 @@
 
 <span class="doccomment">/// A verifier that checks multiple proofs in a batch
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>AccumulatorStrategy&lt;<span class="lifetime">'params</span>, E: Engine&gt; {
+</span><span class="kw">pub struct </span>AccumulatorStrategy&lt;<span class="lifetime">'params</span>, E: Engine&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="kw">pub</span>(<span class="kw">crate</span>) msm_accumulator: DualMSM&lt;<span class="lifetime">'params</span>, E&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; AccumulatorStrategy&lt;<span class="lifetime">'params</span>, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; AccumulatorStrategy&lt;<span class="lifetime">'params</span>, E&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="doccomment">/// Constructs an empty batch verifier
     </span><span class="kw">pub fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">'params </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
         AccumulatorStrategy {
@@ -232,11 +278,19 @@
 
 <span class="doccomment">/// A verifier that checks a single proof
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>SingleStrategy&lt;<span class="lifetime">'params</span>, E: Engine&gt; {
+</span><span class="kw">pub struct </span>SingleStrategy&lt;<span class="lifetime">'params</span>, E: Engine&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="kw">pub</span>(<span class="kw">crate</span>) msm: DualMSM&lt;<span class="lifetime">'params</span>, E&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; SingleStrategy&lt;<span class="lifetime">'params</span>, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'params</span>, E: MultiMillerLoop + Debug&gt; SingleStrategy&lt;<span class="lifetime">'params</span>, E&gt;
+<span class="kw">where
+    </span>E::G1Affine: CurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
+{
     <span class="doccomment">/// Constructs an empty batch verifier
     </span><span class="kw">pub fn </span>new(params: <span class="kw-2">&amp;</span><span class="lifetime">'params </span>ParamsKZG&lt;E&gt;) -&gt; <span class="self">Self </span>{
         SingleStrategy {
@@ -256,8 +310,8 @@
         &gt;,
     &gt; VerificationStrategy&lt;<span class="lifetime">'params</span>, KZGCommitmentScheme&lt;E&gt;, V&gt; <span class="kw">for </span>AccumulatorStrategy&lt;<span class="lifetime">'params</span>, E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">type </span>Output = <span class="self">Self</span>;
@@ -270,7 +324,7 @@
         <span class="kw-2">mut </span><span class="self">self</span>,
         f: <span class="kw">impl </span>FnOnce(V::MSMAccumulator) -&gt; <span class="prelude-ty">Result</span>&lt;V::Guard, Error&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, Error&gt; {
-        <span class="self">self</span>.msm_accumulator.scale(E::Scalar::random(OsRng));
+        <span class="self">self</span>.msm_accumulator.scale(E::Fr::random(OsRng));
 
         <span class="comment">// Guard is updated with new msm contributions
         </span><span class="kw">let </span>guard = f(<span class="self">self</span>.msm_accumulator)<span class="question-mark">?</span>;
@@ -295,8 +349,8 @@
         &gt;,
     &gt; VerificationStrategy&lt;<span class="lifetime">'params</span>, KZGCommitmentScheme&lt;E&gt;, V&gt; <span class="kw">for </span>SingleStrategy&lt;<span class="lifetime">'params</span>, E&gt;
 <span class="kw">where
-    </span>E::Scalar: PrimeField,
-    E::G1Affine: SerdeCurveAffine,
+    </span>E::G1Affine: SerdeCurveAffine&lt;ScalarExt = &lt;E <span class="kw">as </span>Engine&gt;::Fr, CurveExt = &lt;E <span class="kw">as </span>Engine&gt;::G1&gt;,
+    E::G1: CurveExt&lt;AffineExt = E::G1Affine&gt;,
     E::G2Affine: SerdeCurveAffine,
 {
     <span class="kw">type </span>Output = ();
