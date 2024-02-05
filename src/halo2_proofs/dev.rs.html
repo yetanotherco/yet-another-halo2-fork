@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev.rs`."><title>dev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-4e54bb2b497cc83f.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (190f4c961 2024-01-09)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0b2e2def73e61cbe.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `halo2_proofs/src/dev.rs`."><title>dev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_proofs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0-nightly (b11fbfbf3 2024-02-03)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
 <script>
@@ -1869,6 +1869,43 @@
 <a href="#1852" id="1852">1852</a>
 <a href="#1853" id="1853">1853</a>
 <a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
+<a href="#1871" id="1871">1871</a>
+<a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Tools for developing circuits.
 
 </span><span class="kw">use </span>std::collections::HashMap;
@@ -1922,8 +1959,9 @@
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"dev-graph"</span>)))]
 </span><span class="kw">pub use </span>graph::{circuit_dot_graph, layout::CircuitLayout};
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">struct </span>Region {
+<span class="doccomment">/// Region of assignments that are done during synthesis.
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Region {
     <span class="doccomment">/// The name of the region. Not required to be unique.
     </span>name: String,
     <span class="doccomment">/// The columns involved in this region.
@@ -1955,6 +1993,36 @@
             end = row;
         }
         <span class="self">self</span>.rows = <span class="prelude-val">Some</span>((start, end));
+    }
+
+    <span class="doccomment">/// Returns the name of the region.
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.name
+    }
+
+    <span class="doccomment">/// Returns the columns involved in this region.
+    </span><span class="kw">pub fn </span>columns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashSet&lt;Column&lt;Any&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.columns
+    }
+
+    <span class="doccomment">/// Returns the rows that this region starts and ends on, if known.
+    </span><span class="kw">pub fn </span>rows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt; {
+        <span class="self">self</span>.rows
+    }
+
+    <span class="doccomment">/// Returns the selectors that have been enabled in this region.
+    </span><span class="kw">pub fn </span>enabled_selectors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;Selector, Vec&lt;usize&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.enabled_selectors
+    }
+
+    <span class="doccomment">/// Returns the annotations given to Advice, Fixed or Instance columns within a region context.
+    </span><span class="kw">pub fn </span>annotations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;ColumnMetadata, String&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.annotations
+    }
+
+    <span class="doccomment">/// Returns the cells assigned in this region.
+    </span><span class="kw">pub fn </span>cells(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;(Column&lt;Any&gt;, usize), usize&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cells
     }
 }
 
@@ -2199,7 +2267,8 @@
 }
 
 <span class="kw">impl</span>&lt;F: Field&gt; InstanceValue&lt;F&gt; {
-    <span class="kw">fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; F {
+    <span class="doccomment">/// Field value on the instance cell
+    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; F {
         <span class="kw">match </span><span class="self">self </span>{
             InstanceValue::Assigned(v) =&gt; <span class="kw-2">*</span>v,
             InstanceValue::Padding =&gt; F::ZERO,
@@ -3130,6 +3199,11 @@
     <span class="doccomment">/// Returns the permutation argument (`Assembly`) used within a MockProver instance.
     </span><span class="kw">pub fn </span>permutation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Assembly {
         <span class="kw-2">&amp;</span><span class="self">self</span>.permutation
+    }
+
+    <span class="doccomment">/// Returns the Regions used during synthesis.
+    </span><span class="kw">pub fn </span>regions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Region] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.regions
     }
 }
 
