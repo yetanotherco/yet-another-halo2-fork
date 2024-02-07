@@ -11,9 +11,17 @@ use crate::{
         EvaluationDomain,
     },
 };
-use halo2_common::plonk::circuit::{Circuit, ConstraintSystem};
-use halo2_common::plonk::Error;
-use halo2_middleware::circuit::CompiledCircuitV2;
+use halo2_common::plonk::circuit::{Circuit, Column, ConstraintSystem};
+use halo2_common::plonk::{
+    lookup, sealed, shuffle, AdviceQuery, Error, Expression, FixedQuery, Gate, InstanceQuery,
+    Queries,
+};
+use halo2_middleware::circuit::{
+    Advice, Any, CompiledCircuitV2, ConstraintSystemV2Backend, ExpressionMid, Fixed, Instance,
+    QueryMid,
+};
+use halo2_middleware::poly::Rotation;
+use std::collections::HashMap;
 
 pub(crate) fn create_domain<C, ConcreteCircuit>(
     k: u32,
@@ -51,7 +59,7 @@ where
     C::Scalar: FromUniformBytes<64>,
 {
     let cs2 = &circuit.cs;
-    let cs: ConstraintSystem<C::Scalar> = cs2.clone().into();
+    let cs: ConstraintSystem<C::Scalar> = csv2_to_cs(cs2.clone());
     let domain = EvaluationDomain::new(cs.degree() as u32, params.k());
 
     if (params.n() as usize) < cs.minimum_rows() {
@@ -181,4 +189,234 @@ where
         permutation: permutation_pk,
         ev,
     })
+}
+
+struct QueriesMap {
+    advice_map: HashMap<(Column<Advice>, Rotation), usize>,
+    instance_map: HashMap<(Column<Instance>, Rotation), usize>,
+    fixed_map: HashMap<(Column<Fixed>, Rotation), usize>,
+    advice: Vec<(Column<Advice>, Rotation)>,
+    instance: Vec<(Column<Instance>, Rotation)>,
+    fixed: Vec<(Column<Fixed>, Rotation)>,
+}
+
+impl QueriesMap {
+    fn add_advice(&mut self, col: Column<Advice>, rot: Rotation) -> usize {
+        *self.advice_map.entry((col, rot)).or_insert_with(|| {
+            self.advice.push((col, rot));
+            self.advice.len() - 1
+        })
+    }
+    fn add_instance(&mut self, col: Column<Instance>, rot: Rotation) -> usize {
+        *self.instance_map.entry((col, rot)).or_insert_with(|| {
+            self.instance.push((col, rot));
+            self.instance.len() - 1
+        })
+    }
+    fn add_fixed(&mut self, col: Column<Fixed>, rot: Rotation) -> usize {
+        *self.fixed_map.entry((col, rot)).or_insert_with(|| {
+            self.fixed.push((col, rot));
+            self.fixed.len() - 1
+        })
+    }
+}
+
+impl QueriesMap {
+    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F, QueryMid>) -> Expression<F> {
+        match expr {
+            ExpressionMid::Constant(c) => Expression::Constant(*c),
+            ExpressionMid::Query(QueryMid::Fixed(query)) => {
+                let (col, rot) = (Column::new(query.column_index, Fixed), query.rotation);
+                let index = self.add_fixed(col, rot);
+                Expression::Fixed(FixedQuery {
+                    index: Some(index),
+                    column_index: query.column_index,
+                    rotation: query.rotation,
+                })
+            }
+            ExpressionMid::Query(QueryMid::Advice(query)) => {
+                let (col, rot) = (
+                    Column::new(query.column_index, Advice { phase: query.phase }),
+                    query.rotation,
+                );
+                let index = self.add_advice(col, rot);
+                Expression::Advice(AdviceQuery {
+                    index: Some(index),
+                    column_index: query.column_index,
+                    rotation: query.rotation,
+                    phase: sealed::Phase(query.phase),
+                })
+            }
+            ExpressionMid::Query(QueryMid::Instance(query)) => {
+                let (col, rot) = (Column::new(query.column_index, Instance), query.rotation);
+                let index = self.add_instance(col, rot);
+                Expression::Instance(InstanceQuery {
+                    index: Some(index),
+                    column_index: query.column_index,
+                    rotation: query.rotation,
+                })
+            }
+            ExpressionMid::Challenge(c) => Expression::Challenge((*c).into()),
+            ExpressionMid::Negated(e) => Expression::Negated(Box::new(self.as_expression(e))),
+            ExpressionMid::Sum(lhs, rhs) => Expression::Sum(
+                Box::new(self.as_expression(lhs)),
+                Box::new(self.as_expression(rhs)),
+            ),
+            ExpressionMid::Product(lhs, rhs) => Expression::Product(
+                Box::new(self.as_expression(lhs)),
+                Box::new(self.as_expression(rhs)),
+            ),
+            ExpressionMid::Scaled(e, c) => Expression::Scaled(Box::new(self.as_expression(e)), *c),
+        }
+    }
+}
+
+/// Collect queries used in gates while mapping those gates to equivalent ones with indexed
+/// query references in the expressions.
+fn cs2_collect_queries_gates<F: Field>(
+    cs2: &ConstraintSystemV2Backend<F>,
+    queries: &mut QueriesMap,
+) -> Vec<Gate<F>> {
+    cs2.gates
+        .iter()
+        .map(|gate| Gate {
+            name: gate.name.clone(),
+            constraint_names: Vec::new(),
+            polys: vec![queries.as_expression(gate.polynomial())],
+            queried_selectors: Vec::new(), // Unused?
+            queried_cells: Vec::new(),     // Unused?
+        })
+        .collect()
+}
+
+/// Collect queries used in lookups while mapping those lookups to equivalent ones with indexed
+/// query references in the expressions.
+fn cs2_collect_queries_lookups<F: Field>(
+    cs2: &ConstraintSystemV2Backend<F>,
+    queries: &mut QueriesMap,
+) -> Vec<lookup::Argument<F>> {
+    cs2.lookups
+        .iter()
+        .map(|lookup| lookup::Argument {
+            name: lookup.name.clone(),
+            input_expressions: lookup
+                .input_expressions
+                .iter()
+                .map(|e| queries.as_expression(e))
+                .collect(),
+            table_expressions: lookup
+                .table_expressions
+                .iter()
+                .map(|e| queries.as_expression(e))
+                .collect(),
+        })
+        .collect()
+}
+
+/// Collect queries used in shuffles while mapping those lookups to equivalent ones with indexed
+/// query references in the expressions.
+fn cs2_collect_queries_shuffles<F: Field>(
+    cs2: &ConstraintSystemV2Backend<F>,
+    queries: &mut QueriesMap,
+) -> Vec<shuffle::Argument<F>> {
+    cs2.shuffles
+        .iter()
+        .map(|shuffle| shuffle::Argument {
+            name: shuffle.name.clone(),
+            input_expressions: shuffle
+                .input_expressions
+                .iter()
+                .map(|e| queries.as_expression(e))
+                .collect(),
+            shuffle_expressions: shuffle
+                .shuffle_expressions
+                .iter()
+                .map(|e| queries.as_expression(e))
+                .collect(),
+        })
+        .collect()
+}
+
+/// Collect all queries used in the expressions of gates, lookups and shuffles.  Map the
+/// expressions of gates, lookups and shuffles into equivalent ones with indexed query
+/// references.
+#[allow(clippy::type_complexity)]
+fn collect_queries<F: Field>(
+    cs2: &ConstraintSystemV2Backend<F>,
+) -> (
+    Queries,
+    Vec<Gate<F>>,
+    Vec<lookup::Argument<F>>,
+    Vec<shuffle::Argument<F>>,
+) {
+    let mut queries = QueriesMap {
+        advice_map: HashMap::new(),
+        instance_map: HashMap::new(),
+        fixed_map: HashMap::new(),
+        advice: Vec::new(),
+        instance: Vec::new(),
+        fixed: Vec::new(),
+    };
+
+    let gates = cs2_collect_queries_gates(cs2, &mut queries);
+    let lookups = cs2_collect_queries_lookups(cs2, &mut queries);
+    let shuffles = cs2_collect_queries_shuffles(cs2, &mut queries);
+
+    // Each column used in a copy constraint involves a query at rotation current.
+    for column in &cs2.permutation.columns {
+        match column.column_type {
+            Any::Instance => {
+                queries.add_instance(Column::new(column.index, Instance), Rotation::cur())
+            }
+            Any::Fixed => queries.add_fixed(Column::new(column.index, Fixed), Rotation::cur()),
+            Any::Advice(advice) => {
+                queries.add_advice(Column::new(column.index, advice), Rotation::cur())
+            }
+        };
+    }
+
+    let mut num_advice_queries = vec![0; cs2.num_advice_columns];
+    for (column, _) in queries.advice.iter() {
+        num_advice_queries[column.index()] += 1;
+    }
+
+    let queries = Queries {
+        advice: queries.advice,
+        instance: queries.instance,
+        fixed: queries.fixed,
+        num_advice_queries,
+    };
+    (queries, gates, lookups, shuffles)
+}
+
+// TODO: Rename this function after renaming the types
+// https://github.com/privacy-scaling-explorations/halo2/issues/263
+fn csv2_to_cs<F: Field>(cs2: ConstraintSystemV2Backend<F>) -> ConstraintSystem<F> {
+    let (queries, gates, lookups, shuffles) = collect_queries(&cs2);
+    ConstraintSystem {
+        num_fixed_columns: cs2.num_fixed_columns,
+        num_advice_columns: cs2.num_advice_columns,
+        num_instance_columns: cs2.num_instance_columns,
+        num_selectors: 0,
+        num_challenges: cs2.num_challenges,
+        unblinded_advice_columns: cs2.unblinded_advice_columns,
+        advice_column_phase: cs2
+            .advice_column_phase
+            .into_iter()
+            .map(sealed::Phase)
+            .collect(),
+        challenge_phase: cs2.challenge_phase.into_iter().map(sealed::Phase).collect(),
+        selector_map: Vec::new(),
+        gates,
+        advice_queries: queries.advice,
+        num_advice_queries: queries.num_advice_queries,
+        instance_queries: queries.instance,
+        fixed_queries: queries.fixed,
+        permutation: cs2.permutation.into(),
+        lookups,
+        shuffles,
+        general_column_annotations: cs2.general_column_annotations,
+        constants: Vec::new(),
+        minimum_degree: None,
+    }
 }
