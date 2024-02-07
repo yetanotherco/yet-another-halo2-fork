@@ -6,7 +6,7 @@ use core::cmp::max;
 use core::ops::{Add, Mul};
 use halo2_middleware::circuit::{
     Advice, AdviceQueryMid, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemV2Backend,
-    ExpressionMid, Fixed, FixedQueryMid, GateV2Backend, Instance, InstanceQueryMid,
+    ExpressionMid, Fixed, FixedQueryMid, GateV2Backend, Instance, InstanceQueryMid, QueryMid,
 };
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
@@ -58,18 +58,18 @@ impl<C: ColumnType> Column<C> {
     pub fn query_cell<F: Field>(&self, at: Rotation) -> Expression<F> {
         let expr_mid = self.column_type.query_cell::<F>(self.index, at);
         match expr_mid {
-            ExpressionMid::Advice(q) => Expression::Advice(AdviceQuery {
+            ExpressionMid::Query(QueryMid::Advice(q)) => Expression::Advice(AdviceQuery {
                 index: None,
                 column_index: q.column_index,
                 rotation: q.rotation,
                 phase: sealed::Phase(q.phase),
             }),
-            ExpressionMid::Fixed(q) => Expression::Fixed(FixedQuery {
+            ExpressionMid::Query(QueryMid::Fixed(q)) => Expression::Fixed(FixedQuery {
                 index: None,
                 column_index: q.column_index,
                 rotation: q.rotation,
             }),
-            ExpressionMid::Instance(q) => Expression::Instance(InstanceQuery {
+            ExpressionMid::Query(QueryMid::Instance(q)) => Expression::Instance(InstanceQuery {
                 index: None,
                 column_index: q.column_index,
                 rotation: q.rotation,
@@ -699,7 +699,7 @@ pub enum Expression<F> {
     Scaled(Box<Expression<F>>, F),
 }
 
-impl<F> From<Expression<F>> for ExpressionMid<F> {
+impl<F> From<Expression<F>> for ExpressionMid<F, QueryMid> {
     fn from(val: Expression<F>) -> Self {
         match val {
             Expression::Constant(c) => ExpressionMid::Constant(c),
@@ -708,28 +708,28 @@ impl<F> From<Expression<F>> for ExpressionMid<F> {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Fixed(FixedQueryMid {
+            }) => ExpressionMid::Query(QueryMid::Fixed(FixedQueryMid {
                 column_index,
                 rotation,
-            }),
+            })),
             Expression::Advice(AdviceQuery {
                 column_index,
                 rotation,
                 phase,
                 ..
-            }) => ExpressionMid::Advice(AdviceQueryMid {
+            }) => ExpressionMid::Query(QueryMid::Advice(AdviceQueryMid {
                 column_index,
                 rotation,
                 phase: phase.0,
-            }),
+            })),
             Expression::Instance(InstanceQuery {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Instance(InstanceQueryMid {
+            }) => ExpressionMid::Query(QueryMid::Instance(InstanceQueryMid {
                 column_index,
                 rotation,
-            }),
+            })),
             Expression::Challenge(c) => ExpressionMid::Challenge(c.into()),
             Expression::Negated(e) => ExpressionMid::Negated(Box::new((*e).into())),
             Expression::Sum(lhs, rhs) => {
@@ -1505,10 +1505,10 @@ impl QueriesMap {
 }
 
 impl QueriesMap {
-    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F>) -> Expression<F> {
+    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F, QueryMid>) -> Expression<F> {
         match expr {
             ExpressionMid::Constant(c) => Expression::Constant(*c),
-            ExpressionMid::Fixed(query) => {
+            ExpressionMid::Query(QueryMid::Fixed(query)) => {
                 let (col, rot) = (Column::new(query.column_index, Fixed), query.rotation);
                 let index = self.add_fixed(col, rot);
                 Expression::Fixed(FixedQuery {
@@ -1517,7 +1517,7 @@ impl QueriesMap {
                     rotation: query.rotation,
                 })
             }
-            ExpressionMid::Advice(query) => {
+            ExpressionMid::Query(QueryMid::Advice(query)) => {
                 let (col, rot) = (
                     Column::new(query.column_index, Advice { phase: query.phase }),
                     query.rotation,
@@ -1530,7 +1530,7 @@ impl QueriesMap {
                     phase: sealed::Phase(query.phase),
                 })
             }
-            ExpressionMid::Instance(query) => {
+            ExpressionMid::Query(QueryMid::Instance(query)) => {
                 let (col, rot) = (Column::new(query.column_index, Instance), query.rotation);
                 let index = self.add_instance(col, rot);
                 Expression::Instance(InstanceQuery {

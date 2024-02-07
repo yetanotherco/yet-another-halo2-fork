@@ -52,38 +52,42 @@ impl ChallengeMid {
     }
 }
 
-/// Low-degree expression representing an identity that must hold over the committed columns.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum ExpressionMid<F> {
-    /// This is a constant polynomial
-    Constant(F),
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum QueryMid {
     /// This is a fixed column queried at a certain relative location
     Fixed(FixedQueryMid),
     /// This is an advice (witness) column queried at a certain relative location
     Advice(AdviceQueryMid),
     /// This is an instance (external) column queried at a certain relative location
     Instance(InstanceQueryMid),
+}
+
+/// Low-degree expression representing an identity that must hold over the committed columns.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ExpressionMid<F, Q> {
+    /// This is a constant polynomial
+    Constant(F),
+    /// This is a generic column query
+    Query(Q),
     /// This is a challenge
     Challenge(ChallengeMid),
     /// This is a negated polynomial
-    Negated(Box<ExpressionMid<F>>),
+    Negated(Box<ExpressionMid<F, Q>>),
     /// This is the sum of two polynomials
-    Sum(Box<ExpressionMid<F>>, Box<ExpressionMid<F>>),
+    Sum(Box<ExpressionMid<F, Q>>, Box<ExpressionMid<F, Q>>),
     /// This is the product of two polynomials
-    Product(Box<ExpressionMid<F>>, Box<ExpressionMid<F>>),
+    Product(Box<ExpressionMid<F, Q>>, Box<ExpressionMid<F, Q>>),
     /// This is a scaled polynomial
-    Scaled(Box<ExpressionMid<F>>, F),
+    Scaled(Box<ExpressionMid<F, Q>>, F),
 }
 
-impl<F: Field> ExpressionMid<F> {
+impl<F: Field, Q> ExpressionMid<F, Q> {
     /// Compute the degree of this polynomial
     pub fn degree(&self) -> usize {
         use ExpressionMid::*;
         match self {
             Constant(_) => 0,
-            Fixed(_) => 1,
-            Advice(_) => 1,
-            Instance(_) => 1,
+            Query(_) => 1,
             Challenge(_) => 0,
             Negated(poly) => poly.degree(),
             Sum(a, b) => max(a.degree(), b.degree()),
@@ -97,7 +101,7 @@ impl<F: Field> ExpressionMid<F> {
 #[derive(Clone, Debug)]
 pub struct GateV2Backend<F: Field> {
     pub name: String,
-    pub poly: ExpressionMid<F>,
+    pub poly: ExpressionMid<F, QueryMid>,
 }
 
 impl<F: Field> GateV2Backend<F> {
@@ -107,7 +111,7 @@ impl<F: Field> GateV2Backend<F> {
     }
 
     /// Returns the polynomial identity of this gate
-    pub fn polynomial(&self) -> &ExpressionMid<F> {
+    pub fn polynomial(&self) -> &ExpressionMid<F, QueryMid> {
         &self.poly
     }
 }
@@ -173,7 +177,7 @@ pub trait ColumnType:
     'static + Sized + Copy + std::fmt::Debug + PartialEq + Eq + Into<Any>
 {
     /// Return expression from cell
-    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F>;
+    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F, QueryMid>;
 }
 
 /// A column with an index and type
@@ -294,46 +298,48 @@ impl PartialOrd for Any {
 }
 
 impl ColumnType for Advice {
-    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Advice(AdviceQueryMid {
+    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F, QueryMid> {
+        ExpressionMid::Query(QueryMid::Advice(AdviceQueryMid {
             column_index: index,
             rotation: at,
             phase: self.phase,
-        })
+        }))
     }
 }
 impl ColumnType for Fixed {
-    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Fixed(FixedQueryMid {
+    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F, QueryMid> {
+        ExpressionMid::Query(QueryMid::Fixed(FixedQueryMid {
             column_index: index,
             rotation: at,
-        })
+        }))
     }
 }
 impl ColumnType for Instance {
-    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Instance(InstanceQueryMid {
+    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F, QueryMid> {
+        ExpressionMid::Query(QueryMid::Instance(InstanceQueryMid {
             column_index: index,
             rotation: at,
-        })
+        }))
     }
 }
 impl ColumnType for Any {
-    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
+    fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F, QueryMid> {
         match self {
-            Any::Advice(Advice { phase }) => ExpressionMid::Advice(AdviceQueryMid {
+            Any::Advice(Advice { phase }) => {
+                ExpressionMid::Query(QueryMid::Advice(AdviceQueryMid {
+                    column_index: index,
+                    rotation: at,
+                    phase: *phase,
+                }))
+            }
+            Any::Fixed => ExpressionMid::Query(QueryMid::Fixed(FixedQueryMid {
                 column_index: index,
                 rotation: at,
-                phase: *phase,
-            }),
-            Any::Fixed => ExpressionMid::Fixed(FixedQueryMid {
+            })),
+            Any::Instance => ExpressionMid::Query(QueryMid::Instance(InstanceQueryMid {
                 column_index: index,
                 rotation: at,
-            }),
-            Any::Instance => ExpressionMid::Instance(InstanceQueryMid {
-                column_index: index,
-                rotation: at,
-            }),
+            })),
         }
     }
 }
