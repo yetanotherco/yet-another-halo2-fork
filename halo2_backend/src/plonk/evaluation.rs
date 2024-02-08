@@ -58,7 +58,7 @@ impl ValueSource {
         rotations: &[usize],
         constants: &[F],
         intermediates: &[F],
-        // Why Option??
+        // TODO: Why Option??
         fixed_values: &[Option<Polynomial<F, B>>],
         advice_values: &[Option<Polynomial<F, B>>],
         instance_values: &[Option<Polynomial<F, B>>],
