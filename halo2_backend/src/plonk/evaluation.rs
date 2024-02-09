@@ -1,18 +1,35 @@
 use crate::multicore;
+use crate::plonk::lookup::prover::Committed;
+use crate::plonk::permutation::Argument;
 use crate::plonk::{lookup, permutation, ProvingKey};
 use crate::poly::Basis;
 use crate::{
-    arithmetic::{parallelize, CurveAffine},
-    poly::{Coeff, ExtendedLagrangeCoeff, Polynomial},
+    arithmetic::{eval_polynomial, parallelize, CurveAffine},
+    poly::{
+        commitment::Params, Coeff, EvaluationDomain, ExtendedLagrangeCoeff, LagrangeCoeff,
+        Polynomial, ProverQuery,
+    },
+    transcript::{EncodedChallenge, TranscriptWrite},
 };
-use group::ff::{Field, PrimeField, WithSmallOrderMulGroup};
+use group::prime::PrimeCurve;
+use group::{
+    ff::{BatchInvert, Field, PrimeField, WithSmallOrderMulGroup},
+    Curve,
+};
 use halo2_common::plonk::{ConstraintSystem, Expression};
-use halo2_common::poly::LagrangeCoeff;
 use halo2_middleware::circuit::Any;
 use halo2_middleware::poly::Rotation;
 use itertools::Itertools;
-
-use super::shuffle;
+use std::any::TypeId;
+use std::convert::TryInto;
+use std::num::ParseIntError;
+use std::slice;
+use std::time::Instant;
+use std::{
+    collections::BTreeMap,
+    iter,
+    ops::{Index, Mul, MulAssign},
+};
 
 /// Return the index in the polynomial of size `isize` after rotation `rot`.
 fn get_rotation_idx(idx: usize, rot: i32, rot_scale: i32, isize: i32) -> usize {
@@ -52,21 +69,19 @@ impl Default for ValueSource {
 
 impl ValueSource {
     /// Get the value for this source
-    #[allow(clippy::too_many_arguments)]
     pub fn get<F: Field, B: Basis>(
         &self,
         rotations: &[usize],
         constants: &[F],
         intermediates: &[F],
-        // TODO: Why Option??
         fixed_values: &[Option<Polynomial<F, B>>],
         advice_values: &[Option<Polynomial<F, B>>],
         instance_values: &[Option<Polynomial<F, B>>],
         challenges: &[F],
+        y_powers: &[F],
         beta: &F,
         gamma: &F,
         theta: &F,
-        y_powers: &[F],
     ) -> F {
         match self {
             ValueSource::Constant(idx) => constants[*idx],
@@ -80,7 +95,7 @@ impl ValueSource {
                 advice_values[*column_index].as_ref().unwrap()[rotations[*rotation]]
             }
             ValueSource::Instance(column_index, rotation) => {
-                assert!(advice_values[*column_index].is_some());
+                assert!(instance_values[*column_index].is_some());
                 instance_values[*column_index].as_ref().unwrap()[rotations[*rotation]]
             }
             ValueSource::Challenge(index) => challenges[*index],
@@ -115,7 +130,6 @@ pub enum Calculation {
 
 impl Calculation {
     /// Get the resulting value of this calculation
-    #[allow(clippy::too_many_arguments)]
     pub fn evaluate<F: Field, B: Basis>(
         &self,
         rotations: &[usize],
@@ -125,10 +139,10 @@ impl Calculation {
         advice_values: &[Option<Polynomial<F, B>>],
         instance_values: &[Option<Polynomial<F, B>>],
         challenges: &[F],
+        y_powers: &[F],
         beta: &F,
         gamma: &F,
         theta: &F,
-        y_powers: &[F],
     ) -> F {
         let get_value = |value: &ValueSource| {
             value.get(
@@ -139,10 +153,10 @@ impl Calculation {
                 advice_values,
                 instance_values,
                 challenges,
+                y_powers,
                 beta,
                 gamma,
                 theta,
-                y_powers,
             )
         };
         match self {
@@ -166,7 +180,7 @@ impl Calculation {
 }
 
 #[derive(Clone, Default, Debug)]
-struct ConstraintCluster<C: CurveAffine> {
+struct ConstraintCluster<F: Field> {
     /// Used fixed columns in each cluster
     used_fixed_columns: Vec<usize>,
     /// Used instance columns in each cluster
@@ -174,7 +188,7 @@ struct ConstraintCluster<C: CurveAffine> {
     /// Used advice columns in each cluster
     used_advice_columns: Vec<usize>,
     /// Custom gates evalution
-    evaluator: GraphEvaluator<C>,
+    evaluator: GraphEvaluator<F>,
     /// The first index of constraints are being evaluated at in each cluster
     first_constraint_idx: usize,
     /// The last index of constraints are being evaluated at in each cluster
@@ -185,26 +199,28 @@ struct ConstraintCluster<C: CurveAffine> {
 
 /// Evaluator
 #[derive(Clone, Default, Debug)]
-pub struct Evaluator<C: CurveAffine> {
+pub struct Evaluator<F: Field> {
     /// list of constraint clusters
-    custom_gate_clusters: Vec<ConstraintCluster<C>>,
+    custom_gate_clusters: Vec<ConstraintCluster<F>>,
     /// Number of custom gate constraints
     num_custom_gate_constraints: usize,
     ///  Lookups evalution, degree, used instance and advice columns
+    #[allow(clippy::type_complexity)]
     lookups: Vec<(
-        GraphEvaluator<C>,
+        GraphEvaluator<F>,
         usize,
         (Vec<usize>, Vec<usize>, Vec<usize>),
     )>,
+
     /// Powers of y
     num_y_powers: usize,
 }
 
 /// GraphEvaluator
 #[derive(Clone, Debug)]
-pub struct GraphEvaluator<C: CurveAffine> {
+pub struct GraphEvaluator<F: Field> {
     /// Constants
-    pub constants: Vec<C::ScalarExt>,
+    pub constants: Vec<F>,
     /// Rotations
     pub rotations: Vec<i32>,
     /// Calculations
@@ -215,9 +231,9 @@ pub struct GraphEvaluator<C: CurveAffine> {
 
 /// EvaluationData
 #[derive(Default, Debug)]
-pub struct EvaluationData<C: CurveAffine> {
+pub struct EvaluationData<F: Field> {
     /// Intermediates
-    pub intermediates: Vec<C::ScalarExt>,
+    pub intermediates: Vec<F>,
     /// Rotations
     pub rotations: Vec<usize>,
 }
@@ -231,16 +247,15 @@ pub struct CalculationInfo {
     pub target: usize,
 }
 
-// TODO: Move to utils or something similar?
 fn merge_unique(a: Vec<usize>, b: Vec<usize>) -> Vec<usize> {
     let mut result = a;
     result.extend(b);
     result.into_iter().unique().collect()
 }
 
-impl<C: CurveAffine> Evaluator<C> {
+impl<F: WithSmallOrderMulGroup<3>> Evaluator<F> {
     /// Creates a new evaluation structure
-    pub fn new(cs: &ConstraintSystem<C::ScalarExt>) -> Self {
+    pub fn new(cs: &ConstraintSystem<F>) -> Self {
         let mut ev = Evaluator::default();
         let mut constraint_idx = 0;
 
@@ -377,26 +392,26 @@ impl<C: CurveAffine> Evaluator<C> {
     }
 
     /// Evaluate h poly
-    pub(in crate::plonk) fn evaluate_h(
+    pub(in crate::plonk) fn evaluate_h<C: CurveAffine<ScalarExt = F>>(
         &self,
         pk: &ProvingKey<C>,
-        advice_polys: &[&[Polynomial<C::ScalarExt, Coeff>]],
-        instance_polys: &[&[Polynomial<C::ScalarExt, Coeff>]],
-        challenges: &[C::ScalarExt],
-        y: C::ScalarExt,
-        beta: C::ScalarExt,
-        gamma: C::ScalarExt,
-        theta: C::ScalarExt,
+        advice_polys: &[&[Polynomial<F, Coeff>]],
+        instance_polys: &[&[Polynomial<F, Coeff>]],
+        challenges: &[F],
+        y: F,
+        beta: F,
+        gamma: F,
+        theta: F,
         lookups: &[Vec<lookup::prover::Committed<C>>],
         permutations: &[permutation::prover::Committed<C>],
-    ) -> Polynomial<C::ScalarExt, ExtendedLagrangeCoeff> {
+    ) -> Polynomial<F, ExtendedLagrangeCoeff> {
         let domain = &pk.vk.domain;
         let size = 1 << domain.k() as usize;
         let rot_scale = 1;
         let extended_omega = domain.get_extended_omega();
         let omega = domain.get_omega();
         let isize = size as i32;
-        let one = C::ScalarExt::ONE;
+        let one = F::ONE;
         let p = &pk.vk.cs.permutation;
         let num_parts = domain.extended_len() >> domain.k();
         let num_clusters = (domain.extended_k() - domain.k() + 1) as usize;
@@ -404,7 +419,7 @@ impl<C: CurveAffine> Evaluator<C> {
         assert!(self.custom_gate_clusters.len() <= num_clusters);
 
         // Initialize the the powers of y and constraint counter
-        let mut y_powers = vec![C::ScalarExt::ONE; self.num_y_powers * instance_polys.len()];
+        let mut y_powers = vec![F::ONE; self.num_y_powers * instance_polys.len()];
         for i in 1..self.num_y_powers {
             y_powers[i] = y_powers[i - 1] * y;
         }
@@ -415,14 +430,18 @@ impl<C: CurveAffine> Evaluator<C> {
 
         let mut value_part_clusters = Vec::new();
         value_part_clusters.resize(num_clusters, Vec::new());
-        for cluster_idx in 0..num_clusters {
-            value_part_clusters[cluster_idx].resize(1 << cluster_idx, domain.empty_lagrange());
+        for (cluster_idx, cluster) in value_part_clusters
+            .iter_mut()
+            .enumerate()
+            .take(num_clusters)
+        {
+            cluster.resize(1 << cluster_idx, domain.empty_lagrange());
         }
 
         // Calculate the quotient polynomial for each part
         let mut current_extended_omega = one;
         for part_idx in 0..num_parts {
-            let mut fixed: Vec<Option<Polynomial<C::ScalarExt, LagrangeCoeff>>> =
+            let mut fixed: Vec<Option<Polynomial<F, LagrangeCoeff>>> =
                 vec![None; pk.fixed_polys.len()];
             let l0 = domain.coeff_to_extended_part(pk.l0.clone(), current_extended_omega);
             let l_last = domain.coeff_to_extended_part(pk.l_last.clone(), current_extended_omega);
@@ -527,15 +546,15 @@ impl<C: CurveAffine> Evaluator<C> {
                     let chunk_len = pk.vk.cs.degree() - 2;
                     let delta_start = beta * &C::Scalar::ZETA;
 
-                    let permutation_product_cosets: Vec<Polynomial<C::ScalarExt, LagrangeCoeff>> =
-                        sets.iter()
-                            .map(|set| {
-                                domain.coeff_to_extended_part(
-                                    set.permutation_product_poly.clone(),
-                                    current_extended_omega,
-                                )
-                            })
-                            .collect();
+                    let permutation_product_cosets: Vec<Polynomial<F, LagrangeCoeff>> = sets
+                        .iter()
+                        .map(|set| {
+                            domain.coeff_to_extended_part(
+                                set.permutation_product_poly.clone(),
+                                current_extended_omega,
+                            )
+                        })
+                        .collect();
 
                     let first_set_permutation_product_coset =
                         permutation_product_cosets.first().unwrap();
@@ -652,7 +671,7 @@ impl<C: CurveAffine> Evaluator<C> {
                             }
                         }
 
-                        let permutation_cosets: Vec<Polynomial<C::ScalarExt, LagrangeCoeff>> = pk
+                        let permutation_cosets: Vec<Polynomial<F, LagrangeCoeff>> = pk
                             .permutation
                             .polys
                             .iter()
@@ -959,15 +978,11 @@ impl<C: CurveAffine> Evaluator<C> {
     }
 }
 
-impl<C: CurveAffine> Default for GraphEvaluator<C> {
+impl<F: Field> Default for GraphEvaluator<F> {
     fn default() -> Self {
         Self {
             // Fixed positions to allow easy access
-            constants: vec![
-                C::ScalarExt::ZERO,
-                C::ScalarExt::ONE,
-                C::ScalarExt::from(2u64),
-            ],
+            constants: vec![F::ZERO, F::ONE, F::ONE + F::ONE],
             rotations: Vec::new(),
             calculations: Vec::new(),
             num_intermediates: 0,
@@ -975,7 +990,7 @@ impl<C: CurveAffine> Default for GraphEvaluator<C> {
     }
 }
 
-impl<C: CurveAffine> GraphEvaluator<C> {
+impl<F: Field> GraphEvaluator<F> {
     /// Adds a rotation
     fn add_rotation(&mut self, rotation: &Rotation) -> usize {
         let position = self.rotations.iter().position(|&c| c == rotation.0);
@@ -989,7 +1004,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
     }
 
     /// Adds a constant
-    fn add_constant(&mut self, constant: &C::ScalarExt) -> ValueSource {
+    fn add_constant(&mut self, constant: &F) -> ValueSource {
         let position = self.constants.iter().position(|&c| c == *constant);
         ValueSource::Constant(match position {
             Some(pos) => pos,
@@ -1024,7 +1039,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
     }
 
     /// Generates an optimized evaluation for the expression
-    fn add_expression(&mut self, expr: &Expression<C::ScalarExt>) -> ValueSource {
+    fn add_expression(&mut self, expr: &Expression<F>) -> ValueSource {
         match expr {
             Expression::Constant(scalar) => self.add_constant(scalar),
             Expression::Selector(_selector) => unreachable!(),
@@ -1113,9 +1128,9 @@ impl<C: CurveAffine> GraphEvaluator<C> {
                 }
             }
             Expression::Scaled(a, f) => {
-                if *f == C::ScalarExt::ZERO {
+                if *f == F::ZERO {
                     ValueSource::Constant(0)
-                } else if *f == C::ScalarExt::ONE {
+                } else if *f == F::ONE {
                     self.add_expression(a)
                 } else {
                     let cst = self.add_constant(f);
@@ -1127,28 +1142,28 @@ impl<C: CurveAffine> GraphEvaluator<C> {
     }
 
     /// Creates a new evaluation structure
-    pub fn instance(&self) -> EvaluationData<C> {
+    pub fn instance(&self) -> EvaluationData<F> {
         EvaluationData {
-            intermediates: vec![C::ScalarExt::ZERO; self.num_intermediates],
+            intermediates: vec![F::ZERO; self.num_intermediates],
             rotations: vec![0usize; self.rotations.len()],
         }
     }
 
     pub fn evaluate<B: Basis>(
         &self,
-        data: &mut EvaluationData<C>,
-        fixed: &[Option<Polynomial<C::ScalarExt, B>>],
-        advice: &[Option<Polynomial<C::ScalarExt, B>>],
-        instance: &[Option<Polynomial<C::ScalarExt, B>>],
-        challenges: &[C::ScalarExt],
-        y_powers: &[C::ScalarExt],
-        beta: &C::ScalarExt,
-        gamma: &C::ScalarExt,
-        theta: &C::ScalarExt,
+        data: &mut EvaluationData<F>,
+        fixed: &[Option<Polynomial<F, B>>],
+        advice: &[Option<Polynomial<F, B>>],
+        instance: &[Option<Polynomial<F, B>>],
+        challenges: &[F],
+        y_powers: &[F],
+        beta: &F,
+        gamma: &F,
+        theta: &F,
         idx: usize,
         rot_scale: i32,
         isize: i32,
-    ) -> C::ScalarExt {
+    ) -> F {
         // All rotation index values
         for (rot_idx, rot) in self.rotations.iter().enumerate() {
             data.rotations[rot_idx] = get_rotation_idx(idx, *rot, rot_scale, isize);
@@ -1164,10 +1179,10 @@ impl<C: CurveAffine> GraphEvaluator<C> {
                 advice,
                 instance,
                 challenges,
+                y_powers,
                 beta,
                 gamma,
                 theta,
-                y_powers,
             );
         }
 
@@ -1175,7 +1190,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
         if let Some(calc) = self.calculations.last() {
             data.intermediates[calc.target]
         } else {
-            C::ScalarExt::ZERO
+            F::ZERO
         }
     }
 }

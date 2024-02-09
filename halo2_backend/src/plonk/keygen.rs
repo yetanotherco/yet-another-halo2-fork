@@ -138,18 +138,21 @@ where
 
     // Compute l_last(X) which evaluates to 1 on the first inactive row (just
     // before the blinding factors) and 0 otherwise over the domain
-    let mut l_last = vk.domain.empty_coeff();
+    let mut l_last = vk.domain.empty_lagrange();
     l_last[params.n() as usize - vk.cs.blinding_factors() - 1] = C::Scalar::ONE;
 
     // Compute l_active_row(X)
     let one = C::Scalar::ONE;
-    let mut l_active_row = vk.domain.empty_coeff();
+    let mut l_active_row = vk.domain.empty_lagrange();
     parallelize(&mut l_active_row, |values, start| {
         for (i, value) in values.iter_mut().enumerate() {
             let idx = i + start;
             *value = one - (l_last[idx] + l_blind[idx]);
         }
     });
+
+    let l_last = vk.domain.lagrange_to_coeff(l_last);
+    let l_active_row = vk.domain.lagrange_to_coeff(l_active_row);
 
     // Compute the optimized evaluation data structure
     let ev = Evaluator::new(&vk.cs);

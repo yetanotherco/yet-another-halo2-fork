@@ -325,7 +325,7 @@ pub struct ProvingKey<C: CurveAffine> {
     fixed_values: Vec<Polynomial<C::Scalar, LagrangeCoeff>>,
     fixed_polys: Vec<Polynomial<C::Scalar, Coeff>>,
     permutation: permutation::ProvingKey<C>,
-    ev: Evaluator<C>,
+    ev: Evaluator<C::ScalarExt>,
 }
 
 impl<C: CurveAffine> ProvingKey<C>
