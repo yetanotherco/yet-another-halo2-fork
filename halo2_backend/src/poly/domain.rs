@@ -390,14 +390,14 @@ impl<F: WithSmallOrderMulGroup<3>> EvaluationDomain<F> {
 
             parallelize(&mut result[0..(self.n << i) as usize], |result, start| {
                 for (other, current) in result.iter_mut().zip(a_poly[start..].iter()) {
-                    other.add(current);
+                    other.add_assign(current);
                 }
             });
         }
         best_fft(&mut result, self.extended_omega, self.extended_k);
         parallelize(&mut result_poly.values, |values, start| {
             for (value, other) in values.iter_mut().zip(result[start..].into_iter()) {
-                value.add(other);
+                value.add_assign(other);
             }
         });
         result_poly
