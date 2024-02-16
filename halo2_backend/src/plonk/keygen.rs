@@ -18,7 +18,7 @@ use halo2_common::plonk::{
 };
 use halo2_middleware::circuit::{
     Advice, Any, CompiledCircuitV2, ConstraintSystemV2Backend, ExpressionMid, Fixed, Instance,
-    QueryMid,
+    QueryMid, VarMid,
 };
 use halo2_middleware::poly::Rotation;
 use std::collections::HashMap;
@@ -222,10 +222,10 @@ impl QueriesMap {
 }
 
 impl QueriesMap {
-    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F, QueryMid>) -> Expression<F> {
+    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F, VarMid>) -> Expression<F> {
         match expr {
             ExpressionMid::Constant(c) => Expression::Constant(*c),
-            ExpressionMid::Query(QueryMid::Fixed(query)) => {
+            ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(query))) => {
                 let (col, rot) = (Column::new(query.column_index, Fixed), query.rotation);
                 let index = self.add_fixed(col, rot);
                 Expression::Fixed(FixedQuery {
@@ -234,7 +234,7 @@ impl QueriesMap {
                     rotation: query.rotation,
                 })
             }
-            ExpressionMid::Query(QueryMid::Advice(query)) => {
+            ExpressionMid::Var(VarMid::Query(QueryMid::Advice(query))) => {
                 let (col, rot) = (
                     Column::new(query.column_index, Advice { phase: query.phase }),
                     query.rotation,
@@ -247,7 +247,7 @@ impl QueriesMap {
                     phase: sealed::Phase(query.phase),
                 })
             }
-            ExpressionMid::Query(QueryMid::Instance(query)) => {
+            ExpressionMid::Var(VarMid::Query(QueryMid::Instance(query))) => {
                 let (col, rot) = (Column::new(query.column_index, Instance), query.rotation);
                 let index = self.add_instance(col, rot);
                 Expression::Instance(InstanceQuery {
@@ -256,7 +256,7 @@ impl QueriesMap {
                     rotation: query.rotation,
                 })
             }
-            ExpressionMid::Challenge(c) => Expression::Challenge((*c).into()),
+            ExpressionMid::Var(VarMid::Challenge(c)) => Expression::Challenge((*c).into()),
             ExpressionMid::Negated(e) => Expression::Negated(Box::new(self.as_expression(e))),
             ExpressionMid::Sum(lhs, rhs) => Expression::Sum(
                 Box::new(self.as_expression(lhs)),

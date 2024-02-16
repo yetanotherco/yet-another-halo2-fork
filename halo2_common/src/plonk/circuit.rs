@@ -7,6 +7,7 @@ use core::ops::{Add, Mul};
 use halo2_middleware::circuit::{
     Advice, AdviceQueryMid, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemV2Backend,
     ExpressionMid, Fixed, FixedQueryMid, GateV2Backend, Instance, InstanceQueryMid, QueryMid,
+    VarMid,
 };
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
@@ -58,22 +59,28 @@ impl<C: ColumnType> Column<C> {
     pub fn query_cell<F: Field>(&self, at: Rotation) -> Expression<F> {
         let expr_mid = self.column_type.query_cell::<F>(self.index, at);
         match expr_mid {
-            ExpressionMid::Query(QueryMid::Advice(q)) => Expression::Advice(AdviceQuery {
-                index: None,
-                column_index: q.column_index,
-                rotation: q.rotation,
-                phase: sealed::Phase(q.phase),
-            }),
-            ExpressionMid::Query(QueryMid::Fixed(q)) => Expression::Fixed(FixedQuery {
-                index: None,
-                column_index: q.column_index,
-                rotation: q.rotation,
-            }),
-            ExpressionMid::Query(QueryMid::Instance(q)) => Expression::Instance(InstanceQuery {
-                index: None,
-                column_index: q.column_index,
-                rotation: q.rotation,
-            }),
+            ExpressionMid::Var(VarMid::Query(QueryMid::Advice(q))) => {
+                Expression::Advice(AdviceQuery {
+                    index: None,
+                    column_index: q.column_index,
+                    rotation: q.rotation,
+                    phase: sealed::Phase(q.phase),
+                })
+            }
+            ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(q))) => {
+                Expression::Fixed(FixedQuery {
+                    index: None,
+                    column_index: q.column_index,
+                    rotation: q.rotation,
+                })
+            }
+            ExpressionMid::Var(VarMid::Query(QueryMid::Instance(q))) => {
+                Expression::Instance(InstanceQuery {
+                    index: None,
+                    column_index: q.column_index,
+                    rotation: q.rotation,
+                })
+            }
             _ => unreachable!(),
         }
     }
@@ -699,7 +706,7 @@ pub enum Expression<F> {
     Scaled(Box<Expression<F>>, F),
 }
 
-impl<F> From<Expression<F>> for ExpressionMid<F, QueryMid> {
+impl<F> From<Expression<F>> for ExpressionMid<F, VarMid> {
     fn from(val: Expression<F>) -> Self {
         match val {
             Expression::Constant(c) => ExpressionMid::Constant(c),
@@ -708,29 +715,29 @@ impl<F> From<Expression<F>> for ExpressionMid<F, QueryMid> {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Query(QueryMid::Fixed(FixedQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(FixedQueryMid {
                 column_index,
                 rotation,
-            })),
+            }))),
             Expression::Advice(AdviceQuery {
                 column_index,
                 rotation,
                 phase,
                 ..
-            }) => ExpressionMid::Query(QueryMid::Advice(AdviceQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Advice(AdviceQueryMid {
                 column_index,
                 rotation,
                 phase: phase.0,
-            })),
+            }))),
             Expression::Instance(InstanceQuery {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Query(QueryMid::Instance(InstanceQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Instance(InstanceQueryMid {
                 column_index,
                 rotation,
-            })),
-            Expression::Challenge(c) => ExpressionMid::Challenge(c.into()),
+            }))),
+            Expression::Challenge(c) => ExpressionMid::Var(VarMid::Challenge(c.into())),
             Expression::Negated(e) => ExpressionMid::Negated(Box::new((*e).into())),
             Expression::Sum(lhs, rhs) => {
                 ExpressionMid::Sum(Box::new((*lhs).into()), Box::new((*rhs).into()))
@@ -1152,6 +1159,7 @@ impl<F: Field> Expression<F> {
         )
     }
 
+    // TODO: Where is this used?
     /// Extracts a simple selector from this gate, if present
     fn extract_simple_selector(&self) -> Option<Selector> {
         let op = |a, b| match (a, b) {
