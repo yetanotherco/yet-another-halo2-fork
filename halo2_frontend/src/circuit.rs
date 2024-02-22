@@ -76,7 +76,7 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
         let selectors = std::mem::take(&mut assembly.selectors);
         cs.directly_convert_selectors_to_fixed(selectors)
     };
-    fixed.extend(selector_polys);
+    fixed.extend(selector_polys.into_iter());
 
     let preprocessing = PreprocessingV2 {
         permutation: halo2_middleware::permutation::AssemblyMid {
