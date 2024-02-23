@@ -30,6 +30,40 @@ use crate::{
 };
 use group::prime::PrimeCurveAffine;
 
+// The evaluation domain is not a subset of the extended evaluation domain
+
+// Lagrange form with values e_i (evaluation values)
+//   p(w_i) = e_i for w_i in the evaluation domain
+// Monomial / Coefficient form with values a_i (coefficient values)
+//   p(x) = a_0 + a_1 * x + a_2 * x^2 + ...
+// Extended lagrange form with values ee_i (extended evaluation values)
+//   p(w_i) = ee_i for w_i in the extended evaluation domain
+//
+// Lagrange -> Coefficient we do iFFT
+// Coefficient -> Lagrange we do FFT
+// Coefficient -> Extended Lagrange we do FFT
+
+// g(x): degree d * n. (max degree of any gate)
+// t(x): degree n
+// h(x) = g(x)/t(x): degree d*n - n = (d - 1)*n
+//
+//
+
+// TMP
+//
+// gate1(x) = s * (a - 1) * (a - b)
+// gate2(x) = (a - b)
+// g(x) = gate1(x) + gamma * gate2(x)
+//
+// g(w_i) for w_i in [w_0, ... w_n] (extended domain)
+//
+// gate1_w0 = gate1(w_0)
+// gate2_w0 = gate2(w_0)
+// g_w0 = gate1_w0 + gamma * gate2_w0
+//
+//
+// g(x) = gate1(x) + gamma * gate2(x) + gamma^2 * gate3(x) + gamma^3 * gate4(x)
+
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
@@ -46,7 +80,7 @@ pub fn create_proof<
     params: &'params Scheme::ParamsProver,
     pk: &ProvingKey<Scheme::Curve>,
     circuits: &[ConcreteCircuit],
-    instances: &[&[&[Scheme::Scalar]]],
+    instances: &[&[&[Scheme::Scalar]]], // NOTE(Edu): Lagrange form, size 2^k
     mut rng: R,
     transcript: &mut T,
 ) -> Result<(), Error>
@@ -85,6 +119,8 @@ where
     let instance: Vec<InstanceSingle<Scheme::Curve>> = instances
         .iter()
         .map(|instance| -> Result<InstanceSingle<Scheme::Curve>, Error> {
+            // instances has small vectors
+            // instance_values has vectors size 2^k
             let instance_values = instance
                 .iter()
                 .map(|values| {
@@ -94,6 +130,8 @@ where
                         return Err(Error::InstanceTooLarge);
                     }
                     for (poly, value) in poly.iter_mut().zip(values.iter()) {
+                        // NOTE(Edu): Write the instance values (Lagrange form) directly to the
+                        // transcript.
                         if !P::QUERY_INSTANCE {
                             transcript.common_scalar(*value)?;
                         }
@@ -103,6 +141,9 @@ where
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
+            // NOTE(Edu): This path is not usually taken in our halo2 fork, specially when
+            // verifying on EVM.
+            // Commit to the instance column, and add it to the transcript.
             if P::QUERY_INSTANCE {
                 let instance_commitments_projective: Vec<_> = instance_values
                     .iter()
@@ -126,9 +167,12 @@ where
                 .iter()
                 .map(|poly| {
                     let lagrange_vec = domain.lagrange_from_vec(poly.to_vec());
+                    // NOTE(Edu): Using FFT here.  2^k -> 2^k
                     domain.lagrange_to_coeff(lagrange_vec)
                 })
                 .collect();
+            // Here we have for each instance column, 2 * 2^k elements (for Lagrange and
+            // Coefficient form).
 
             Ok(InstanceSingle {
                 instance_values,
@@ -291,6 +335,7 @@ where
     let (advice, challenges) = {
         let mut advice = vec![
             AdviceSingle::<Scheme::Curve, LagrangeCoeff> {
+                // Allocate for each advice column vectors of 2^k for Lagrange form
                 advice_polys: vec![domain.empty_lagrange(); meta.num_advice_columns],
                 advice_blinds: vec![Blind::default(); meta.num_advice_columns],
             };
@@ -319,6 +364,7 @@ where
                 let mut witness = WitnessCollection {
                     k: params.k(),
                     current_phase,
+                    // 2^k Lagrange form
                     advice: vec![domain.empty_lagrange_assigned(); meta.num_advice_columns],
                     unblinded_advice: HashSet::from_iter(meta.unblinded_advice_columns.clone()),
                     instances,
@@ -382,6 +428,7 @@ where
                 let advice_commitments_projective: Vec<_> = advice_values
                     .iter()
                     .zip(blinds.iter())
+                    // Do the KZG commitment of advice columns (input in Lagrange form)
                     .map(|(poly, blind)| params.commit_lagrange(poly, *blind))
                     .collect();
                 let mut advice_commitments =
@@ -394,6 +441,7 @@ where
                 drop(advice_commitments_projective);
 
                 for commitment in &advice_commitments {
+                    // Write the advice commitments to the transcript
                     transcript.write_point(*commitment)?;
                 }
                 for ((column_index, advice_values), blind) in
@@ -420,10 +468,17 @@ where
 
         (advice, challenges)
     };
+    // So far we have each advice column in lagrange form (each 2^k)
 
     // Sample theta challenge for keeping lookup columns linearly independent
     let theta: ChallengeTheta<_> = transcript.squeeze_challenge_scalar();
 
+    // Lookup (A in S) has:
+    // - Z: grand product poly
+    // - A': Permutation of the evaluation of the lhs expression
+    // - S': Permutation of the evaluation of the rhs expression
+
+    // Commit to lookup A', S', and keep A, S, A', S', A' coeff, S' coeff in memory
     let lookups: Vec<Vec<lookup::prover::Permuted<Scheme::Curve>>> = instance
         .iter()
         .zip(advice.iter())
@@ -434,6 +489,13 @@ where
                 .lookups
                 .iter()
                 .map(|lookup| {
+                    // Returns (all are 2^k):
+                    // Evaluation of A(x): compressed_input_expression: Polynomial<C::Scalar, LagrangeCoeff>,
+                    // Evaluation of A'(x): permuted_input_expression: Polynomial<C::Scalar, LagrangeCoeff>,
+                    // Coefficient form of A'(x) permuted_input_poly: Polynomial<C::Scalar, Coeff>,
+                    // Evaluation of S(x): compressed_table_expression: Polynomial<C::Scalar, LagrangeCoeff>,
+                    // Evaluation of S'(x): permuted_table_expression: Polynomial<C::Scalar, LagrangeCoeff>,
+                    // Coefficient form of S'(x): permuted_table_poly: Polynomial<C::Scalar, Coeff>,
                     lookup.commit_permuted(
                         pk,
                         params,
@@ -457,11 +519,32 @@ where
     // Sample gamma challenge
     let gamma: ChallengeGamma<_> = transcript.squeeze_challenge_scalar();
 
+    // NOTE(Edu): All fixed columns (even the implicit ones, like the copy constraint fixed
+    // permutation columns) are in the proving key in lagrange form (2^k), coeff form (2^k) and
+    // extended form (e * 2^k)
+
     // Commit to permutations.
+    // We have n columns involved in copy constraints
+    //
+    // - We need n/(degree-2) grand products (NOTE: "/" is div_ceil)
+    // - For each copied column we will have a fixed permutation column (this is in memory in the
+    // proving key, in lagrange and coeff form, with 2^k, and in extended form e * 2^k)
+    //
+    // Example: n = 3
+    // |a| | |
+    // | |b| |
+    // | |a| |
+    // | | |b|
+    // |a| | |
+    //
+    // Commit to the copy constraints grand products
     let permutations: Vec<permutation::prover::Committed<Scheme::Curve>> = instance
         .iter()
         .zip(advice.iter())
         .map(|(instance, advice)| {
+            // Returns
+            // Grand product in coeff form: permutation_product_poly: Polynomial<C::Scalar, Coeff>,
+            // Grand product in extended form: permutation_product_coset: Polynomial<C::Scalar, ExtendedLagrangeCoeff>,
             pk.vk.cs.permutation.commit(
                 params,
                 pk,
@@ -477,17 +560,23 @@ where
         })
         .collect::<Result<Vec<_>, _>>()?;
 
+    // Commit to the grand products of the lookups
+    // We only keep the coefficient form of A', S' and discard the lagrange form of A, A', S, S'.
     let lookups: Vec<Vec<lookup::prover::Committed<Scheme::Curve>>> = lookups
         .into_iter()
         .map(|lookups| -> Result<Vec<_>, _> {
             // Construct and commit to products for each lookup
             lookups
                 .into_iter()
+                // permuted_input_poly: Polynomial<C::Scalar, Coeff>,
+                // permuted_table_poly: Polynomial<C::Scalar, Coeff>,
+                // product_poly: Polynomial<C::Scalar, Coeff>,
                 .map(|lookup| lookup.commit_product(pk, params, beta, gamma, &mut rng, transcript))
                 .collect::<Result<Vec<_>, _>>()
         })
         .collect::<Result<Vec<_>, _>>()?;
 
+    // For each shuffle we need one grand product
     let shuffles: Vec<Vec<shuffle::prover::Committed<Scheme::Curve>>> = instance
         .iter()
         .zip(advice.iter())
@@ -498,6 +587,8 @@ where
                 .shuffles
                 .iter()
                 .map(|shuffle| {
+                    // Returns
+                    // Grand product in coeff form: product_poly: Polynomial<C::Scalar, Coeff>,
                     shuffle.commit_product(
                         pk,
                         params,
@@ -541,6 +632,19 @@ where
         )
         .collect();
 
+    // g(x) is the expression that contains all the gates, lookup arguments, permutation arguments,
+    // shuffle arguments (all combined with an RLC).  This expression must evaluate to 0 in the
+    // domain for the circuit to be satisfied.
+    // g(x) Always 0 in the evaluation domain (if the circuit is satisfied).
+    // h(x) = g(x) / t(x)
+    // t(x) = X^n - 1 : Vanishing polynomial.  Always 0 in the evaluation domain.
+    // h is the quotient polynomial
+
+    // Calculate h(x) in extended form.  This takes the advices in coefficient form and transforms
+    // them into extended evaluation form to calculate h(x).  The current implementation requires
+    // holding all the advices in extended form in memory at the same time.  After h(X) is
+    // calculated, the advices in extended form are dropped.
+    // Actually here we have g(X).  Later we will divide it by t(X) and really get h(X).
     // Evaluate the h(X) polynomial
     let h_poly = pk.ev.evaluate_h(
         pk,
@@ -589,6 +693,9 @@ where
             }
         }
     }
+
+    // Evaluate all polys (advice and fixed) in coefficient form, at a random point, and write the
+    // evaluation in the transcript.
 
     // Compute and hash advice evals for each circuit instance
     for advice in advice.iter() {

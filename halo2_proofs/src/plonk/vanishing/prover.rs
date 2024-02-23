@@ -112,7 +112,7 @@ impl<C: CurveAffine> Committed<C> {
         let h_poly = domain.divide_by_vanishing_poly(h_poly);
 
         // Obtain final h(X) polynomial
-        let h_poly = domain.extended_to_coeff(h_poly);
+        let h_poly = domain.extended_to_coeff(h_poly); // Not 2^k, this is (d - 1) * 2^k, where d is max degree of expressions
 
         // Split h(X) up into pieces
         let h_pieces = h_poly
