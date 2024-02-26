@@ -3,7 +3,7 @@
 
 use group::{
     ff::{BatchInvert, PrimeField},
-    Curve, Group, GroupOpsOwned, ScalarMulOwned,
+    Curve, GroupOpsOwned, ScalarMulOwned,
 };
 use halo2_common::multicore;
 pub use halo2_middleware::ff::Field;
@@ -24,70 +24,6 @@ where
     Scalar: Field,
     T: Copy + Send + Sync + 'static + GroupOpsOwned + ScalarMulOwned<Scalar>,
 {
-}
-
-/// Performs a small multi-exponentiation operation.
-/// Uses the double-and-add algorithm with doublings shared across points.
-pub fn small_multiexp<C: CurveAffine>(coeffs: &[C::Scalar], bases: &[C]) -> C::Curve {
-    let coeffs: Vec<_> = coeffs.iter().map(|a| a.to_repr()).collect();
-    let mut acc = C::Curve::identity();
-
-    // for byte idx
-    for byte_idx in (0..((C::Scalar::NUM_BITS as usize + 7) / 8)).rev() {
-        // for bit idx
-        for bit_idx in (0..8).rev() {
-            acc = acc.double();
-            // for each coeff
-            for coeff_idx in 0..coeffs.len() {
-                let byte = coeffs[coeff_idx].as_ref()[byte_idx];
-                if ((byte >> bit_idx) & 1) != 0 {
-                    acc += bases[coeff_idx];
-                }
-            }
-        }
-    }
-
-    acc
-}
-
-/// This perform recursive butterfly arithmetic
-pub fn recursive_butterfly_arithmetic<Scalar: Field, G: FftGroup<Scalar>>(
-    a: &mut [G],
-    n: usize,
-    twiddle_chunk: usize,
-    twiddles: &[Scalar],
-) {
-    if n == 2 {
-        let t = a[1];
-        a[1] = a[0];
-        a[0] += &t;
-        a[1] -= &t;
-    } else {
-        let (left, right) = a.split_at_mut(n / 2);
-        multicore::join(
-            || recursive_butterfly_arithmetic(left, n / 2, twiddle_chunk * 2, twiddles),
-            || recursive_butterfly_arithmetic(right, n / 2, twiddle_chunk * 2, twiddles),
-        );
-
-        // case when twiddle factor is one
-        let (a, left) = left.split_at_mut(1);
-        let (b, right) = right.split_at_mut(1);
-        let t = b[0];
-        b[0] = a[0];
-        a[0] += &t;
-        b[0] -= &t;
-
-        left.iter_mut()
-            .zip(right.iter_mut())
-            .enumerate()
-            .for_each(|(i, (a, b))| {
-                let mut t = *b;
-                t *= &twiddles[(i + 1) * twiddle_chunk];
-                *b = *a;
-                *a += &t;
-                *b -= &t;
-            });
-    }
 }
 
 /// Convert coefficient bases group elements to lagrange basis by inverse FFT.
@@ -233,18 +169,6 @@ pub fn parallelize<T: Send, F: Fn(&mut [T], usize) + Send + Sync + Clone>(v: &mu
             }
         }
     });
-}
-
-fn log2_floor(num: usize) -> u32 {
-    assert!(num > 0);
-
-    let mut pow = 0;
-
-    while (1 << (pow + 1)) <= num {
-        pow += 1;
-    }
-
-    pow
 }
 
 /// Returns coefficients of an n - 1 degree polynomial given a set of n points
