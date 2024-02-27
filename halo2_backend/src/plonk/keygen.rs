@@ -17,8 +17,8 @@ use halo2_common::plonk::{
     Queries,
 };
 use halo2_middleware::circuit::{
-    Advice, Any, CompiledCircuitV2, ConstraintSystemV2Backend, ExpressionMid, Fixed, Instance,
-    QueryMid, VarMid,
+    Advice, Any, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, Fixed, Instance, QueryMid,
+    VarMid,
 };
 use halo2_middleware::poly::Rotation;
 use std::collections::HashMap;
@@ -274,7 +274,7 @@ impl QueriesMap {
 /// Collect queries used in gates while mapping those gates to equivalent ones with indexed
 /// query references in the expressions.
 fn cs2_collect_queries_gates<F: Field>(
-    cs2: &ConstraintSystemV2Backend<F>,
+    cs2: &ConstraintSystemMid<F>,
     queries: &mut QueriesMap,
 ) -> Vec<Gate<F>> {
     cs2.gates
@@ -292,7 +292,7 @@ fn cs2_collect_queries_gates<F: Field>(
 /// Collect queries used in lookups while mapping those lookups to equivalent ones with indexed
 /// query references in the expressions.
 fn cs2_collect_queries_lookups<F: Field>(
-    cs2: &ConstraintSystemV2Backend<F>,
+    cs2: &ConstraintSystemMid<F>,
     queries: &mut QueriesMap,
 ) -> Vec<lookup::Argument<F>> {
     cs2.lookups
@@ -316,7 +316,7 @@ fn cs2_collect_queries_lookups<F: Field>(
 /// Collect queries used in shuffles while mapping those lookups to equivalent ones with indexed
 /// query references in the expressions.
 fn cs2_collect_queries_shuffles<F: Field>(
-    cs2: &ConstraintSystemV2Backend<F>,
+    cs2: &ConstraintSystemMid<F>,
     queries: &mut QueriesMap,
 ) -> Vec<shuffle::Argument<F>> {
     cs2.shuffles
@@ -342,7 +342,7 @@ fn cs2_collect_queries_shuffles<F: Field>(
 /// references.
 #[allow(clippy::type_complexity)]
 fn collect_queries<F: Field>(
-    cs2: &ConstraintSystemV2Backend<F>,
+    cs2: &ConstraintSystemMid<F>,
 ) -> (
     Queries,
     Vec<Gate<F>>,
@@ -391,7 +391,7 @@ fn collect_queries<F: Field>(
 
 // TODO: Rename this function after renaming the types
 // https://github.com/privacy-scaling-explorations/halo2/issues/263
-fn csv2_to_cs<F: Field>(cs2: ConstraintSystemV2Backend<F>) -> ConstraintSystem<F> {
+fn csv2_to_cs<F: Field>(cs2: ConstraintSystemMid<F>) -> ConstraintSystem<F> {
     let (queries, gates, lookups, shuffles) = collect_queries(&cs2);
     ConstraintSystem {
         num_fixed_columns: cs2.num_fixed_columns,

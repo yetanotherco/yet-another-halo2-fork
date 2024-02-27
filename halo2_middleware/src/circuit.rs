@@ -119,12 +119,12 @@ pub type ExpressionMid<F> = Expression<F, VarMid>;
 
 /// A Gate contains a single polynomial identity with a name as metadata.
 #[derive(Clone, Debug)]
-pub struct GateV2Backend<F: Field> {
+pub struct GateMid<F: Field> {
     pub name: String,
     pub poly: ExpressionMid<F>,
 }
 
-impl<F: Field> GateV2Backend<F> {
+impl<F: Field> GateMid<F> {
     /// Returns the gate name.
     pub fn name(&self) -> &str {
         self.name.as_str()
@@ -139,7 +139,7 @@ impl<F: Field> GateV2Backend<F> {
 /// This is a description of the circuit environment, such as the gate, column and
 /// permutation arrangements.
 #[derive(Debug, Clone)]
-pub struct ConstraintSystemV2Backend<F: Field> {
+pub struct ConstraintSystemMid<F: Field> {
     pub num_fixed_columns: usize,
     pub num_advice_columns: usize,
     pub num_instance_columns: usize,
@@ -153,7 +153,7 @@ pub struct ConstraintSystemV2Backend<F: Field> {
     /// Contains the phase for each challenge. Should have same length as num_challenges.
     pub challenge_phase: Vec<u8>,
 
-    pub gates: Vec<GateV2Backend<F>>,
+    pub gates: Vec<GateMid<F>>,
 
     // Permutation argument for performing equality constraints
     pub permutation: permutation::ArgumentV2,
@@ -182,7 +182,7 @@ pub struct PreprocessingV2<F: Field> {
 #[derive(Debug, Clone)]
 pub struct CompiledCircuitV2<F: Field> {
     pub preprocessing: PreprocessingV2<F>,
-    pub cs: ConstraintSystemV2Backend<F>,
+    pub cs: ConstraintSystemMid<F>,
 }
 
 // TODO: The query_cell method is only used in the frontend, which uses Expression.  By having this

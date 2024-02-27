@@ -5,9 +5,8 @@ use crate::plonk::Assigned;
 use core::cmp::max;
 use core::ops::{Add, Mul};
 use halo2_middleware::circuit::{
-    Advice, AdviceQueryMid, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemV2Backend,
-    ExpressionMid, Fixed, FixedQueryMid, GateV2Backend, Instance, InstanceQueryMid, QueryMid,
-    VarMid,
+    Advice, AdviceQueryMid, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid,
+    ExpressionMid, Fixed, FixedQueryMid, GateMid, Instance, InstanceQueryMid, QueryMid, VarMid,
 };
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
@@ -1483,9 +1482,9 @@ impl<F: Field> Gate<F> {
     }
 }
 
-impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemV2Backend<F> {
+impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
     fn from(cs: ConstraintSystem<F>) -> Self {
-        ConstraintSystemV2Backend {
+        ConstraintSystemMid {
             num_fixed_columns: cs.num_fixed_columns,
             num_advice_columns: cs.num_advice_columns,
             num_instance_columns: cs.num_instance_columns,
@@ -1504,7 +1503,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemV2Backend<F> {
                             "" => gate_name.clone(),
                             constraint_name => format!("{gate_name}:{constraint_name}"),
                         };
-                        GateV2Backend {
+                        GateMid {
                             name,
                             poly: e.into(),
                         }
@@ -1545,6 +1544,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemV2Backend<F> {
         }
     }
 }
+
 /// This is a description of the circuit environment, such as the gate, column and
 /// permutation arrangements.
 #[derive(Debug, Clone)]
