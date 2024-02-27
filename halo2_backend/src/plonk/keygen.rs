@@ -222,7 +222,7 @@ impl QueriesMap {
 }
 
 impl QueriesMap {
-    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F, VarMid>) -> Expression<F> {
+    fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F>) -> Expression<F> {
         match expr {
             ExpressionMid::Constant(c) => Expression::Constant(*c),
             ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(query))) => {

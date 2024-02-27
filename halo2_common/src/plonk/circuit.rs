@@ -706,7 +706,7 @@ pub enum Expression<F> {
     Scaled(Box<Expression<F>>, F),
 }
 
-impl<F> From<Expression<F>> for ExpressionMid<F, VarMid> {
+impl<F> From<Expression<F>> for ExpressionMid<F> {
     fn from(val: Expression<F>) -> Self {
         match val {
             Expression::Constant(c) => ExpressionMid::Constant(c),
