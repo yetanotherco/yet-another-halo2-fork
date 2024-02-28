@@ -3,6 +3,7 @@ use super::Argument;
 use crate::plonk::evaluation::evaluate;
 use crate::{
     arithmetic::{eval_polynomial, parallelize, CurveAffine},
+    plonk::circuit::ExpressionBack,
     poly::{
         commitment::{Blind, Params},
         Coeff, EvaluationDomain, LagrangeCoeff, Polynomial, ProverQuery,
@@ -13,9 +14,7 @@ use group::{
     ff::{BatchInvert, Field},
     Curve,
 };
-use halo2_common::plonk::{
-    ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error, Expression,
-};
+use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error};
 use halo2_middleware::ff::WithSmallOrderMulGroup;
 use halo2_middleware::poly::Rotation;
 use rand_core::RngCore;
@@ -88,7 +87,7 @@ where
     C::Curve: Mul<F, Output = C::Curve> + MulAssign<F>,
 {
     // Closure to get values of expressions and compress them
-    let compress_expressions = |expressions: &[Expression<C::Scalar>]| {
+    let compress_expressions = |expressions: &[ExpressionBack<C::Scalar>]| {
         let compressed_expression = expressions
             .iter()
             .map(|expression| {
@@ -109,10 +108,10 @@ where
     };
 
     // Get values of input expressions involved in the lookup and compress them
-    let compressed_input_expression = compress_expressions(&arg.input_expressions);
+    let compressed_input_expression = compress_expressions(&*arg.input_expressions);
 
     // Get values of table expressions involved in the lookup and compress them
-    let compressed_table_expression = compress_expressions(&arg.table_expressions);
+    let compressed_table_expression = compress_expressions(&*arg.table_expressions);
 
     // Permute compressed (InputExpression, TableExpression) pair
     let (permuted_input_expression, permuted_table_expression) = permute_expression_pair(

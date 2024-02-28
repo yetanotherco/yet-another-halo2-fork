@@ -11,7 +11,7 @@ use crate::{
 };
 use halo2_common::plonk::Error;
 use halo2_middleware::circuit::ColumnMid;
-use halo2_middleware::permutation::{ArgumentV2, AssemblyMid};
+use halo2_middleware::permutation::{ArgumentMid, AssemblyMid};
 
 // NOTE: Temporarily disabled thread-safe-region feature.  Regions are a frontend concept, so the
 // thread-safe support for them should be only in the frontend package.
@@ -44,7 +44,7 @@ pub struct Assembly {
 impl Assembly {
     pub(crate) fn new_from_assembly_mid(
         n: usize,
-        p: &ArgumentV2,
+        p: &ArgumentMid,
         a: &AssemblyMid,
     ) -> Result<Self, Error> {
         let mut assembly = Self::new(n, &p.clone().into());

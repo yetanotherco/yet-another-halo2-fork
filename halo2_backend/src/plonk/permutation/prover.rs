@@ -102,7 +102,7 @@ pub(in crate::plonk) fn permutation_commit<
 
         // Iterate over each column of the permutation
         for (&column, permuted_column_values) in columns.iter().zip(permutations.iter()) {
-            let values = match column.column_type() {
+            let values = match column.column_type {
                 Any::Advice(_) => advice,
                 Any::Fixed => fixed,
                 Any::Instance => instance,
@@ -110,7 +110,7 @@ pub(in crate::plonk) fn permutation_commit<
             parallelize(&mut modified_values, |modified_values, start| {
                 for ((modified_values, value), permuted_value) in modified_values
                     .iter_mut()
-                    .zip(values[column.index()][start..].iter())
+                    .zip(values[column.index][start..].iter())
                     .zip(permuted_column_values[start..].iter())
                 {
                     *modified_values *= *beta * permuted_value + *gamma + value;
@@ -125,7 +125,7 @@ pub(in crate::plonk) fn permutation_commit<
         // of the entire fraction by computing the numerators
         for &column in columns.iter() {
             let omega = domain.get_omega();
-            let values = match column.column_type() {
+            let values = match column.column_type {
                 Any::Advice(_) => advice,
                 Any::Fixed => fixed,
                 Any::Instance => instance,
@@ -134,7 +134,7 @@ pub(in crate::plonk) fn permutation_commit<
                 let mut deltaomega = deltaomega * omega.pow_vartime([start as u64, 0, 0, 0]);
                 for (modified_values, value) in modified_values
                     .iter_mut()
-                    .zip(values[column.index()][start..].iter())
+                    .zip(values[column.index][start..].iter())
                 {
                     // Multiply by p_j(\omega^i) + \delta^j \omega^i \beta
                     *modified_values *= deltaomega * *beta + *gamma + value;

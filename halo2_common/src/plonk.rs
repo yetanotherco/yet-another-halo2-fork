@@ -7,7 +7,7 @@
 
 use crate::plonk::circuit::Column;
 use crate::transcript::ChallengeScalar;
-use halo2_middleware::circuit::{Advice, Fixed, Instance};
+use halo2_middleware::circuit::{Advice, ColumnMid, Fixed, Instance};
 use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;
 use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
@@ -390,11 +390,11 @@ impl<F: Field> Assigned<F> {
 #[derive(Debug, Clone)]
 pub struct Queries {
     /// List of unique advice queries
-    pub advice: Vec<(Column<Advice>, Rotation)>,
+    pub advice: Vec<(ColumnMid, Rotation)>,
     /// List of unique instance queries
-    pub instance: Vec<(Column<Instance>, Rotation)>,
+    pub instance: Vec<(ColumnMid, Rotation)>,
     /// List of unique fixed queries
-    pub fixed: Vec<(Column<Fixed>, Rotation)>,
+    pub fixed: Vec<(ColumnMid, Rotation)>,
     /// Contains an integer for each advice column
     /// identifying how many distinct queries it has
     /// so far; should be same length as cs.num_advice_columns.

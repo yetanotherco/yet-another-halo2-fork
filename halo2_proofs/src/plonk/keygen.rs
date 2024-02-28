@@ -38,7 +38,7 @@ where
 {
     let (compiled_circuit, _, _) = compile_circuit(params.k(), circuit, compress_selectors)?;
     let mut vk = keygen_vk_v2(params, &compiled_circuit)?;
-    vk.compress_selectors = compress_selectors;
+    vk.compress_selectors = Some(compress_selectors);
     Ok(vk)
 }
 
@@ -53,6 +53,11 @@ where
     P: Params<'params, C>,
     ConcreteCircuit: Circuit<C::Scalar>,
 {
-    let (compiled_circuit, _, _) = compile_circuit(params.k(), circuit, vk.compress_selectors)?;
+    // TODO: We dont have `compress_selectors` in `vk` anymore, what to do?
+    let (compiled_circuit, _, _) = compile_circuit(
+        params.k(),
+        circuit,
+        vk.compress_selectors.unwrap_or_default(),
+    )?;
     keygen_pk_v2(params, vk, &compiled_circuit)
 }

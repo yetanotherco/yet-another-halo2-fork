@@ -3,13 +3,12 @@ use std::iter;
 use super::Argument;
 use crate::{
     arithmetic::CurveAffine,
+    plonk::circuit::{ExpressionBack, QueryBack, VarBack},
     plonk::VerifyingKey,
     poly::{commitment::MSM, VerifierQuery},
     transcript::{EncodedChallenge, TranscriptRead},
 };
-use halo2_common::plonk::{
-    ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error, Expression,
-};
+use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error};
 use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;
 
@@ -112,17 +111,22 @@ impl<C: CurveAffine> Evaluated<C> {
                 * (self.permuted_input_eval + *beta)
                 * (self.permuted_table_eval + *gamma);
 
-            let compress_expressions = |expressions: &[Expression<C::Scalar>]| {
+            let compress_expressions = |expressions: &[ExpressionBack<C::Scalar>]| {
                 expressions
                     .iter()
                     .map(|expression| {
                         expression.evaluate(
                             &|scalar| scalar,
-                            &|_| panic!("virtual selectors are removed during optimization"),
-                            &|query| fixed_evals[query.index.unwrap()],
-                            &|query| advice_evals[query.index.unwrap()],
-                            &|query| instance_evals[query.index.unwrap()],
-                            &|challenge| challenges[challenge.index()],
+                            &|var| match var {
+                                VarBack::Challenge(challenge) => challenges[challenge.index],
+                                VarBack::Query(QueryBack::Fixed(query)) => fixed_evals[query.index],
+                                VarBack::Query(QueryBack::Advice(query)) => {
+                                    advice_evals[query.index]
+                                }
+                                VarBack::Query(QueryBack::Instance(query)) => {
+                                    instance_evals[query.index]
+                                }
+                            },
                             &|a| -a,
                             &|a, b| a + b,
                             &|a, b| a * b,

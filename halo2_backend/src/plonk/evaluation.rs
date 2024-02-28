@@ -1,12 +1,14 @@
 use crate::multicore;
-use crate::plonk::{lookup, permutation, ProvingKey};
+use crate::plonk::{
+    circuit::{ConstraintSystemBack, ExpressionBack, QueryBack, VarBack},
+    lookup, permutation, ProvingKey,
+};
 use crate::poly::Basis;
 use crate::{
     arithmetic::{parallelize, CurveAffine},
     poly::{Coeff, ExtendedLagrangeCoeff, Polynomial},
 };
 use group::ff::{Field, PrimeField, WithSmallOrderMulGroup};
-use halo2_common::plonk::{ConstraintSystem, Expression};
 use halo2_middleware::circuit::Any;
 use halo2_middleware::poly::Rotation;
 
@@ -209,17 +211,13 @@ pub struct CalculationInfo {
 
 impl<C: CurveAffine> Evaluator<C> {
     /// Creates a new evaluation structure
-    pub fn new(cs: &ConstraintSystem<C::ScalarExt>) -> Self {
+    pub fn new(cs: &ConstraintSystemBack<C::ScalarExt>) -> Self {
         let mut ev = Evaluator::default();
 
         // Custom gates
         let mut parts = Vec::new();
         for gate in cs.gates.iter() {
-            parts.extend(
-                gate.polynomials()
-                    .iter()
-                    .map(|poly| ev.custom_gates.add_expression(poly)),
-            );
+            parts.push(ev.custom_gates.add_expression(&gate.poly));
         }
         ev.custom_gates.add_calculation(Calculation::Horner(
             ValueSource::PreviousValue(),
@@ -231,7 +229,7 @@ impl<C: CurveAffine> Evaluator<C> {
         for lookup in cs.lookups.iter() {
             let mut graph = GraphEvaluator::default();
 
-            let mut evaluate_lc = |expressions: &Vec<Expression<_>>| {
+            let mut evaluate_lc = |expressions: &Vec<ExpressionBack<_>>| {
                 let parts = expressions
                     .iter()
                     .map(|expr| graph.add_expression(expr))
@@ -263,7 +261,8 @@ impl<C: CurveAffine> Evaluator<C> {
 
         // Shuffles
         for shuffle in cs.shuffles.iter() {
-            let evaluate_lc = |expressions: &Vec<Expression<_>>, graph: &mut GraphEvaluator<C>| {
+            let evaluate_lc = |expressions: &Vec<ExpressionBack<_>>,
+                               graph: &mut GraphEvaluator<C>| {
                 let parts = expressions
                     .iter()
                     .map(|expr| graph.add_expression(expr))
@@ -440,10 +439,10 @@ impl<C: CurveAffine> Evaluator<C> {
                             let mut left = set.permutation_product_coset[r_next];
                             for (values, permutation) in columns
                                 .iter()
-                                .map(|&column| match column.column_type() {
-                                    Any::Advice(_) => &advice[column.index()],
-                                    Any::Fixed => &fixed[column.index()],
-                                    Any::Instance => &instance[column.index()],
+                                .map(|&column| match column.column_type {
+                                    Any::Advice(_) => &advice[column.index],
+                                    Any::Fixed => &fixed[column.index],
+                                    Any::Instance => &instance[column.index],
                                 })
                                 .zip(cosets.iter())
                             {
@@ -451,10 +450,10 @@ impl<C: CurveAffine> Evaluator<C> {
                             }
 
                             let mut right = set.permutation_product_coset[idx];
-                            for values in columns.iter().map(|&column| match column.column_type() {
-                                Any::Advice(_) => &advice[column.index()],
-                                Any::Fixed => &fixed[column.index()],
-                                Any::Instance => &instance[column.index()],
+                            for values in columns.iter().map(|&column| match column.column_type {
+                                Any::Advice(_) => &advice[column.index],
+                                Any::Fixed => &fixed[column.index],
+                                Any::Instance => &instance[column.index],
                             }) {
                                 right *= values[idx] + current_delta + gamma;
                                 current_delta *= &C::Scalar::DELTA;
@@ -673,36 +672,37 @@ impl<C: CurveAffine> GraphEvaluator<C> {
     }
 
     /// Generates an optimized evaluation for the expression
-    fn add_expression(&mut self, expr: &Expression<C::ScalarExt>) -> ValueSource {
+    fn add_expression(&mut self, expr: &ExpressionBack<C::ScalarExt>) -> ValueSource {
         match expr {
-            Expression::Constant(scalar) => self.add_constant(scalar),
-            Expression::Selector(_selector) => unreachable!(),
-            Expression::Fixed(query) => {
-                let rot_idx = self.add_rotation(&query.rotation);
-                self.add_calculation(Calculation::Store(ValueSource::Fixed(
-                    query.column_index,
-                    rot_idx,
-                )))
-            }
-            Expression::Advice(query) => {
-                let rot_idx = self.add_rotation(&query.rotation);
-                self.add_calculation(Calculation::Store(ValueSource::Advice(
-                    query.column_index,
-                    rot_idx,
-                )))
-            }
-            Expression::Instance(query) => {
-                let rot_idx = self.add_rotation(&query.rotation);
-                self.add_calculation(Calculation::Store(ValueSource::Instance(
-                    query.column_index,
-                    rot_idx,
-                )))
-            }
-            Expression::Challenge(challenge) => self.add_calculation(Calculation::Store(
-                ValueSource::Challenge(challenge.index()),
-            )),
-            Expression::Negated(a) => match **a {
-                Expression::Constant(scalar) => self.add_constant(&-scalar),
+            ExpressionBack::Constant(scalar) => self.add_constant(scalar),
+            ExpressionBack::Var(VarBack::Query(q)) => match q {
+                QueryBack::Fixed(query) => {
+                    let rot_idx = self.add_rotation(&query.rotation);
+                    self.add_calculation(Calculation::Store(ValueSource::Fixed(
+                        query.column_index,
+                        rot_idx,
+                    )))
+                }
+                QueryBack::Advice(query) => {
+                    let rot_idx = self.add_rotation(&query.rotation);
+                    self.add_calculation(Calculation::Store(ValueSource::Advice(
+                        query.column_index,
+                        rot_idx,
+                    )))
+                }
+                QueryBack::Instance(query) => {
+                    let rot_idx = self.add_rotation(&query.rotation);
+                    self.add_calculation(Calculation::Store(ValueSource::Instance(
+                        query.column_index,
+                        rot_idx,
+                    )))
+                }
+            },
+            ExpressionBack::Var(VarBack::Challenge(challenge)) => self.add_calculation(
+                Calculation::Store(ValueSource::Challenge(challenge.index())),
+            ),
+            ExpressionBack::Negated(a) => match **a {
+                ExpressionBack::Constant(scalar) => self.add_constant(&-scalar),
                 _ => {
                     let result_a = self.add_expression(a);
                     match result_a {
@@ -711,10 +711,10 @@ impl<C: CurveAffine> GraphEvaluator<C> {
                     }
                 }
             },
-            Expression::Sum(a, b) => {
+            ExpressionBack::Sum(a, b) => {
                 // Undo subtraction stored as a + (-b) in expressions
                 match &**b {
-                    Expression::Negated(b_int) => {
+                    ExpressionBack::Negated(b_int) => {
                         let result_a = self.add_expression(a);
                         let result_b = self.add_expression(b_int);
                         if result_a == ValueSource::Constant(0) {
@@ -740,7 +740,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
                     }
                 }
             }
-            Expression::Product(a, b) => {
+            ExpressionBack::Product(a, b) => {
                 let result_a = self.add_expression(a);
                 let result_b = self.add_expression(b);
                 if result_a == ValueSource::Constant(0) || result_b == ValueSource::Constant(0) {
@@ -761,7 +761,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
                     self.add_calculation(Calculation::Mul(result_b, result_a))
                 }
             }
-            Expression::Scaled(a, f) => {
+            ExpressionBack::Scaled(a, f) => {
                 if *f == C::ScalarExt::ZERO {
                     ValueSource::Constant(0)
                 } else if *f == C::ScalarExt::ONE {
@@ -834,7 +834,7 @@ impl<C: CurveAffine> GraphEvaluator<C> {
 
 /// Simple evaluation of an expression
 pub fn evaluate<F: Field, B: Basis>(
-    expression: &Expression<F>,
+    expression: &ExpressionBack<F>,
     size: usize,
     rot_scale: i32,
     fixed: &[Polynomial<F, B>],
@@ -849,20 +849,21 @@ pub fn evaluate<F: Field, B: Basis>(
             let idx = start + i;
             *value = expression.evaluate(
                 &|scalar| scalar,
-                &|_| panic!("virtual selectors are removed during optimization"),
-                &|query| {
-                    fixed[query.column_index]
-                        [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
+                &|var| match var {
+                    VarBack::Challenge(challenge) => challenges[challenge.index()],
+                    VarBack::Query(QueryBack::Fixed(query)) => {
+                        fixed[query.column_index]
+                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
+                    }
+                    VarBack::Query(QueryBack::Advice(query)) => {
+                        advice[query.column_index]
+                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
+                    }
+                    VarBack::Query(QueryBack::Instance(query)) => {
+                        instance[query.column_index]
+                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
+                    }
                 },
-                &|query| {
-                    advice[query.column_index]
-                        [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
-                },
-                &|query| {
-                    instance[query.column_index]
-                        [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
-                },
-                &|challenge| challenges[challenge.index()],
                 &|a| -a,
                 &|a, b| a + b,
                 &|a, b| a * b,

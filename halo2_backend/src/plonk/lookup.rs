@@ -1,4 +1,4 @@
 pub mod prover;
 pub mod verifier;
 
-pub use halo2_common::plonk::lookup::Argument;
+use crate::plonk::circuit::LookupArgumentBack as Argument;

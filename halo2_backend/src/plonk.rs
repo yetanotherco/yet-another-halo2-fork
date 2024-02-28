@@ -2,16 +2,16 @@ use blake2b_simd::Params as Blake2bParams;
 use group::ff::{Field, FromUniformBytes, PrimeField};
 
 use crate::helpers::{
-    self, polynomial_slice_byte_length, read_polynomial_vec, write_polynomial_slice,
-    SerdeCurveAffine, SerdePrimeField,
+    polynomial_slice_byte_length, read_polynomial_vec, write_polynomial_slice, SerdeCurveAffine,
+    SerdePrimeField,
 };
+use crate::plonk::circuit::{ConstraintSystemBack, PinnedConstraintSystem};
 use crate::poly::{
     Coeff, EvaluationDomain, ExtendedLagrangeCoeff, LagrangeCoeff, PinnedEvaluationDomain,
     Polynomial,
 };
 use evaluation::Evaluator;
 use halo2_common::arithmetic::CurveAffine;
-use halo2_common::plonk::{Circuit, ConstraintSystem, PinnedConstraintSystem};
 use halo2_common::transcript::{EncodedChallenge, Transcript};
 use halo2_common::SerdeFormat;
 
@@ -19,6 +19,7 @@ use std::io;
 
 pub(crate) use halo2_common::plonk::Error;
 
+mod circuit;
 mod evaluation;
 pub mod keygen;
 mod lookup;
@@ -35,15 +36,14 @@ pub struct VerifyingKey<C: CurveAffine> {
     domain: EvaluationDomain<C::Scalar>,
     fixed_commitments: Vec<C>,
     permutation: permutation::VerifyingKey<C>,
-    cs: ConstraintSystem<C::Scalar>,
+    cs: ConstraintSystemBack<C::Scalar>,
     /// Cached maximum degree of `cs` (which doesn't change after construction).
     cs_degree: usize,
     /// The representative of this `VerifyingKey` in transcripts.
     transcript_repr: C::Scalar,
-    selectors: Vec<Vec<bool>>,
-    // TODO: Use setter/getter https://github.com/privacy-scaling-explorations/halo2/issues/259
-    /// Whether selector compression is turned on or not.
-    pub compress_selectors: bool,
+    /// Legacy field that indicates wether the circuit was compiled with compressed selectors or
+    /// not using the legacy API.
+    pub compress_selectors: Option<bool>,
 }
 
 // Current version of the VK
@@ -69,26 +69,23 @@ where
         assert!(*k <= C::Scalar::S);
         // k value fits in 1 byte
         writer.write_all(&[*k as u8])?;
-        writer.write_all(&[self.compress_selectors as u8])?;
         writer.write_all(&(self.fixed_commitments.len() as u32).to_le_bytes())?;
         for commitment in &self.fixed_commitments {
             commitment.write(writer, format)?;
         }
         self.permutation.write(writer, format)?;
 
-        if !self.compress_selectors {
-            assert!(self.selectors.is_empty());
-        }
-        // write self.selectors
-        for selector in &self.selectors {
-            // since `selector` is filled with `bool`, we pack them 8 at a time into bytes and then write
-            for bits in selector.chunks(8) {
-                writer.write_all(&[helpers::pack(bits)])?;
-            }
-        }
         Ok(())
     }
 
+    // NOTE: Legacy API:
+    // ```
+    // pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    //     reader: &mut R,
+    //     format: SerdeFormat,
+    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+    // ) -> io::Result<Self> {
+    // ```
     /// Reads a verification key from a buffer.
     ///
     /// Reads a curve element from the buffer and parses it according to the `format`:
@@ -99,10 +96,10 @@ where
     /// Checks that field elements are less than modulus, and then checks that the point is on the curve.
     /// - `RawBytesUnchecked`: Reads an uncompressed curve element with coordinates in Montgomery form;
     /// does not perform any checks
-    pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    pub fn read<R: io::Read>(
         reader: &mut R,
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+        cs: ConstraintSystemBack<C::Scalar>,
     ) -> io::Result<Self> {
         let mut version_byte = [0u8; 1];
         reader.read_exact(&mut version_byte)?;
@@ -126,20 +123,7 @@ where
                 ),
             ));
         }
-        let mut compress_selectors = [0u8; 1];
-        reader.read_exact(&mut compress_selectors)?;
-        if compress_selectors[0] != 0 && compress_selectors[0] != 1 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "unexpected compress_selectors not boolean",
-            ));
-        }
-        let compress_selectors = compress_selectors[0] == 1;
-        let (domain, cs, _) = keygen::create_domain::<C, ConcreteCircuit>(
-            k as u32,
-            #[cfg(feature = "circuit-params")]
-            params,
-        );
+        let domain = keygen::create_domain::<C>(&cs, k as u32);
         let mut num_fixed_columns = [0u8; 4];
         reader.read_exact(&mut num_fixed_columns)?;
         let num_fixed_columns = u32::from_le_bytes(num_fixed_columns);
@@ -150,36 +134,7 @@ where
 
         let permutation = permutation::VerifyingKey::read(reader, &cs.permutation, format)?;
 
-        let (cs, selectors) = if compress_selectors {
-            // read selectors
-            let selectors: Vec<Vec<bool>> = vec![vec![false; 1 << k]; cs.num_selectors]
-                .into_iter()
-                .map(|mut selector| {
-                    let mut selector_bytes = vec![0u8; (selector.len() + 7) / 8];
-                    reader.read_exact(&mut selector_bytes)?;
-                    for (bits, byte) in selector.chunks_mut(8).zip(selector_bytes) {
-                        helpers::unpack(byte, bits);
-                    }
-                    Ok(selector)
-                })
-                .collect::<io::Result<_>>()?;
-            let (cs, _) = cs.compress_selectors(selectors.clone());
-            (cs, selectors)
-        } else {
-            // we still need to replace selectors with fixed Expressions in `cs`
-            let fake_selectors = vec![vec![]; cs.num_selectors];
-            let (cs, _) = cs.directly_convert_selectors_to_fixed(fake_selectors);
-            (cs, vec![])
-        };
-
-        Ok(Self::from_parts(
-            domain,
-            fixed_commitments,
-            permutation,
-            cs,
-            selectors,
-            compress_selectors,
-        ))
+        Ok(Self::from_parts(domain, fixed_commitments, permutation, cs))
     }
 
     /// Writes a verifying key to a vector of bytes using [`Self::write`].
@@ -189,18 +144,21 @@ where
         bytes
     }
 
+    // NOTE: Legacy API
+    // ```
+    // pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
+    //     mut bytes: &[u8],
+    //     format: SerdeFormat,
+    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+    // ) -> io::Result<Self> {
+    // ```
     /// Reads a verification key from a slice of bytes using [`Self::read`].
-    pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
+    pub fn from_bytes(
         mut bytes: &[u8],
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+        cs: ConstraintSystemBack<C::Scalar>,
     ) -> io::Result<Self> {
-        Self::read::<_, ConcreteCircuit>(
-            &mut bytes,
-            format,
-            #[cfg(feature = "circuit-params")]
-            params,
-        )
+        Self::read(&mut bytes, format, cs)
     }
 }
 
@@ -211,21 +169,13 @@ impl<C: CurveAffine> VerifyingKey<C> {
     {
         10 + (self.fixed_commitments.len() * C::byte_length(format))
             + self.permutation.bytes_length(format)
-            + self.selectors.len()
-                * (self
-                    .selectors
-                    .get(0)
-                    .map(|selector| (selector.len() + 7) / 8)
-                    .unwrap_or(0))
     }
 
     fn from_parts(
         domain: EvaluationDomain<C::Scalar>,
         fixed_commitments: Vec<C>,
         permutation: permutation::VerifyingKey<C>,
-        cs: ConstraintSystem<C::Scalar>,
-        selectors: Vec<Vec<bool>>,
-        compress_selectors: bool,
+        cs: ConstraintSystemBack<C::Scalar>,
     ) -> Self
     where
         C::ScalarExt: FromUniformBytes<64>,
@@ -241,8 +191,7 @@ impl<C: CurveAffine> VerifyingKey<C> {
             cs_degree,
             // Temporary, this is not pinned.
             transcript_repr: C::Scalar::ZERO,
-            selectors,
-            compress_selectors,
+            compress_selectors: None,
         };
 
         let mut hasher = Blake2bParams::new()
@@ -295,7 +244,7 @@ impl<C: CurveAffine> VerifyingKey<C> {
     }
 
     /// Returns `ConstraintSystem`
-    pub fn cs(&self) -> &ConstraintSystem<C::Scalar> {
+    pub fn cs(&self) -> &ConstraintSystemBack<C::Scalar> {
         &self.cs
     }
 
@@ -384,6 +333,14 @@ where
         Ok(())
     }
 
+    // NOTE: Legacy API
+    // ```
+    // pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    //     reader: &mut R,
+    //     format: SerdeFormat,
+    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+    // ) -> io::Result<Self> {
+    // ```
     /// Reads a proving key from a buffer.
     /// Does so by reading verification key first, and then deserializing the rest of the file into the remaining proving key data.
     ///
@@ -395,17 +352,12 @@ where
     /// Checks that field elements are less than modulus, and then checks that the point is on the curve.
     /// - `RawBytesUnchecked`: Reads an uncompressed curve element with coordinates in Montgomery form;
     /// does not perform any checks
-    pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    pub fn read<R: io::Read>(
         reader: &mut R,
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+        cs: ConstraintSystemBack<C::Scalar>,
     ) -> io::Result<Self> {
-        let vk = VerifyingKey::<C>::read::<R, ConcreteCircuit>(
-            reader,
-            format,
-            #[cfg(feature = "circuit-params")]
-            params,
-        )?;
+        let vk = VerifyingKey::<C>::read::<R>(reader, format, cs)?;
         let l0 = Polynomial::read(reader, format)?;
         let l_last = Polynomial::read(reader, format)?;
         let l_active_row = Polynomial::read(reader, format)?;
@@ -434,18 +386,21 @@ where
         bytes
     }
 
+    // NOTE: Legacy API:
+    // ```
+    // pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
+    //     mut bytes: &[u8],
+    //     format: SerdeFormat,
+    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+    // ) -> io::Result<Self> {
+    // ```
     /// Reads a proving key from a slice of bytes using [`Self::read`].
-    pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
+    pub fn from_bytes(
         mut bytes: &[u8],
         format: SerdeFormat,
-        #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+        cs: ConstraintSystemBack<C::Scalar>,
     ) -> io::Result<Self> {
-        Self::read::<_, ConcreteCircuit>(
-            &mut bytes,
-            format,
-            #[cfg(feature = "circuit-params")]
-            params,
-        )
+        Self::read(&mut bytes, format, cs)
     }
 }
 

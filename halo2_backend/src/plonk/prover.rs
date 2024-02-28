@@ -13,7 +13,7 @@ use crate::poly::{
     Basis, Coeff, LagrangeCoeff, Polynomial, ProverQuery,
 };
 use halo2_common::plonk::{
-    circuit::sealed, ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
+    ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
 };
 
 use group::prime::PrimeCurveAffine;
@@ -116,7 +116,7 @@ pub struct ProverV2<
     params: &'params Scheme::ParamsProver,
     pk: &'a ProvingKey<Scheme::Curve>,
     // TODO: Add getter
-    pub phases: Vec<sealed::Phase>,
+    pub phases: Vec<u8>,
     // State
     instance: Vec<InstanceSingle<Scheme::Curve>>,
     advice: Vec<AdviceSingle<Scheme::Curve, LagrangeCoeff>>,
@@ -264,10 +264,10 @@ impl<
                 return Err(Error::Other("All phases already committed".to_string()));
             }
         };
-        if phase != current_phase.0 {
+        if phase != *current_phase {
             return Err(Error::Other(format!(
                 "Committing invalid phase.  Expected {}, got {}",
-                current_phase.0, phase
+                current_phase, phase
             )));
         }
 
@@ -310,7 +310,7 @@ impl<
                         None => {
                             return Err(Error::Other(format!(
                                 "expected advice column with index {} at phase {}",
-                                column_index, current_phase.0
+                                column_index, current_phase
                             )))
                         }
                         Some(advice_column) => {
@@ -326,7 +326,7 @@ impl<
                 } else if advice_column.is_some() {
                     return Err(Error::Other(format!(
                         "expected no advice column with index {} at phase {}",
-                        column_index, current_phase.0
+                        column_index, current_phase
                     )));
                 };
             }
@@ -599,7 +599,7 @@ impl<
                     .iter()
                     .map(|&(column, at)| {
                         eval_polynomial(
-                            &instance.instance_polys[column.index()],
+                            &instance.instance_polys[column.index],
                             domain.rotate_omega(*x, at),
                         )
                     })
@@ -620,7 +620,7 @@ impl<
                 .iter()
                 .map(|&(column, at)| {
                     eval_polynomial(
-                        &advice.advice_polys[column.index()],
+                        &advice.advice_polys[column.index],
                         domain.rotate_omega(*x, at),
                     )
                 })
@@ -637,7 +637,7 @@ impl<
             .fixed_queries
             .iter()
             .map(|&(column, at)| {
-                eval_polynomial(&pk.fixed_polys[column.index()], domain.rotate_omega(*x, at))
+                eval_polynomial(&pk.fixed_polys[column.index], domain.rotate_omega(*x, at))
             })
             .collect();
 
@@ -694,7 +694,7 @@ impl<
                             .then_some(meta.instance_queries.iter().map(move |&(column, at)| {
                                 ProverQuery {
                                     point: domain.rotate_omega(*x, at),
-                                    poly: &instance.instance_polys[column.index()],
+                                    poly: &instance.instance_polys[column.index],
                                     blind: Blind::default(),
                                 }
                             }))
@@ -706,8 +706,8 @@ impl<
                             .iter()
                             .map(move |&(column, at)| ProverQuery {
                                 point: domain.rotate_omega(*x, at),
-                                poly: &advice.advice_polys[column.index()],
-                                blind: advice.advice_blinds[column.index()],
+                                poly: &advice.advice_polys[column.index],
+                                blind: advice.advice_blinds[column.index],
                             }),
                     )
                     .chain(permutation.open(pk, x))
@@ -716,7 +716,7 @@ impl<
             })
             .chain(meta.fixed_queries.iter().map(|&(column, at)| ProverQuery {
                 point: domain.rotate_omega(*x, at),
-                poly: &pk.fixed_polys[column.index()],
+                poly: &pk.fixed_polys[column.index],
                 blind: Blind::default(),
             }))
             .chain(pk.permutation.open(x))

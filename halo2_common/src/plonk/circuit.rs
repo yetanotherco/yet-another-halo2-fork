@@ -1510,7 +1510,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
                     })
                 })
                 .collect(),
-            permutation: halo2_middleware::permutation::ArgumentV2 {
+            permutation: halo2_middleware::permutation::ArgumentMid {
                 columns: cs
                     .permutation
                     .columns
@@ -1521,7 +1521,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
             lookups: cs
                 .lookups
                 .into_iter()
-                .map(|l| halo2_middleware::lookup::ArgumentV2 {
+                .map(|l| halo2_middleware::lookup::ArgumentMid {
                     name: l.name,
                     input_expressions: l.input_expressions.into_iter().map(|e| e.into()).collect(),
                     table_expressions: l.table_expressions.into_iter().map(|e| e.into()).collect(),
@@ -1530,7 +1530,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
             shuffles: cs
                 .shuffles
                 .into_iter()
-                .map(|s| halo2_middleware::shuffle::ArgumentV2 {
+                .map(|s| halo2_middleware::shuffle::ArgumentMid {
                     name: s.name,
                     input_expressions: s.input_expressions.into_iter().map(|e| e.into()).collect(),
                     shuffle_expressions: s
@@ -1541,6 +1541,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
                 })
                 .collect(),
             general_column_annotations: cs.general_column_annotations,
+            minimum_degree: cs.minimum_degree,
         }
     }
 }
@@ -1619,6 +1620,7 @@ pub struct PinnedConstraintSystem<'a, F: Field> {
     minimum_degree: &'a Option<usize>,
 }
 
+// TODO: Delete
 impl<'a, F: Field> std::fmt::Debug for PinnedConstraintSystem<'a, F> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut debug_struct = f.debug_struct("PinnedConstraintSystem");

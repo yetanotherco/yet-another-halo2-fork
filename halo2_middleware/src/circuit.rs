@@ -119,22 +119,24 @@ pub type ExpressionMid<F> = Expression<F, VarMid>;
 
 /// A Gate contains a single polynomial identity with a name as metadata.
 #[derive(Clone, Debug)]
-pub struct GateMid<F: Field> {
+pub struct Gate<F: Field, V: Variable> {
     pub name: String,
-    pub poly: ExpressionMid<F>,
+    pub poly: Expression<F, V>,
 }
 
-impl<F: Field> GateMid<F> {
+impl<F: Field, V: Variable> Gate<F, V> {
     /// Returns the gate name.
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
     /// Returns the polynomial identity of this gate
-    pub fn polynomial(&self) -> &ExpressionMid<F> {
+    pub fn polynomial(&self) -> &Expression<F, V> {
         &self.poly
     }
 }
+
+pub type GateMid<F> = Gate<F, VarMid>;
 
 /// This is a description of the circuit environment, such as the gate, column and
 /// permutation arrangements.
@@ -156,18 +158,23 @@ pub struct ConstraintSystemMid<F: Field> {
     pub gates: Vec<GateMid<F>>,
 
     // Permutation argument for performing equality constraints
-    pub permutation: permutation::ArgumentV2,
+    pub permutation: permutation::ArgumentMid,
 
     // Vector of lookup arguments, where each corresponds to a sequence of
     // input expressions and a sequence of table expressions involved in the lookup.
-    pub lookups: Vec<lookup::ArgumentV2<F>>,
+    pub lookups: Vec<lookup::ArgumentMid<F>>,
 
     // Vector of shuffle arguments, where each corresponds to a sequence of
     // input expressions and a sequence of shuffle expressions involved in the shuffle.
-    pub shuffles: Vec<shuffle::ArgumentV2<F>>,
+    pub shuffles: Vec<shuffle::ArgumentMid<F>>,
 
     // List of indexes of Fixed columns which are associated to a circuit-general Column tied to their annotation.
     pub general_column_annotations: HashMap<metadata::Column, String>,
+
+    // The minimum degree required by the circuit, which can be set to a
+    // larger amount than actually needed. This can be used, for example, to
+    // force the permutation argument to involve more columns in the same set.
+    pub minimum_degree: Option<usize>,
 }
 
 /// Data that needs to be preprocessed from a circuit

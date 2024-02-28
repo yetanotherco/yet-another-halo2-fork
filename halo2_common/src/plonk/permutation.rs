@@ -2,7 +2,7 @@
 
 use crate::plonk::{Column, Error};
 use halo2_middleware::circuit::{Any, Cell};
-use halo2_middleware::permutation::ArgumentV2;
+use halo2_middleware::permutation::ArgumentMid;
 
 /// A permutation argument.
 #[derive(Default, Debug, Clone)]
@@ -11,8 +11,8 @@ pub struct Argument {
     pub columns: Vec<Column<Any>>,
 }
 
-impl From<ArgumentV2> for Argument {
-    fn from(arg: ArgumentV2) -> Self {
+impl From<ArgumentMid> for Argument {
+    fn from(arg: ArgumentMid) -> Self {
         Self {
             columns: arg.columns.into_iter().map(|c| c.into()).collect(),
         }

@@ -33,8 +33,11 @@ where
     if circuits.len() != instances.len() {
         return Err(Error::InvalidInstances);
     }
-    let (_, config, cs) =
-        compile_circuit(params.k(), &circuits[0], pk.get_vk().compress_selectors)?;
+    let (_, config, cs) = compile_circuit(
+        params.k(),
+        &circuits[0],
+        pk.get_vk().compress_selectors.unwrap_or_default(),
+    )?;
     let mut witness_calcs: Vec<_> = circuits
         .iter()
         .enumerate()
@@ -46,9 +49,9 @@ where
     for phase in &phases {
         let mut witnesses = Vec::with_capacity(circuits.len());
         for witness_calc in witness_calcs.iter_mut() {
-            witnesses.push(witness_calc.calc(phase.0, &challenges)?);
+            witnesses.push(witness_calc.calc(*phase, &challenges)?);
         }
-        challenges = prover.commit_phase(phase.0, witnesses).unwrap();
+        challenges = prover.commit_phase(*phase, witnesses).unwrap();
     }
     prover.create_proof()
 }
