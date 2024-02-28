@@ -5,8 +5,8 @@ use crate::plonk::Assigned;
 use core::cmp::max;
 use core::ops::{Add, Mul};
 use halo2_middleware::circuit::{
-    Advice, AdviceQueryMid, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid,
-    ExpressionMid, Fixed, FixedQueryMid, GateMid, Instance, InstanceQueryMid, QueryMid, VarMid,
+    Advice, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid, ExpressionMid, Fixed,
+    GateMid, Instance, QueryMid, VarMid,
 };
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
@@ -58,28 +58,24 @@ impl<C: ColumnType> Column<C> {
     pub fn query_cell<F: Field>(&self, at: Rotation) -> Expression<F> {
         let expr_mid = self.column_type.query_cell::<F>(self.index, at);
         match expr_mid {
-            ExpressionMid::Var(VarMid::Query(QueryMid::Advice(q))) => {
-                Expression::Advice(AdviceQuery {
+            ExpressionMid::Var(VarMid::Query(q)) => match q.column_type {
+                Any::Advice(Advice { phase }) => Expression::Advice(AdviceQuery {
                     index: None,
                     column_index: q.column_index,
                     rotation: q.rotation,
-                    phase: sealed::Phase(q.phase),
-                })
-            }
-            ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(q))) => {
-                Expression::Fixed(FixedQuery {
+                    phase: sealed::Phase(phase),
+                }),
+                Any::Fixed => Expression::Fixed(FixedQuery {
                     index: None,
                     column_index: q.column_index,
                     rotation: q.rotation,
-                })
-            }
-            ExpressionMid::Var(VarMid::Query(QueryMid::Instance(q))) => {
-                Expression::Instance(InstanceQuery {
+                }),
+                Any::Instance => Expression::Instance(InstanceQuery {
                     index: None,
                     column_index: q.column_index,
                     rotation: q.rotation,
-                })
-            }
+                }),
+            },
             _ => unreachable!(),
         }
     }
@@ -714,28 +710,30 @@ impl<F> From<Expression<F>> for ExpressionMid<F> {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(FixedQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid {
                 column_index,
+                column_type: Any::Fixed,
                 rotation,
-            }))),
+            })),
             Expression::Advice(AdviceQuery {
                 column_index,
                 rotation,
                 phase,
                 ..
-            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Advice(AdviceQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid {
                 column_index,
+                column_type: Any::Advice(Advice { phase: phase.0 }),
                 rotation,
-                phase: phase.0,
-            }))),
+            })),
             Expression::Instance(InstanceQuery {
                 column_index,
                 rotation,
                 ..
-            }) => ExpressionMid::Var(VarMid::Query(QueryMid::Instance(InstanceQueryMid {
+            }) => ExpressionMid::Var(VarMid::Query(QueryMid {
                 column_index,
+                column_type: Any::Instance,
                 rotation,
-            }))),
+            })),
             Expression::Challenge(c) => ExpressionMid::Var(VarMid::Challenge(c.into())),
             Expression::Negated(e) => ExpressionMid::Negated(Box::new((*e).into())),
             Expression::Sum(lhs, rhs) => {

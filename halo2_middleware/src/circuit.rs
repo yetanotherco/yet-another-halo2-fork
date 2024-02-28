@@ -4,35 +4,6 @@ use crate::{lookup, metadata, permutation, shuffle};
 use ff::Field;
 use std::collections::HashMap;
 
-/// Query of fixed column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct FixedQueryMid {
-    /// Column index
-    pub column_index: usize,
-    /// Rotation of this query
-    pub rotation: Rotation,
-}
-
-/// Query of advice column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct AdviceQueryMid {
-    /// Column index
-    pub column_index: usize,
-    /// Rotation of this query
-    pub rotation: Rotation,
-    /// Phase of this advice column
-    pub phase: u8,
-}
-
-/// Query of instance column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct InstanceQueryMid {
-    /// Column index
-    pub column_index: usize,
-    /// Rotation of this query
-    pub rotation: Rotation,
-}
-
 /// A challenge squeezed from transcript after advice columns at the phase have been committed.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct ChallengeMid {
@@ -53,13 +24,13 @@ impl ChallengeMid {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum QueryMid {
-    /// This is a fixed column queried at a certain relative location
-    Fixed(FixedQueryMid),
-    /// This is an advice (witness) column queried at a certain relative location
-    Advice(AdviceQueryMid),
-    /// This is an instance (external) column queried at a certain relative location
-    Instance(InstanceQueryMid),
+pub struct QueryMid {
+    /// Column index
+    pub column_index: usize,
+    /// The type of the column.
+    pub column_type: Any,
+    /// Rotation of this query
+    pub rotation: Rotation,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -87,26 +58,13 @@ impl Variable for VarMid {
 
     fn write_identifier<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
         match self {
-            VarMid::Query(QueryMid::Fixed(query)) => {
-                write!(
-                    writer,
-                    "fixed[{}][{}]",
-                    query.column_index, query.rotation.0
-                )
-            }
-            VarMid::Query(QueryMid::Advice(query)) => {
-                write!(
-                    writer,
-                    "advice[{}][{}]",
-                    query.column_index, query.rotation.0
-                )
-            }
-            VarMid::Query(QueryMid::Instance(query)) => {
-                write!(
-                    writer,
-                    "instance[{}][{}]",
-                    query.column_index, query.rotation.0
-                )
+            VarMid::Query(query) => {
+                match query.column_type {
+                    Any::Fixed => write!(writer, "fixed")?,
+                    Any::Advice(_) => write!(writer, "advice")?,
+                    Any::Instance => write!(writer, "instance")?,
+                };
+                write!(writer, "[{}][{}]", query.column_index, query.rotation.0)
             }
             VarMid::Challenge(challenge) => {
                 write!(writer, "challenge[{}]", challenge.index())
@@ -332,49 +290,49 @@ impl PartialOrd for Any {
 
 impl ColumnType for Advice {
     fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Var(VarMid::Query(QueryMid::Advice(AdviceQueryMid {
+        ExpressionMid::Var(VarMid::Query(QueryMid {
             column_index: index,
+            column_type: Any::Advice(Advice { phase: self.phase }),
             rotation: at,
-            phase: self.phase,
-        })))
+        }))
     }
 }
 impl ColumnType for Fixed {
     fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(FixedQueryMid {
+        ExpressionMid::Var(VarMid::Query(QueryMid {
             column_index: index,
+            column_type: Any::Fixed,
             rotation: at,
-        })))
+        }))
     }
 }
 impl ColumnType for Instance {
     fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
-        ExpressionMid::Var(VarMid::Query(QueryMid::Instance(InstanceQueryMid {
+        ExpressionMid::Var(VarMid::Query(QueryMid {
             column_index: index,
+            column_type: Any::Instance,
             rotation: at,
-        })))
+        }))
     }
 }
 impl ColumnType for Any {
     fn query_cell<F: Field>(&self, index: usize, at: Rotation) -> ExpressionMid<F> {
         match self {
-            Any::Advice(Advice { phase }) => {
-                ExpressionMid::Var(VarMid::Query(QueryMid::Advice(AdviceQueryMid {
-                    column_index: index,
-                    rotation: at,
-                    phase: *phase,
-                })))
-            }
-            Any::Fixed => ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(FixedQueryMid {
+            Any::Advice(Advice { phase }) => ExpressionMid::Var(VarMid::Query(QueryMid {
                 column_index: index,
+                column_type: Any::Advice(Advice { phase: *phase }),
                 rotation: at,
-            }))),
-            Any::Instance => {
-                ExpressionMid::Var(VarMid::Query(QueryMid::Instance(InstanceQueryMid {
-                    column_index: index,
-                    rotation: at,
-                })))
-            }
+            })),
+            Any::Fixed => ExpressionMid::Var(VarMid::Query(QueryMid {
+                column_index: index,
+                column_type: Any::Fixed,
+                rotation: at,
+            })),
+            Any::Instance => ExpressionMid::Var(VarMid::Query(QueryMid {
+                column_index: index,
+                column_type: Any::Instance,
+                rotation: at,
+            })),
         }
     }
 }

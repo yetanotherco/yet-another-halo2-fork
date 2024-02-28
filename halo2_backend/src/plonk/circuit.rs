@@ -4,49 +4,17 @@ use halo2_middleware::expression::{Expression, Variable};
 use halo2_middleware::poly::Rotation;
 use halo2_middleware::{lookup, permutation::ArgumentMid, shuffle};
 
-/// Query of fixed column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct FixedQueryBack {
-    /// Query index
-    pub(crate) index: usize,
-    /// Column index
-    pub(crate) column_index: usize,
-    /// Rotation of this query
-    pub(crate) rotation: Rotation,
-}
-
-/// Query of advice column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct AdviceQueryBack {
-    /// Query index
-    pub(crate) index: usize,
-    /// Column index
-    pub(crate) column_index: usize,
-    /// Rotation of this query
-    pub(crate) rotation: Rotation,
-    /// Phase of this advice column
-    pub(crate) phase: u8,
-}
-
-/// Query of instance column at a certain relative location
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct InstanceQueryBack {
-    /// Query index
-    pub(crate) index: usize,
-    /// Column index
-    pub(crate) column_index: usize,
-    /// Rotation of this query
-    pub(crate) rotation: Rotation,
-}
-
+// TODO: Reuse ColumnMid inside this.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum QueryBack {
-    /// This is a fixed column queried at a certain relative location
-    Fixed(FixedQueryBack),
-    /// This is an advice (witness) column queried at a certain relative location
-    Advice(AdviceQueryBack),
-    /// This is an instance (external) column queried at a certain relative location
-    Instance(InstanceQueryBack),
+pub struct QueryBack {
+    /// Query index
+    pub(crate) index: usize,
+    /// Column index
+    pub(crate) column_index: usize,
+    /// The type of the column.
+    pub(crate) column_type: Any,
+    /// Rotation of this query
+    pub(crate) rotation: Rotation,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

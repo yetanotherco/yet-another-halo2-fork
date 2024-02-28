@@ -2,12 +2,13 @@ use group::Curve;
 use halo2_common::plonk::{
     ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
 };
+use halo2_middleware::circuit::Any;
 use halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 use std::iter;
 
 use super::{vanishing, VerifyingKey};
 use crate::arithmetic::compute_inner_product;
-use crate::plonk::circuit::{QueryBack, VarBack};
+use crate::plonk::circuit::VarBack;
 use crate::plonk::lookup::verifier::lookup_read_permuted_commitments;
 use crate::plonk::permutation::verifier::permutation_read_product_commitments;
 use crate::plonk::shuffle::verifier::shuffle_read_product_commitment;
@@ -320,15 +321,11 @@ where
                             gate.poly.evaluate(
                                 &|scalar| scalar,
                                 &|var| match var {
-                                    VarBack::Query(QueryBack::Fixed(query)) => {
-                                        fixed_evals[query.index]
-                                    }
-                                    VarBack::Query(QueryBack::Advice(query)) => {
-                                        advice_evals[query.index]
-                                    }
-                                    VarBack::Query(QueryBack::Instance(query)) => {
-                                        instance_evals[query.index]
-                                    }
+                                    VarBack::Query(query) => match query.column_type {
+                                        Any::Fixed => fixed_evals[query.index],
+                                        Any::Advice(_) => advice_evals[query.index],
+                                        Any::Instance => instance_evals[query.index],
+                                    },
                                     VarBack::Challenge(challenge) => challenges[challenge.index],
                                 },
                                 &|a| -a,

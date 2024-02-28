@@ -108,10 +108,10 @@ where
     };
 
     // Get values of input expressions involved in the lookup and compress them
-    let compressed_input_expression = compress_expressions(&*arg.input_expressions);
+    let compressed_input_expression = compress_expressions(&arg.input_expressions);
 
     // Get values of table expressions involved in the lookup and compress them
-    let compressed_table_expression = compress_expressions(&*arg.table_expressions);
+    let compressed_table_expression = compress_expressions(&arg.table_expressions);
 
     // Permute compressed (InputExpression, TableExpression) pair
     let (permuted_input_expression, permuted_table_expression) = permute_expression_pair(

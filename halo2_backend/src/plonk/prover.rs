@@ -266,8 +266,7 @@ impl<
         };
         if phase != *current_phase {
             return Err(Error::Other(format!(
-                "Committing invalid phase.  Expected {}, got {}",
-                current_phase, phase
+                "Committing invalid phase.  Expected {current_phase}, got {phase}",
             )));
         }
 
@@ -309,8 +308,7 @@ impl<
                     match advice_column {
                         None => {
                             return Err(Error::Other(format!(
-                                "expected advice column with index {} at phase {}",
-                                column_index, current_phase
+                                "expected advice column with index {column_index} at phase {current_phase}",
                             )))
                         }
                         Some(advice_column) => {
@@ -325,8 +323,7 @@ impl<
                     }
                 } else if advice_column.is_some() {
                     return Err(Error::Other(format!(
-                        "expected no advice column with index {} at phase {}",
-                        column_index, current_phase
+                        "expected no advice column with index {column_index} at phase {current_phase}",
                     )));
                 };
             }

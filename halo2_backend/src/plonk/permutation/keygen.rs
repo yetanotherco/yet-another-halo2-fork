@@ -47,7 +47,7 @@ impl Assembly {
         p: &ArgumentMid,
         a: &AssemblyMid,
     ) -> Result<Self, Error> {
-        let mut assembly = Self::new(n, &p.clone().into());
+        let mut assembly = Self::new(n, &p.clone());
         for copy in &a.copies {
             assembly.copy(copy.0.column, copy.0.row, copy.1.column, copy.1.row)?;
         }
@@ -67,7 +67,7 @@ impl Assembly {
         // in a 1-cycle; therefore mapping and aux are identical, because every cell is
         // its own distinguished element.
         Assembly {
-            columns: p.columns.clone().into_iter().map(|c| c.into()).collect(),
+            columns: p.columns.clone(),
             mapping: columns.clone(),
             aux: columns,
             sizes: vec![vec![1usize; n]; p.columns.len()],

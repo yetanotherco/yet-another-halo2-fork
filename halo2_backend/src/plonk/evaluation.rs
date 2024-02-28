@@ -1,6 +1,6 @@
 use crate::multicore;
 use crate::plonk::{
-    circuit::{ConstraintSystemBack, ExpressionBack, QueryBack, VarBack},
+    circuit::{ConstraintSystemBack, ExpressionBack, VarBack},
     lookup, permutation, ProvingKey,
 };
 use crate::poly::Basis;
@@ -675,29 +675,21 @@ impl<C: CurveAffine> GraphEvaluator<C> {
     fn add_expression(&mut self, expr: &ExpressionBack<C::ScalarExt>) -> ValueSource {
         match expr {
             ExpressionBack::Constant(scalar) => self.add_constant(scalar),
-            ExpressionBack::Var(VarBack::Query(q)) => match q {
-                QueryBack::Fixed(query) => {
-                    let rot_idx = self.add_rotation(&query.rotation);
-                    self.add_calculation(Calculation::Store(ValueSource::Fixed(
+            ExpressionBack::Var(VarBack::Query(query)) => {
+                let rot_idx = self.add_rotation(&query.rotation);
+                match query.column_type {
+                    Any::Fixed => self.add_calculation(Calculation::Store(ValueSource::Fixed(
                         query.column_index,
                         rot_idx,
-                    )))
+                    ))),
+                    Any::Advice(_) => self.add_calculation(Calculation::Store(
+                        ValueSource::Advice(query.column_index, rot_idx),
+                    )),
+                    Any::Instance => self.add_calculation(Calculation::Store(
+                        ValueSource::Instance(query.column_index, rot_idx),
+                    )),
                 }
-                QueryBack::Advice(query) => {
-                    let rot_idx = self.add_rotation(&query.rotation);
-                    self.add_calculation(Calculation::Store(ValueSource::Advice(
-                        query.column_index,
-                        rot_idx,
-                    )))
-                }
-                QueryBack::Instance(query) => {
-                    let rot_idx = self.add_rotation(&query.rotation);
-                    self.add_calculation(Calculation::Store(ValueSource::Instance(
-                        query.column_index,
-                        rot_idx,
-                    )))
-                }
-            },
+            }
             ExpressionBack::Var(VarBack::Challenge(challenge)) => self.add_calculation(
                 Calculation::Store(ValueSource::Challenge(challenge.index())),
             ),
@@ -851,17 +843,13 @@ pub fn evaluate<F: Field, B: Basis>(
                 &|scalar| scalar,
                 &|var| match var {
                     VarBack::Challenge(challenge) => challenges[challenge.index()],
-                    VarBack::Query(QueryBack::Fixed(query)) => {
-                        fixed[query.column_index]
-                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
-                    }
-                    VarBack::Query(QueryBack::Advice(query)) => {
-                        advice[query.column_index]
-                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
-                    }
-                    VarBack::Query(QueryBack::Instance(query)) => {
-                        instance[query.column_index]
-                            [get_rotation_idx(idx, query.rotation.0, rot_scale, isize)]
+                    VarBack::Query(query) => {
+                        let rot_idx = get_rotation_idx(idx, query.rotation.0, rot_scale, isize);
+                        match query.column_type {
+                            Any::Fixed => fixed[query.column_index][rot_idx],
+                            Any::Advice(_) => advice[query.column_index][rot_idx],
+                            Any::Instance => instance[query.column_index][rot_idx],
+                        }
                     }
                 },
                 &|a| -a,

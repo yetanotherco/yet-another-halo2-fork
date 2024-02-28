@@ -9,6 +9,7 @@ use crate::{
     transcript::{EncodedChallenge, TranscriptRead},
 };
 use halo2_common::plonk::{ChallengeGamma, ChallengeTheta, ChallengeX, Error};
+use halo2_middleware::circuit::Any;
 use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;
 
@@ -78,13 +79,13 @@ impl<C: CurveAffine> Evaluated<C> {
                             &|scalar| scalar,
                             &|var| match var {
                                 VarBack::Challenge(challenge) => challenges[challenge.index],
-                                VarBack::Query(QueryBack::Fixed(query)) => fixed_evals[query.index],
-                                VarBack::Query(QueryBack::Advice(query)) => {
-                                    advice_evals[query.index]
-                                }
-                                VarBack::Query(QueryBack::Instance(query)) => {
-                                    instance_evals[query.index]
-                                }
+                                VarBack::Query(QueryBack {
+                                    index, column_type, ..
+                                }) => match column_type {
+                                    Any::Fixed => fixed_evals[index],
+                                    Any::Advice(_) => advice_evals[index],
+                                    Any::Instance => instance_evals[index],
+                                },
                             },
                             &|a| -a,
                             &|a, b| a + b,

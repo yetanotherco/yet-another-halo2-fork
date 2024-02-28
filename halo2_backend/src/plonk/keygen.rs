@@ -7,8 +7,8 @@ use super::{evaluation::Evaluator, permutation, Polynomial, ProvingKey, Verifyin
 use crate::{
     arithmetic::{parallelize, CurveAffine},
     plonk::circuit::{
-        AdviceQueryBack, ConstraintSystemBack, ExpressionBack, FixedQueryBack, GateBack,
-        InstanceQueryBack, LookupArgumentBack, QueryBack, ShuffleArgumentBack, VarBack,
+        ConstraintSystemBack, ExpressionBack, GateBack, LookupArgumentBack, QueryBack,
+        ShuffleArgumentBack, VarBack,
     },
     poly::{
         commitment::{Blind, Params},
@@ -17,7 +17,7 @@ use crate::{
 };
 use halo2_common::plonk::{Error, Queries};
 use halo2_middleware::circuit::{
-    Advice, Any, ColumnMid, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, QueryMid, VarMid,
+    Any, ColumnMid, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, VarMid,
 };
 use halo2_middleware::{lookup, poly::Rotation, shuffle};
 use std::collections::HashMap;
@@ -30,8 +30,7 @@ where
     C: CurveAffine,
 {
     let degree = cs.degree();
-    let domain = EvaluationDomain::new(degree as u32, k);
-    domain
+    EvaluationDomain::new(degree as u32, k)
 }
 
 /// Generate a `VerifyingKey` from an instance of `CompiledCircuit`.
@@ -117,7 +116,7 @@ where
         &cs.permutation,
         &circuit.preprocessing.permutation,
     )?
-    .build_pk(params, &vk.domain, &cs.permutation.clone().into());
+    .build_pk(params, &vk.domain, &cs.permutation.clone());
 
     // Compute l_0(X)
     // TODO: this can be done more efficiently
@@ -177,9 +176,6 @@ where
 
 struct QueriesMap {
     map: HashMap<(ColumnMid, Rotation), usize>,
-    // advice_map: HashMap<(ColumnMid, Rotation), usize>,
-    // instance_map: HashMap<(ColumnMid, Rotation), usize>,
-    // fixed_map: HashMap<(ColumnMid, Rotation), usize>,
     advice: Vec<(ColumnMid, Rotation)>,
     instance: Vec<(ColumnMid, Rotation)>,
     fixed: Vec<(ColumnMid, Rotation)>,
@@ -205,73 +201,22 @@ impl QueriesMap {
                 }
             })
     }
-    // fn add_advice(&mut self, col: ColumnMid, rot: Rotation) -> usize {
-    //     *self.advice_map.entry((col, rot)).or_insert_with(|| {
-    //         self.advice.push((col, rot));
-    //         self.advice.len() - 1
-    //     })
-    // }
-    // fn add_instance(&mut self, col: ColumnMid, rot: Rotation) -> usize {
-    //     *self.instance_map.entry((col, rot)).or_insert_with(|| {
-    //         self.instance.push((col, rot));
-    //         self.instance.len() - 1
-    //     })
-    // }
-    // fn add_fixed(&mut self, col: ColumnMid, rot: Rotation) -> usize {
-    //     *self.fixed_map.entry((col, rot)).or_insert_with(|| {
-    //         self.fixed.push((col, rot));
-    //         self.fixed.len() - 1
-    //     })
-    // }
 }
 
 impl QueriesMap {
     fn as_expression<F: Field>(&mut self, expr: &ExpressionMid<F>) -> ExpressionBack<F> {
         match expr {
             ExpressionMid::Constant(c) => ExpressionBack::Constant(*c),
-            // TODO: Clean up to avoid repeated patterns
-            ExpressionMid::Var(VarMid::Query(q)) => match q {
-                QueryMid::Fixed(query) => {
-                    let (col, rot) = (
-                        ColumnMid::new(query.column_index, Any::Fixed),
-                        query.rotation,
-                    );
-                    let index = self.add(col, rot);
-                    ExpressionBack::Var(VarBack::Query(QueryBack::Fixed(FixedQueryBack {
-                        index,
-                        column_index: query.column_index,
-                        rotation: query.rotation,
-                    })))
-                }
-                QueryMid::Advice(query) => {
-                    let (col, rot) = (
-                        ColumnMid::new(
-                            query.column_index,
-                            Any::Advice(Advice { phase: query.phase }),
-                        ),
-                        query.rotation,
-                    );
-                    let index = self.add(col, rot);
-                    ExpressionBack::Var(VarBack::Query(QueryBack::Advice(AdviceQueryBack {
-                        index,
-                        column_index: query.column_index,
-                        rotation: query.rotation,
-                        phase: query.phase,
-                    })))
-                }
-                QueryMid::Instance(query) => {
-                    let (col, rot) = (
-                        ColumnMid::new(query.column_index, Any::Instance),
-                        query.rotation,
-                    );
-                    let index = self.add(col, rot);
-                    ExpressionBack::Var(VarBack::Query(QueryBack::Instance(InstanceQueryBack {
-                        index,
-                        column_index: query.column_index,
-                        rotation: query.rotation,
-                    })))
-                }
-            },
+            ExpressionMid::Var(VarMid::Query(query)) => {
+                let column = ColumnMid::new(query.column_index, query.column_type);
+                let index = self.add(column, query.rotation);
+                ExpressionBack::Var(VarBack::Query(QueryBack {
+                    index,
+                    column_index: query.column_index,
+                    column_type: query.column_type,
+                    rotation: query.rotation,
+                }))
+            }
             ExpressionMid::Var(VarMid::Challenge(c)) => ExpressionBack::Var(VarBack::Challenge(*c)),
             ExpressionMid::Negated(e) => ExpressionBack::Negated(Box::new(self.as_expression(e))),
             ExpressionMid::Sum(lhs, rhs) => ExpressionBack::Sum(
@@ -424,7 +369,7 @@ fn cs_mid_to_cs_back<F: Field>(cs_mid: ConstraintSystemMid<F>) -> ConstraintSyst
         num_advice_queries: queries.num_advice_queries,
         instance_queries: queries.instance,
         fixed_queries: queries.fixed,
-        permutation: cs_mid.permutation.into(),
+        permutation: cs_mid.permutation,
         lookups,
         shuffles,
         minimum_degree: cs_mid.minimum_degree,
