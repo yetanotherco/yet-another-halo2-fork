@@ -230,55 +230,49 @@ impl QueriesMap {
         match expr {
             ExpressionMid::Constant(c) => ExpressionBack::Constant(*c),
             // TODO: Clean up to avoid repeated patterns
-            ExpressionMid::Var(VarMid::Query(QueryMid::Fixed(query))) => {
-                let (col, rot) = (
-                    ColumnMid {
-                        index: query.column_index,
-                        column_type: Any::Fixed,
-                    },
-                    query.rotation,
-                );
-                let index = self.add(col, rot);
-                ExpressionBack::Var(VarBack::Query(QueryBack::Fixed(FixedQueryBack {
-                    index,
-                    column_index: query.column_index,
-                    rotation: query.rotation,
-                })))
-            }
-            ExpressionMid::Var(VarMid::Query(QueryMid::Advice(query))) => {
-                let (col, rot) = (
-                    ColumnMid {
-                        index: query.column_index,
-                        column_type: Any::Advice(Advice { phase: query.phase }),
-                    },
-                    query.rotation,
-                );
-                let index = self.add(col, rot);
-                ExpressionBack::Var(VarBack::Query(QueryBack::Advice(AdviceQueryBack {
-                    index,
-                    column_index: query.column_index,
-                    rotation: query.rotation,
-                    phase: query.phase,
-                })))
-            }
-            ExpressionMid::Var(VarMid::Query(QueryMid::Instance(query))) => {
-                let (col, rot) = (
-                    ColumnMid {
-                        index: query.column_index,
-                        column_type: Any::Instance,
-                    },
-                    query.rotation,
-                );
-                let index = self.add(col, rot);
-                ExpressionBack::Var(VarBack::Query(QueryBack::Instance(InstanceQueryBack {
-                    index,
-                    column_index: query.column_index,
-                    rotation: query.rotation,
-                })))
-            }
-            ExpressionMid::Var(VarMid::Challenge(c)) => {
-                ExpressionBack::Var(VarBack::Challenge((*c).into()))
-            }
+            ExpressionMid::Var(VarMid::Query(q)) => match q {
+                QueryMid::Fixed(query) => {
+                    let (col, rot) = (
+                        ColumnMid::new(query.column_index, Any::Fixed),
+                        query.rotation,
+                    );
+                    let index = self.add(col, rot);
+                    ExpressionBack::Var(VarBack::Query(QueryBack::Fixed(FixedQueryBack {
+                        index,
+                        column_index: query.column_index,
+                        rotation: query.rotation,
+                    })))
+                }
+                QueryMid::Advice(query) => {
+                    let (col, rot) = (
+                        ColumnMid::new(
+                            query.column_index,
+                            Any::Advice(Advice { phase: query.phase }),
+                        ),
+                        query.rotation,
+                    );
+                    let index = self.add(col, rot);
+                    ExpressionBack::Var(VarBack::Query(QueryBack::Advice(AdviceQueryBack {
+                        index,
+                        column_index: query.column_index,
+                        rotation: query.rotation,
+                        phase: query.phase,
+                    })))
+                }
+                QueryMid::Instance(query) => {
+                    let (col, rot) = (
+                        ColumnMid::new(query.column_index, Any::Instance),
+                        query.rotation,
+                    );
+                    let index = self.add(col, rot);
+                    ExpressionBack::Var(VarBack::Query(QueryBack::Instance(InstanceQueryBack {
+                        index,
+                        column_index: query.column_index,
+                        rotation: query.rotation,
+                    })))
+                }
+            },
+            ExpressionMid::Var(VarMid::Challenge(c)) => ExpressionBack::Var(VarBack::Challenge(*c)),
             ExpressionMid::Negated(e) => ExpressionBack::Negated(Box::new(self.as_expression(e))),
             ExpressionMid::Sum(lhs, rhs) => ExpressionBack::Sum(
                 Box::new(self.as_expression(lhs)),
@@ -390,25 +384,12 @@ fn collect_queries<F: Field>(
     // Each column used in a copy constraint involves a query at rotation current.
     for column in &cs_mid.permutation.columns {
         match column.column_type {
-            Any::Instance => queries.add(
-                ColumnMid {
-                    index: column.index,
-                    column_type: Any::Instance,
-                },
-                Rotation::cur(),
-            ),
-            Any::Fixed => queries.add(
-                ColumnMid {
-                    index: column.index,
-                    column_type: Any::Fixed,
-                },
-                Rotation::cur(),
-            ),
+            Any::Instance => {
+                queries.add(ColumnMid::new(column.index, Any::Instance), Rotation::cur())
+            }
+            Any::Fixed => queries.add(ColumnMid::new(column.index, Any::Fixed), Rotation::cur()),
             Any::Advice(advice) => queries.add(
-                ColumnMid {
-                    index: column.index,
-                    column_type: Any::Advice(advice),
-                },
+                ColumnMid::new(column.index, Any::Advice(advice)),
                 Rotation::cur(),
             ),
         };

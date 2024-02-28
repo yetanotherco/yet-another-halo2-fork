@@ -72,8 +72,8 @@ impl Variable for VarBack {
         }
     }
 
-    fn write_identifier<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        unimplemented!()
+    fn write_identifier<W: std::io::Write>(&self, _writer: &mut W) -> std::io::Result<()> {
+        unimplemented!("unused method")
     }
 }
 

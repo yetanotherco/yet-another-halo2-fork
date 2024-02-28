@@ -216,6 +216,12 @@ pub struct ColumnMid {
     pub column_type: Any,
 }
 
+impl ColumnMid {
+    pub fn new(index: usize, column_type: Any) -> Self {
+        ColumnMid { index, column_type }
+    }
+}
+
 /// A cell identifies a position in the plonkish matrix identified by a column and a row offset.
 #[derive(Clone, Debug)]
 pub struct Cell {
