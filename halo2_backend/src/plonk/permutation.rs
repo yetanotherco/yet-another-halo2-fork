@@ -1,4 +1,4 @@
-///! Verifying/Proving key of a permutation argument, with its serialization.
+//! Verifying/Proving key of a permutation argument, with its serialization.
 
 use crate::{
     arithmetic::CurveAffine,

@@ -1,4 +1,4 @@
-///! Generate a proof
+//! Generate a proof
 
 use group::Curve;
 use halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};

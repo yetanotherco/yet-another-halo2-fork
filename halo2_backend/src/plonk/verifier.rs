@@ -1,4 +1,4 @@
-///! Verify a plonk proof
+//! Verify a plonk proof
 
 use group::Curve;
 use halo2_common::plonk::{

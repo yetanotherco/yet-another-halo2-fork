@@ -900,6 +900,7 @@ mod test {
     use halo2_common::plonk::sealed::Phase;
     use halo2_common::plonk::{AdviceQuery, Challenge, FixedQuery};
     use halo2_common::plonk::{Expression, InstanceQuery};
+    use halo2_middleware::circuit::ChallengeMid;
     use halo2_middleware::poly::Rotation;
     use halo2curves::pasta::pallas::{Affine, Scalar};
 
@@ -999,10 +1000,10 @@ mod test {
         }
         for (ch, expected) in [(0, 8), (1, 9)] {
             check_expr(
-                Expression::Challenge(Challenge {
+                Expression::Challenge(Challenge::from(ChallengeMid {
                     index: ch,
                     phase: 0,
-                }),
+                })),
                 expected,
             );
         }

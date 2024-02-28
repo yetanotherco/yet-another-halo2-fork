@@ -11,7 +11,6 @@ use crate::poly::{
     Polynomial,
 };
 pub(crate) use evaluation::Evaluator;
-use halo2_common::arithmetic::CurveAffine;
 use halo2_common::plonk::{Circuit, ConstraintSystem, PinnedConstraintSystem};
 use halo2_common::transcript::{EncodedChallenge, Transcript};
 use halo2_common::SerdeFormat;
