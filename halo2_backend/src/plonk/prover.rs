@@ -122,9 +122,9 @@ pub struct ProverV2<
     phases: Vec<sealed::Phase>,
     // Polynomials (Lagrange and Coeff) for all circuits instances
     instances: Vec<InstanceSingle<Scheme::Curve>>,
-    // Advice polynomials with its bindings
+    // Advice polynomials with its blindings
     advices: Vec<AdviceSingle<Scheme::Curve, LagrangeCoeff>>,
-    // The challanges for each phase
+    // The phase challenges by challenge index
     challenges: HashMap<usize, Scheme::Scalar>,
     // The next phase to be committed
     next_phase_index: usize,
@@ -233,7 +233,7 @@ impl<
                 })
             };
 
-        // Get the polynomials of all circuits instances
+        // Commit the polynomials of all circuits instances
         // [TRANSCRIPT-2]
 
         let instances: Vec<InstanceSingle<Scheme::Curve>> = circuits_instances
@@ -367,9 +367,9 @@ impl<
         }
 
         // commit_phase_fn fills advice columns (no defined as unblinded) with binding factors,
-        // adding to the transcript its binded affine commitments.
-        // Also sets advice_polys with the (binding) updated advice columns and advice_blinds with
-        // the binding factor used for each advice column.
+        // adding to the transcript its blinded affine commitments.
+        // Also sets advice_polys with the (blinding) updated advice columns and advice_blinds with
+        // the blinding factor used for each advice column.
 
         let mut commit_phase_fn =
             |advice: &mut AdviceSingle<Scheme::Curve, LagrangeCoeff>,
@@ -448,7 +448,7 @@ impl<
             )?;
         }
 
-        // Squeeze the current transcript and get an new fresh challenge for the current phase.
+        // Squeeze the current transcript and get an new fresh challenge from the current phase.
         // [TRANSCRIPT-4]
 
         for (index, phase) in meta.challenge_phase.iter().enumerate() {
