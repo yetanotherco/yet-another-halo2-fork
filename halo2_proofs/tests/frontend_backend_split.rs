@@ -99,16 +99,18 @@ impl MyCircuitConfig {
 }
 
 #[derive(Clone)]
-struct MyCircuit<F: Field, const WIDTH_FACTOR: usize> {
+struct MyCircuit<F: Field> {
     k: u32,
+    width_factor: usize,
     input: u64,
     _marker: std::marker::PhantomData<F>,
 }
 
-impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR> {
-    fn new(k: u32, input: u64) -> Self {
+impl<F: Field + From<u64>> MyCircuit<F> {
+    fn new(k: u32, width_factor: usize, input: u64) -> Self {
         Self {
             k,
+            width_factor,
             input,
             _marker: std::marker::PhantomData {},
         }
@@ -134,7 +136,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
 
     fn instances(&self) -> Vec<Vec<F>> {
         let instance = self.instance();
-        (0..WIDTH_FACTOR).map(|_| instance.clone()).collect()
+        (0..self.width_factor).map(|_| instance.clone()).collect()
     }
 
     fn configure_single(meta: &mut ConstraintSystem<F>) -> MyCircuitConfig {
@@ -401,19 +403,33 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
     }
 }
 
-impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> Circuit<F> for MyCircuit<F, WIDTH_FACTOR> {
+impl<F: Field + From<u64>> Circuit<F> for MyCircuit<F> {
     type Config = Vec<MyCircuitConfig>;
     type FloorPlanner = SimpleFloorPlanner;
     #[cfg(feature = "circuit-params")]
-    type Params = ();
+    type Params = usize;
 
     fn without_witnesses(&self) -> Self {
         self.clone()
     }
 
     fn configure(meta: &mut ConstraintSystem<F>) -> Vec<MyCircuitConfig> {
-        assert!(WIDTH_FACTOR > 0);
-        (0..WIDTH_FACTOR)
+        unimplemented!();
+    }
+
+    #[cfg(feature = "circuit-params")]
+    fn params(&self) -> Self::Params {
+        self.width_factor
+    }
+
+    #[cfg(feature = "circuit-params")]
+    fn configure_with_params(
+        meta: &mut ConstraintSystem<F>,
+        params: usize,
+    ) -> Vec<MyCircuitConfig> {
+        let width_factor = params;
+        assert!(width_factor > 0);
+        (0..width_factor)
             .map(|_| Self::configure_single(meta))
             .collect()
     }
@@ -475,8 +491,7 @@ impl BlockRngCore for OneNg {
 #[test]
 fn test_mycircuit_mock() {
     let k = 6;
-    const WIDTH_FACTOR: usize = 2;
-    let circuit: MyCircuit<Fr, WIDTH_FACTOR> = MyCircuit::new(k, 42);
+    let circuit: MyCircuit<Fr> = MyCircuit::new(k, WIDTH_FACTOR, 42);
     let instances = circuit.instances();
     let prover = MockProver::run(k, &circuit, instances).unwrap();
     prover.assert_satisfied();
@@ -497,7 +512,7 @@ fn test_mycircuit_full_legacy() {
     use halo2_proofs::plonk::{create_proof, keygen_pk, keygen_vk};
 
     let k = K;
-    let circuit: MyCircuit<Fr, WIDTH_FACTOR> = MyCircuit::new(k, 42);
+    let circuit: MyCircuit<Fr> = MyCircuit::new(k, WIDTH_FACTOR, 42);
 
     // Setup
     let mut rng = BlockRng::new(OneNg {});
@@ -546,14 +561,52 @@ fn test_mycircuit_full_legacy() {
     println!("Verify: {:?}", start.elapsed());
 }
 
+fn estimate_peak_mem<F: Field>(cs: &ConstraintSystem<F>, k: u32) -> usize {
+    let field_bytes = 32;
+    let degree = cs.degree();
+    let c_f = cs.num_fixed_columns();
+    let c_a = cs.num_advice_columns();
+    let c_i = cs.num_instance_columns();
+    let c_p = cs.permutation().get_columns().len();
+    let c_l = cs.lookups().len();
+    println!("degree = {degree}");
+    println!("num_fixed_columns = {c_f}");
+    println!("num_advice_columns = {c_a}");
+    println!("num_instance_columns = {c_i}");
+    println!("num_permutation_columns = {c_p}");
+    println!("num_lookups = {c_l}");
+    let c_pg = c_p.div_ceil(degree - 2);
+    let e = (degree - 1).next_power_of_two();
+    // The estimated peak memory formula comes from step 9 of the analysis, which is the step
+    // of proving that needs the most memory (after that step, allocations start getting freed)
+
+    // number of "elliptic curve points"
+    let m_c = 2;
+    // number of "field elements"
+    let m_s = 1 + 2 * c_f + 2 * c_p + 2 * c_i + c_a + 3 * c_l + c_pg;
+    // number of "field elements" that will be extended by "* e"
+    let m_e = 4 + c_f + c_p + c_pg + c_i + c_a + 3 * (c_l > 0) as usize;
+    let unit = 2 * m_c + m_s + e * m_e;
+    unit * 2usize.pow(k) * field_bytes
+}
+
 #[test]
 fn test_mycircuit_full_split() {
     #[cfg(feature = "heap-profiling")]
-    let _profiler = dhat::Profiler::new_heap();
+    let _profiler = dhat::Profiler::builder().trim_backtraces(None).build();
 
-    let k = K;
-    let circuit: MyCircuit<Fr, WIDTH_FACTOR> = MyCircuit::new(k, 42);
+    // let k = K;
+    let k = u32::from_str_radix(&std::env::var("K").unwrap(), 10).unwrap();
+    let width_factor = usize::from_str_radix(&std::env::var("WIDTH_FACTOR").unwrap(), 10).unwrap();
+    let circuit: MyCircuit<Fr> = MyCircuit::new(k, width_factor, 42);
     let (compiled_circuit, config, cs) = compile_circuit(k, &circuit, false).unwrap();
+    let mem = estimate_peak_mem(&cs, k);
+    println!(
+        "k = {}, wf = {}, max_mem_estimate = {}",
+        k,
+        width_factor,
+        mem / 1024 / 1024
+    );
 
     // Setup
     let mut rng = BlockRng::new(OneNg {});
@@ -595,6 +648,17 @@ fn test_mycircuit_full_split() {
     prover.create_proof().unwrap();
     let proof = transcript.finalize();
     println!("Prove: {:?}", start.elapsed());
+
+    #[cfg(feature = "heap-profiling")]
+    {
+        let stats = dhat::HeapStats::get();
+        println!(
+            "k = {}, wf = {}, max_mem = {}",
+            k,
+            width_factor,
+            stats.max_bytes / 1024 / 1024
+        );
+    }
 
     // Verify
     let start = Instant::now();
