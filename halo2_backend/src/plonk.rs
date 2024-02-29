@@ -32,13 +32,13 @@ pub mod verifier;
 /// particular circuit.
 #[derive(Clone, Debug)]
 pub struct VerifyingKey<C: CurveAffine> {
-    // Evaluation domain
+    /// Evaluation domain
     domain: EvaluationDomain<C::Scalar>,
-    // Commitments to fixed columns
+    /// Commitments to fixed columns
     fixed_commitments: Vec<C>,
-    // Permutation verifying key
+    /// Permutation verifying key
     permutation: permutation::VerifyingKey<C>,
-    // Constraint system
+    /// Constraint system
     cs: ConstraintSystem<C::Scalar>,
     /// Cached maximum degree of `cs` (which doesn't change after construction).
     cs_degree: usize,

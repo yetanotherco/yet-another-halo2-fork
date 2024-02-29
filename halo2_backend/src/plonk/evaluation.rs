@@ -215,7 +215,7 @@ struct EvaluationData<C: CurveAffine> {
     rotations: Vec<usize>,
 }
 
-/// CalculationInfo
+/// CalculationInfo contains a calculation to perform and in [`target`] the [`EvaluationData::intermediate`] where the value is going to be stored.  
 #[derive(Clone, Debug)]
 struct CalculationInfo {
     /// Calculation
@@ -966,7 +966,6 @@ mod test {
     #[test]
     fn graphevaluator_values() {
         // Check values
-
         for (col, rot, expected) in [(0, 0, 2), (0, 1, 3), (1, 0, 1002), (1, 1, 1003)] {
             check_expr(
                 Expression::Fixed(FixedQuery {
@@ -1018,7 +1017,6 @@ mod test {
     #[test]
     fn graphevaluator_expr_operations() {
         // Check expression operations
-
         let two = || {
             Box::new(Expression::<Scalar>::Fixed(FixedQuery {
                 index: None,
@@ -1036,11 +1034,8 @@ mod test {
         };
 
         check_expr(Expression::Sum(two(), three()), 5);
-
         check_expr(Expression::Product(two(), three()), 6);
-
         check_expr(Expression::Scaled(two(), Scalar::from(5)), 10);
-
         check_expr(
             Expression::Sum(Expression::Negated(two()).into(), three()),
             1,
@@ -1050,7 +1045,6 @@ mod test {
     #[test]
     fn graphevaluator_calc_operations() {
         // Check calculation operations
-
         let two = || ValueSource::Fixed(0, 0);
         let three = || ValueSource::Fixed(0, 1);
 
