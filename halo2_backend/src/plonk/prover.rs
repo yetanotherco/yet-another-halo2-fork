@@ -130,7 +130,7 @@ pub struct ProverV2<
     next_phase_index: usize,
     // Transcript to be updated
     transcript: &'a mut T,
-    // Randomness 
+    // Randomness
     rng: R,
     _marker: std::marker::PhantomData<(P, E)>,
 }
@@ -172,11 +172,11 @@ impl<
 
         let domain = &pk.vk.domain;
 
-        // commit_instance_fn is a helper function to return the polynomials of instance columns while
-        // updating the transcript.
+        // commit_instance_fn is a helper function to return the polynomials (and its commitments) of
+        // instance columns while updating the transcript.
         let mut commit_instance_fn =
             |instance: &[&[Scheme::Scalar]]| -> Result<InstanceSingle<Scheme::Curve>, Error> {
-                // Create a lagrange polynomial for each instance column while updating the transcript
+                // Create a lagrange polynomial for each instance column
 
                 let instance_values = instance
                     .iter()
@@ -188,6 +188,7 @@ impl<
                         }
                         for (poly, value) in poly.iter_mut().zip(values.iter()) {
                             if !P::QUERY_INSTANCE {
+                                // Add to the transcript the instance polynomials lagrange value.
                                 transcript.common_scalar(*value)?;
                             }
                             *poly = *value;
@@ -304,7 +305,7 @@ impl<
 
         let mut rng = &mut self.rng;
 
-        let advice = &mut self.advices;
+        let advices = &mut self.advices;
         let challenges = &mut self.challenges;
 
         // Get the indices of the advice columns that are in the current phase.
@@ -322,7 +323,7 @@ impl<
             })
             .collect::<BTreeSet<_>>();
 
-        if witness.len() != advice.len() {
+        if witness.len() != advices.len() {
             return Err(Error::Other("witness.len() != advice.len()".to_string()));
         }
 
@@ -438,7 +439,7 @@ impl<
         // Update bindings for each advice column
         // [TRANSCRIPT-3]
 
-        for (witness, advice) in witness.into_iter().zip(advice.iter_mut()) {
+        for (witness, advice) in witness.into_iter().zip(advices.iter_mut()) {
             commit_phase_fn(
                 advice,
                 witness
@@ -676,7 +677,7 @@ impl<
         // 9. Compute x  --------------------------------------------------------------------------------
         // [TRANSCRIPT-15]
         let x: ChallengeX<_> = self.transcript.squeeze_challenge_scalar();
-        
+
         let x_pow_n = x.pow([params.n()]);
 
         // [TRANSCRIPT-16]

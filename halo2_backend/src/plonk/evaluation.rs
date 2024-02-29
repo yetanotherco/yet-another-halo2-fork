@@ -934,15 +934,15 @@ mod test {
             &lagranges(&[&[2, 3], &[1002, 1003]]), // fixed
             &lagranges(&[&[4, 5], &[1004, 1005]]), // advice
             &lagranges(&[&[6, 7], &[1006, 1007]]), // instance
-            &[8u64.into(), 9u64.into()], // challenges
-            &Scalar::from_raw([10, 0, 0, 0]), // beta
-            &Scalar::from_raw([11, 0, 0, 0]), // gamma
-            &Scalar::from_raw([12, 0, 0, 0]), // theta
-            &Scalar::from_raw([13, 0, 0, 0]), // y
-            &Scalar::from_raw([14, 0, 0, 0]), // previous value
-            0, // idx
-            1, // rot_scale
-            32, // isize
+            &[8u64.into(), 9u64.into()],           // challenges
+            &Scalar::from_raw([10, 0, 0, 0]),      // beta
+            &Scalar::from_raw([11, 0, 0, 0]),      // gamma
+            &Scalar::from_raw([12, 0, 0, 0]),      // theta
+            &Scalar::from_raw([13, 0, 0, 0]),      // y
+            &Scalar::from_raw([14, 0, 0, 0]),      // previous value
+            0,                                     // idx
+            1,                                     // rot_scale
+            32,                                    // isize
         );
         let fq_expected = if expected < 0 {
             -Scalar::from(-expected as u64)

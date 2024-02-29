@@ -66,7 +66,7 @@ impl LagrangeBasis for LagrangeCoeff {}
 #[derive(Clone, Copy, Debug)]
 pub struct ExtendedLagrangeCoeff;
 impl Basis for ExtendedLagrangeCoeff {}
-impl LagrangeBasis for ExtendedLagrangeCoeff {} 
+impl LagrangeBasis for ExtendedLagrangeCoeff {}
 
 /// Represents a univariate polynomial defined over a field and a particular
 /// basis.

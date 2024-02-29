@@ -1,4 +1,4 @@
-//! This module 
+//! This module
 //! - creates the proving and verifying keys for a circuit
 //! - crates a domain, constraint system, and configuration for a circuit
 
@@ -55,7 +55,7 @@ where
     P: Params<'params, C>,
     C::Scalar: FromUniformBytes<64>,
 {
-    let cs_backend= &circuit.cs;
+    let cs_backend = &circuit.cs;
     let cs: ConstraintSystem<C::Scalar> = cs_backend.clone().into();
     let domain = EvaluationDomain::new(cs.degree() as u32, params.k());
 
@@ -135,7 +135,7 @@ where
         .clone()
         .into_iter()
         .map(Polynomial::new_lagrange_from_vec)
-        .collect(); 
+        .collect();
 
     // Compute l_0(X)
     // TODO: this can be done more efficiently
