@@ -56,6 +56,7 @@ halo2_frontend = { path = "../halo2_frontend" }
 halo2curves = { version = "0.6.0", default-features = false }
 rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
 plotters = { version = "0.3.0", default-features = false, optional = true }
+group = "0.13"
 
 [dev-dependencies]
 ff = "0.13"

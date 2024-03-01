@@ -44,7 +44,7 @@ where
     C::Scalar: FromUniformBytes<64>,
 {
     let cs_mid = &circuit.cs;
-    let cs: ConstraintSystemBack<C::Scalar> = cs_mid_to_cs_back(cs_mid.clone());
+    let cs: ConstraintSystemBack<C::Scalar> = cs_mid.clone().into();
     let domain = EvaluationDomain::new(cs.degree() as u32, params.k());
 
     if (params.n() as usize) < cs.minimum_rows() {
@@ -354,24 +354,26 @@ fn collect_queries<F: Field>(
     (queries, gates, lookups, shuffles)
 }
 
-fn cs_mid_to_cs_back<F: Field>(cs_mid: ConstraintSystemMid<F>) -> ConstraintSystemBack<F> {
-    let (queries, gates, lookups, shuffles) = collect_queries(&cs_mid);
-    ConstraintSystemBack {
-        num_fixed_columns: cs_mid.num_fixed_columns,
-        num_advice_columns: cs_mid.num_advice_columns,
-        num_instance_columns: cs_mid.num_instance_columns,
-        num_challenges: cs_mid.num_challenges,
-        unblinded_advice_columns: cs_mid.unblinded_advice_columns,
-        advice_column_phase: cs_mid.advice_column_phase,
-        challenge_phase: cs_mid.challenge_phase,
-        gates,
-        advice_queries: queries.advice,
-        num_advice_queries: queries.num_advice_queries,
-        instance_queries: queries.instance,
-        fixed_queries: queries.fixed,
-        permutation: cs_mid.permutation,
-        lookups,
-        shuffles,
-        minimum_degree: cs_mid.minimum_degree,
+impl<F: Field> From<ConstraintSystemMid<F>> for ConstraintSystemBack<F> {
+    fn from(cs_mid: ConstraintSystemMid<F>) -> Self {
+        let (queries, gates, lookups, shuffles) = collect_queries(&cs_mid);
+        Self {
+            num_fixed_columns: cs_mid.num_fixed_columns,
+            num_advice_columns: cs_mid.num_advice_columns,
+            num_instance_columns: cs_mid.num_instance_columns,
+            num_challenges: cs_mid.num_challenges,
+            unblinded_advice_columns: cs_mid.unblinded_advice_columns,
+            advice_column_phase: cs_mid.advice_column_phase,
+            challenge_phase: cs_mid.challenge_phase,
+            gates,
+            advice_queries: queries.advice,
+            num_advice_queries: queries.num_advice_queries,
+            instance_queries: queries.instance,
+            fixed_queries: queries.fixed,
+            permutation: cs_mid.permutation,
+            lookups,
+            shuffles,
+            minimum_degree: cs_mid.minimum_degree,
+        }
     }
 }

@@ -2,7 +2,7 @@ use crate::poly::commitment::{CommitmentScheme, Params, Prover};
 use halo2_backend::plonk::{prover::ProverV2, ProvingKey};
 use halo2_common::plonk::{circuit::Circuit, Error};
 use halo2_common::transcript::{EncodedChallenge, TranscriptWrite};
-use halo2_frontend::circuit::{compile_circuit, WitnessCalculator};
+use halo2_frontend::circuit::{compile_circuit_cs, WitnessCalculator};
 use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
 use rand_core::RngCore;
 use std::collections::HashMap;
@@ -33,11 +33,11 @@ where
     if circuits.len() != instances.len() {
         return Err(Error::InvalidInstances);
     }
-    let (_, config, cs) = compile_circuit(
-        params.k(),
-        &circuits[0],
+    let (config, cs, _) = compile_circuit_cs::<_, ConcreteCircuit>(
         pk.get_vk().compress_selectors.unwrap_or_default(),
-    )?;
+        #[cfg(feature = "circuit-params")]
+        circuits[0].params(),
+    );
     let mut witness_calcs: Vec<_> = circuits
         .iter()
         .enumerate()

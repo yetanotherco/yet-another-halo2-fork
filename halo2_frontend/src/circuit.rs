@@ -1,7 +1,7 @@
 //! Traits and structs for implementing circuit components.
 
 use halo2_common::plonk::{
-    circuit::{Challenge, Column},
+    circuit::{Challenge, Column, SelectorsToFixed},
     permutation,
     sealed::{self, SealedPhase},
     Assigned, Assignment, Circuit, ConstraintSystem, Error, FirstPhase, FloorPlanner, SecondPhase,
@@ -20,6 +20,36 @@ mod table_layouter;
 // Re-exports from common
 pub use halo2_common::circuit::floor_planner::single_pass::SimpleFloorPlanner;
 pub use halo2_common::circuit::{layouter, Layouter, Value};
+
+/// Compile a circuit, only generating the `Config` and the `ConstraintSystem` related information,
+/// skipping all preprocessing data.
+/// The `ConcreteCircuit::Config`, `ConstraintSystem<F>` and `SelectorsToFixed` are outputs for the
+/// frontend itself, which will be used for witness generation and fixed column assignment.
+/// The `ConstraintSystem<F>` can be converted to `ConstraintSystemMid<F>` to be used to interface
+/// with the backend.
+pub fn compile_circuit_cs<F: Field, ConcreteCircuit: Circuit<F>>(
+    compress_selectors: bool,
+    #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+) -> (
+    ConcreteCircuit::Config,
+    ConstraintSystem<F>,
+    SelectorsToFixed,
+) {
+    let mut cs = ConstraintSystem::default();
+    #[cfg(feature = "circuit-params")]
+    let config = ConcreteCircuit::configure_with_params(&mut cs, params);
+    #[cfg(not(feature = "circuit-params"))]
+    let config = ConcreteCircuit::configure(&mut cs);
+    let cs = cs;
+
+    let (cs, selectors_to_fixed) = if compress_selectors {
+        cs.selectors_to_fixed_compressed()
+    } else {
+        cs.selectors_to_fixed_direct()
+    };
+
+    (config, cs, selectors_to_fixed)
+}
 
 /// Compile a circuit.  Runs configure and synthesize on the circuit in order to materialize the
 /// circuit into its columns and the column configuration; as well as doing the fixed column and
@@ -40,16 +70,12 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
     Error,
 > {
     let n = 2usize.pow(k);
-    let mut cs = ConstraintSystem::default();
-    #[cfg(feature = "circuit-params")]
-    let config = ConcreteCircuit::configure_with_params(&mut cs, circuit.params());
-    #[cfg(not(feature = "circuit-params"))]
-    let config = ConcreteCircuit::configure(&mut cs);
-    let cs = cs;
 
-    if n < cs.minimum_rows() {
-        return Err(Error::not_enough_rows_available(k));
-    }
+    let (config, cs, selectors_to_fixed) = compile_circuit_cs::<_, ConcreteCircuit>(
+        compress_selectors,
+        #[cfg(feature = "circuit-params")]
+        circuit.params(),
+    );
 
     let mut assembly = halo2_common::plonk::keygen::Assembly {
         k,
@@ -69,13 +95,7 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
     )?;
 
     let mut fixed = batch_invert_assigned(assembly.fixed);
-    let (cs, selector_polys) = if compress_selectors {
-        cs.compress_selectors(assembly.selectors.clone())
-    } else {
-        // After this, the ConstraintSystem should not have any selectors: `verify` does not need them, and `keygen_pk` regenerates `cs` from scratch anyways.
-        let selectors = std::mem::take(&mut assembly.selectors);
-        cs.directly_convert_selectors_to_fixed(selectors)
-    };
+    let selector_polys = selectors_to_fixed.convert(assembly.selectors);
     fixed.extend(selector_polys.into_iter());
 
     let preprocessing = PreprocessingV2 {

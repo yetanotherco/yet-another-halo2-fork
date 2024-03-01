@@ -11,7 +11,7 @@ mod verifier {
     pub use halo2_backend::plonk::verifier::verify_proof;
 }
 
-pub use keygen::{keygen_pk, keygen_vk};
+pub use keygen::{keygen_pk, keygen_vk, keygen_vk_custom};
 
 pub use prover::create_proof;
 pub use verifier::verify_proof;
@@ -22,4 +22,68 @@ pub use halo2_common::plonk::{
     Assigned, Circuit, ConstraintSystem, Error, Expression, FirstPhase, SecondPhase, Selector,
     TableColumn, ThirdPhase,
 };
-pub use halo2_middleware::circuit::{Advice, Fixed, Instance};
+pub use halo2_middleware::circuit::{Advice, ConstraintSystemMid, Fixed, Instance};
+
+use group::ff::FromUniformBytes;
+use halo2_common::helpers::{SerdeCurveAffine, SerdePrimeField};
+use halo2_common::SerdeFormat;
+use halo2_frontend::circuit::compile_circuit_cs;
+use std::io;
+
+/// Reads a verification key from a buffer.
+///
+/// Reads a curve element from the buffer and parses it according to the `format`:
+/// - `Processed`: Reads a compressed curve element and decompresses it.
+/// Reads a field element in standard form, with endianness specified by the
+/// `PrimeField` implementation, and checks that the element is less than the modulus.
+/// - `RawBytes`: Reads an uncompressed curve element with coordinates in Montgomery form.
+/// Checks that field elements are less than modulus, and then checks that the point is on the curve.
+/// - `RawBytesUnchecked`: Reads an uncompressed curve element with coordinates in Montgomery form;
+/// does not perform any checks
+pub fn vk_read<C: SerdeCurveAffine, R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    reader: &mut R,
+    format: SerdeFormat,
+    compress_selectors: bool,
+    #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+) -> io::Result<VerifyingKey<C>>
+where
+    C::Scalar: SerdePrimeField + FromUniformBytes<64>,
+{
+    let (_, cs, _) = compile_circuit_cs::<_, ConcreteCircuit>(
+        compress_selectors,
+        #[cfg(feature = "circuit-params")]
+        params,
+    );
+    let cs_mid: ConstraintSystemMid<_> = cs.into();
+    VerifyingKey::read(reader, format, cs_mid.into())
+}
+
+/// Reads a proving key from a buffer.
+/// Does so by reading verification key first, and then deserializing the rest of the file into the
+/// remaining proving key data.
+///
+/// Reads a curve element from the buffer and parses it according to the `format`:
+/// - `Processed`: Reads a compressed curve element and decompresses it.
+/// Reads a field element in standard form, with endianness specified by the
+/// `PrimeField` implementation, and checks that the element is less than the modulus.
+/// - `RawBytes`: Reads an uncompressed curve element with coordinates in Montgomery form.
+/// Checks that field elements are less than modulus, and then checks that the point is on the curve.
+/// - `RawBytesUnchecked`: Reads an uncompressed curve element with coordinates in Montgomery form;
+/// does not perform any checks
+pub fn pk_read<C: SerdeCurveAffine, R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
+    reader: &mut R,
+    format: SerdeFormat,
+    compress_selectors: bool,
+    #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
+) -> io::Result<ProvingKey<C>>
+where
+    C::Scalar: SerdePrimeField + FromUniformBytes<64>,
+{
+    let (_, cs, _) = compile_circuit_cs::<_, ConcreteCircuit>(
+        compress_selectors,
+        #[cfg(feature = "circuit-params")]
+        params,
+    );
+    let cs_mid: ConstraintSystemMid<_> = cs.into();
+    ProvingKey::read(reader, format, cs_mid.into())
+}

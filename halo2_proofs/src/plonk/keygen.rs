@@ -53,7 +53,6 @@ where
     P: Params<'params, C>,
     ConcreteCircuit: Circuit<C::Scalar>,
 {
-    // TODO: We dont have `compress_selectors` in `vk` anymore, what to do?
     let (compiled_circuit, _, _) = compile_circuit(
         params.k(),
         circuit,
