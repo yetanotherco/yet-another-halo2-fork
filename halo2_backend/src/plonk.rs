@@ -7,6 +7,7 @@ use crate::helpers::{
     SerdeCurveAffine, SerdePrimeField,
 };
 use crate::poly::{Coeff, EvaluationDomain, LagrangeCoeff, PinnedEvaluationDomain, Polynomial};
+use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
 use evaluation::Evaluator;
 use halo2_common::plonk::{Circuit, ConstraintSystem, PinnedConstraintSystem};
 use halo2_common::SerdeFormat;
