@@ -1,4 +1,6 @@
-mod single_pass;
-mod v1;
+//! Implementations of common circuit floor planners.
 
-pub use halo2_common::circuit::floor_planner::*;
+pub mod single_pass;
+
+pub mod v1;
+pub use v1::{V1Pass, V1};

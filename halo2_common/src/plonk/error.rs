@@ -2,9 +2,9 @@ use std::error;
 use std::fmt;
 use std::io;
 
-use super::TableColumn;
-use crate::plonk::circuit::Column;
-use halo2_middleware::circuit::Any;
+// use super::TableColumn;
+// use crate::plonk::circuit::Column;
+// use halo2_middleware::circuit::Any;
 
 // TODO: Split this Error into a frontend and backend version
 // https://github.com/privacy-scaling-explorations/halo2/issues/266
@@ -38,11 +38,11 @@ pub enum Error {
     ///
     /// [`ConstraintSystem::enable_constant`]: crate::plonk::ConstraintSystem::enable_constant
     NotEnoughColumnsForConstants,
-    /// The instance sets up a copy constraint involving a column that has not been
-    /// included in the permutation.
-    ColumnNotInPermutation(Column<Any>),
-    /// An error relating to a lookup table.
-    TableError(TableError),
+    // /// The instance sets up a copy constraint involving a column that has not been
+    // /// included in the permutation.
+    // ColumnNotInPermutation(Column<Any>),
+    // /// An error relating to a lookup table.
+    // TableError(TableError),
     /// Generic error not covered by previous cases
     Other(String),
 }
@@ -81,11 +81,11 @@ impl fmt::Display for Error {
                     "Too few fixed columns are enabled for global constants usage"
                 )
             }
-            Error::ColumnNotInPermutation(column) => write!(
-                f,
-                "Column {column:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column",
-            ),
-            Error::TableError(error) => write!(f, "{error}"),
+            // Error::ColumnNotInPermutation(column) => write!(
+            //     f,
+            //     "Column {column:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column",
+            // ),
+            // Error::TableError(error) => write!(f, "{error}"),
             Error::Other(error) => write!(f, "Other: {error}"),
         }
     }
@@ -100,41 +100,41 @@ impl error::Error for Error {
     }
 }
 
-/// This is an error that could occur during table synthesis.
-#[derive(Debug)]
-pub enum TableError {
-    /// A `TableColumn` has not been assigned.
-    ColumnNotAssigned(TableColumn),
-    /// A Table has columns of uneven lengths.
-    UnevenColumnLengths((TableColumn, usize), (TableColumn, usize)),
-    /// Attempt to assign a used `TableColumn`
-    UsedColumn(TableColumn),
-    /// Attempt to overwrite a default value
-    OverwriteDefault(TableColumn, String, String),
-}
-
-impl fmt::Display for TableError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TableError::ColumnNotAssigned(col) => {
-                write!(
-                    f,
-                    "{col:?} not fully assigned. Help: assign a value at offset 0.",
-                )
-            }
-            TableError::UnevenColumnLengths((col, col_len), (table, table_len)) => write!(
-                f,
-                "{col:?} has length {col_len} while {table:?} has length {table_len}",
-            ),
-            TableError::UsedColumn(col) => {
-                write!(f, "{col:?} has already been used")
-            }
-            TableError::OverwriteDefault(col, default, val) => {
-                write!(
-                    f,
-                    "Attempted to overwrite default value {default} with {val} in {col:?}",
-                )
-            }
-        }
-    }
-}
+// /// This is an error that could occur during table synthesis.
+// #[derive(Debug)]
+// pub enum TableError {
+//     /// A `TableColumn` has not been assigned.
+//     ColumnNotAssigned(TableColumn),
+//     /// A Table has columns of uneven lengths.
+//     UnevenColumnLengths((TableColumn, usize), (TableColumn, usize)),
+//     /// Attempt to assign a used `TableColumn`
+//     UsedColumn(TableColumn),
+//     /// Attempt to overwrite a default value
+//     OverwriteDefault(TableColumn, String, String),
+// }
+//
+// impl fmt::Display for TableError {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         match self {
+//             TableError::ColumnNotAssigned(col) => {
+//                 write!(
+//                     f,
+//                     "{col:?} not fully assigned. Help: assign a value at offset 0.",
+//                 )
+//             }
+//             TableError::UnevenColumnLengths((col, col_len), (table, table_len)) => write!(
+//                 f,
+//                 "{col:?} has length {col_len} while {table:?} has length {table_len}",
+//             ),
+//             TableError::UsedColumn(col) => {
+//                 write!(f, "{col:?} has already been used")
+//             }
+//             TableError::OverwriteDefault(col, default, val) => {
+//                 write!(
+//                     f,
+//                     "Attempted to overwrite default value {default} with {val} in {col:?}",
+//                 )
+//             }
+//         }
+//     }
+// }
