@@ -78,14 +78,6 @@ where
         Ok(())
     }
 
-    // NOTE: Legacy API:
-    // ```
-    // pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
-    //     reader: &mut R,
-    //     format: SerdeFormat,
-    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
-    // ) -> io::Result<Self> {
-    // ```
     /// Reads a verification key from a buffer.
     ///
     /// Reads a curve element from the buffer and parses it according to the `format`:
@@ -144,14 +136,6 @@ where
         bytes
     }
 
-    // NOTE: Legacy API
-    // ```
-    // pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
-    //     mut bytes: &[u8],
-    //     format: SerdeFormat,
-    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
-    // ) -> io::Result<Self> {
-    // ```
     /// Reads a verification key from a slice of bytes using [`Self::read`].
     pub fn from_bytes(
         mut bytes: &[u8],
@@ -333,14 +317,6 @@ where
         Ok(())
     }
 
-    // NOTE: Legacy API
-    // ```
-    // pub fn read<R: io::Read, ConcreteCircuit: Circuit<C::Scalar>>(
-    //     reader: &mut R,
-    //     format: SerdeFormat,
-    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
-    // ) -> io::Result<Self> {
-    // ```
     /// Reads a proving key from a buffer.
     /// Does so by reading verification key first, and then deserializing the rest of the file into the remaining proving key data.
     ///
@@ -386,14 +362,6 @@ where
         bytes
     }
 
-    // NOTE: Legacy API:
-    // ```
-    // pub fn from_bytes<ConcreteCircuit: Circuit<C::Scalar>>(
-    //     mut bytes: &[u8],
-    //     format: SerdeFormat,
-    //     #[cfg(feature = "circuit-params")] params: ConcreteCircuit::Params,
-    // ) -> io::Result<Self> {
-    // ```
     /// Reads a proving key from a slice of bytes using [`Self::read`].
     pub fn from_bytes(
         mut bytes: &[u8],
