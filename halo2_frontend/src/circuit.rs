@@ -7,6 +7,15 @@
 //     Assigned, Assignment, Circuit, ConstraintSystem, Error, FirstPhase, FloorPlanner, SecondPhase,
 //     Selector, ThirdPhase,
 // };
+use crate::plonk;
+use crate::plonk::circuit::constraint_system::ConstraintSystem;
+use crate::plonk::circuit::constraint_system::SelectorsToFixed;
+use crate::plonk::circuit::expression::sealed::{self, SealedPhase};
+use crate::plonk::circuit::expression::{FirstPhase, SecondPhase, ThirdPhase};
+use crate::plonk::circuit::Assignment;
+use crate::plonk::circuit::Circuit;
+use crate::plonk::circuit::FloorPlanner;
+use crate::plonk::permutation;
 use halo2_middleware::circuit::{Advice, Any, CompiledCircuitV2, Fixed, Instance, PreprocessingV2};
 use halo2_middleware::ff::{BatchInvert, Field};
 use std::collections::BTreeSet;
@@ -14,7 +23,6 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::RangeTo;
 
-mod constraint_system;
 pub mod floor_planner;
 mod table_layouter;
 
@@ -26,9 +34,10 @@ use std::{fmt, marker::PhantomData};
 
 use crate::plonk::Assigned;
 use crate::plonk::{
-    circuit::{Challenge, Column},
-    Error, Selector, TableColumn,
+    circuit::expression::{Challenge, Column},
+    Selector, TableColumn,
 };
+use halo2_common::plonk::Error;
 
 mod value;
 pub use value::Value;
@@ -95,7 +104,7 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
         circuit.params(),
     );
 
-    let mut assembly = halo2_common::plonk::keygen::Assembly {
+    let mut assembly = plonk::keygen::Assembly {
         k,
         fixed: vec![vec![F::ZERO.into(); n]; cs.num_fixed_columns],
         permutation: permutation::Assembly::new(n, &cs.permutation),

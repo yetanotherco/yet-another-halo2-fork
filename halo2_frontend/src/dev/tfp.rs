@@ -3,14 +3,15 @@ use std::{fmt, marker::PhantomData};
 use halo2_middleware::ff::Field;
 use tracing::{debug, debug_span, span::EnteredSpan};
 
-use halo2_common::circuit::{
+use crate::circuit::{
     layouter::{RegionLayouter, SyncDeps},
     AssignedCell, Cell, Layouter, Region, Table, Value,
 };
-use halo2_common::plonk::{
-    circuit::{Challenge, Column},
-    Assigned, Assignment, Circuit, ConstraintSystem, Error, FloorPlanner, Selector,
+use crate::plonk::{
+    circuit::expression::{Challenge, Column},
+    Assigned, Assignment, Circuit, ConstraintSystem, FloorPlanner, Selector,
 };
+use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
 
 /// A helper type that augments a [`FloorPlanner`] with [`tracing`] spans and events.

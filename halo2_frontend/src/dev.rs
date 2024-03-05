@@ -9,16 +9,17 @@ use blake2b_simd::blake2b;
 use halo2_middleware::ff::Field;
 use halo2_middleware::ff::FromUniformBytes;
 
-use halo2_common::{
+use crate::{
     circuit,
     plonk::{
-        circuit::{Challenge, Column},
+        circuit::expression::{Challenge, Column, Selector},
         permutation,
         sealed::{self, SealedPhase},
-        Assigned, Assignment, Circuit, ConstraintSystem, Error, Expression, FirstPhase,
-        FloorPlanner, Phase, Selector,
+        Assigned, Assignment, Circuit, ConstraintSystem, Expression, FirstPhase, FloorPlanner,
+        Phase,
     },
 };
+use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{Advice, Any, ColumnMid, Fixed, Instance};
 
 use halo2_common::multicore::{

@@ -1,9 +1,12 @@
-use super::{lookup, permutation, shuffle, Error};
+// use super::{lookup, permutation, shuffle, Error};
 use crate::circuit::layouter::SyncDeps;
 use crate::circuit::{Layouter, Region, Value};
+use crate::plonk::circuit::constraint_system::VirtualCells;
+use crate::plonk::permutation;
 use crate::plonk::Assigned;
 use core::cmp::max;
 use core::ops::{Add, Mul};
+use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{
     Advice, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid, ExpressionMid, Fixed,
     GateMid, Instance, QueryMid, VarMid,
@@ -235,7 +238,7 @@ impl<P: SealedPhase> Phase for P {}
 #[derive(Debug)]
 pub struct FirstPhase;
 
-impl SealedPhase for super::FirstPhase {
+impl SealedPhase for FirstPhase {
     fn to_sealed(self) -> sealed::Phase {
         sealed::Phase(0)
     }
@@ -245,7 +248,7 @@ impl SealedPhase for super::FirstPhase {
 #[derive(Debug)]
 pub struct SecondPhase;
 
-impl SealedPhase for super::SecondPhase {
+impl SealedPhase for SecondPhase {
     fn to_sealed(self) -> sealed::Phase {
         sealed::Phase(1)
     }
@@ -255,7 +258,7 @@ impl SealedPhase for super::SecondPhase {
 #[derive(Debug)]
 pub struct ThirdPhase;
 
-impl SealedPhase for super::ThirdPhase {
+impl SealedPhase for ThirdPhase {
     fn to_sealed(self) -> sealed::Phase {
         sealed::Phase(2)
     }
@@ -313,7 +316,7 @@ impl SealedPhase for super::ThirdPhase {
 /// }
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct Selector(pub usize, bool);
+pub struct Selector(pub usize, pub(crate) bool);
 
 impl Selector {
     /// Enable this selector at the given offset within the given region.
@@ -433,7 +436,7 @@ pub struct TableColumn {
     /// This inner column MUST NOT be exposed in the public API, or else chip developers
     /// can load lookup tables into their circuits without default-value-filling the
     /// columns, which can cause soundness bugs.
-    inner: Column<Fixed>,
+    pub(super) inner: Column<Fixed>,
 }
 
 impl TableColumn {
@@ -950,7 +953,7 @@ impl<F: Field> Expression<F> {
     }
 
     /// Returns whether or not this expression contains a simple `Selector`.
-    fn contains_simple_selector(&self) -> bool {
+    pub(super) fn contains_simple_selector(&self) -> bool {
         self.evaluate(
             &|_| false,
             &|selector| selector.is_simple(),
@@ -967,7 +970,7 @@ impl<F: Field> Expression<F> {
 
     // TODO: Where is this used?
     /// Extracts a simple selector from this gate, if present
-    fn extract_simple_selector(&self) -> Option<Selector> {
+    pub(super) fn extract_simple_selector(&self) -> Option<Selector> {
         let op = |a, b| match (a, b) {
             (Some(a), None) | (None, Some(a)) => Some(a),
             (Some(_), Some(_)) => panic!("two simple selectors cannot be in the same expression"),

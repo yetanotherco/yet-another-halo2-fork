@@ -1,4 +1,20 @@
+use crate::circuit::layouter::SyncDeps;
+use crate::circuit::Layouter;
+use crate::circuit::Value;
+use crate::plonk::Assigned;
+use halo2_common::plonk::Error;
+use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
+use halo2_middleware::ff::Field;
+
+pub mod compress_selectors;
+pub mod constraint_system;
 pub mod expression;
+
+pub use constraint_system::*;
+pub use expression::*;
+
+// TODO: Bring ColumnType, Advice, Fixed, Instance and Any here, where Advice has a sealed phase
+// Keep a slim copy of those types in middleware.
 
 /// This trait allows a [`Circuit`] to direct some backend to assign a witness
 /// for a constraint system.

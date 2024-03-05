@@ -12,13 +12,14 @@ use group::prime::PrimeGroup;
 use halo2_middleware::ff::{Field, PrimeField};
 use halo2_middleware::poly::Rotation;
 
-use halo2_common::{
+use crate::{
     circuit::{layouter::RegionColumn, Value},
     plonk::{
-        circuit::{Challenge, Column},
-        Assigned, Assignment, Circuit, ConstraintSystem, Error, FloorPlanner, Selector,
+        circuit::expression::{Challenge, Column},
+        Assigned, Assignment, Circuit, ConstraintSystem, FloorPlanner, Selector,
     },
 };
+use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
 
 /// Measures a circuit to determine its costs, and explain what contributes to them.

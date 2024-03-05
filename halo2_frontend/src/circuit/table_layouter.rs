@@ -8,7 +8,8 @@ use std::{
 use halo2_middleware::ff::Field;
 
 use crate::plonk::Assigned;
-use crate::plonk::{Assignment, Error, TableColumn, TableError};
+use crate::plonk::{Assignment, TableColumn};
+use halo2_common::plonk::Error;
 
 use super::Value;
 
@@ -78,7 +79,8 @@ impl<'r, 'a, F: Field, CS: Assignment<F> + 'a> TableLayouter<F>
         to: &'v mut (dyn FnMut() -> Value<Assigned<F>> + 'v),
     ) -> Result<(), Error> {
         if self.used_columns.contains(&column) {
-            return Err(Error::TableError(TableError::UsedColumn(column)));
+            panic!("TODO");
+            // return Err(Error::TableError(TableError::UsedColumn(column)));
         }
 
         let entry = self.default_and_assigned.entry(column).or_default();
@@ -101,11 +103,12 @@ impl<'r, 'a, F: Field, CS: Assignment<F> + 'a> TableLayouter<F>
             // Since there is already an existing default value for this table column,
             // the caller should not be attempting to assign another value at offset 0.
             (false, 0) => {
-                return Err(Error::TableError(TableError::OverwriteDefault(
-                    column,
-                    format!("{:?}", entry.0.unwrap()),
-                    format!("{value:?}"),
-                )))
+                panic!("TODO");
+                // return Err(Error::TableError(TableError::OverwriteDefault(
+                //     column,
+                //     format!("{:?}", entry.0.unwrap()),
+                //     format!("{value:?}"),
+                // )))
             }
             _ => (),
         }
@@ -125,13 +128,15 @@ pub fn compute_table_lengths<F: Debug>(
         .iter()
         .map(|(col, (default_value, assigned))| {
             if default_value.is_none() || assigned.is_empty() {
-                return Err(Error::TableError(TableError::ColumnNotAssigned(*col)));
+                panic!("TODO");
+                // return Err(Error::TableError(TableError::ColumnNotAssigned(*col)));
             }
             if assigned.iter().all(|b| *b) {
                 // All values in the column have been assigned
                 Ok((col, assigned.len()))
             } else {
-                Err(Error::TableError(TableError::ColumnNotAssigned(*col)))
+                panic!("TODO");
+                // Err(Error::TableError(TableError::ColumnNotAssigned(*col)))
             }
         })
         .collect();
@@ -144,9 +149,10 @@ pub fn compute_table_lengths<F: Debug>(
             } else {
                 let mut cols = [(*col, col_len), (acc.0.unwrap(), acc.1)];
                 cols.sort();
-                Err(Error::TableError(TableError::UnevenColumnLengths(
-                    cols[0], cols[1],
-                )))
+                panic!("TODO");
+                // Err(Error::TableError(TableError::UnevenColumnLengths(
+                //     cols[0], cols[1],
+                // )))
             }
         })
         .map(|col_len| col_len.1)

@@ -4,7 +4,7 @@ use std::ops::{Add, Mul, Neg, Sub};
 use group::ff::Field;
 
 use crate::plonk::Assigned;
-use crate::plonk::Error;
+use halo2_common::plonk::Error;
 
 /// A value that might exist within a circuit.
 ///

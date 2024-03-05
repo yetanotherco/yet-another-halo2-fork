@@ -1,9 +1,21 @@
-use super::{lookup, permutation, shuffle, Error};
+use super::compress_selectors;
+use super::expression::sealed::{self, SealedPhase};
 use crate::circuit::layouter::SyncDeps;
 use crate::circuit::{Layouter, Region, Value};
+use crate::plonk::circuit::expression::Challenge;
+use crate::plonk::circuit::expression::Phase;
+use crate::plonk::circuit::expression::Selector;
+use crate::plonk::circuit::expression::TableColumn;
+use crate::plonk::circuit::expression::{AdviceQuery, FixedQuery, InstanceQuery};
+use crate::plonk::circuit::expression::{Column, Expression};
+use crate::plonk::circuit::expression::{FirstPhase, SecondPhase, ThirdPhase};
+use crate::plonk::lookup;
+use crate::plonk::permutation;
+use crate::plonk::shuffle;
 use crate::plonk::Assigned;
 use core::cmp::max;
 use core::ops::{Add, Mul};
+use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{
     Advice, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid, ExpressionMid, Fixed,
     GateMid, Instance, QueryMid, VarMid,
@@ -11,7 +23,6 @@ use halo2_middleware::circuit::{
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
 use halo2_middleware::poly::Rotation;
-use sealed::SealedPhase;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::{Product, Sum};
@@ -498,7 +509,7 @@ impl<F: Field> ConstraintSystem<F> {
         index
     }
 
-    fn query_fixed_index(&mut self, column: Column<Fixed>, at: Rotation) -> usize {
+    pub(super) fn query_fixed_index(&mut self, column: Column<Fixed>, at: Rotation) -> usize {
         // Return existing query, if it exists
         for (index, fixed_query) in self.fixed_queries.iter().enumerate() {
             if fixed_query == &(column, at) {
@@ -529,7 +540,7 @@ impl<F: Field> ConstraintSystem<F> {
         index
     }
 
-    fn query_instance_index(&mut self, column: Column<Instance>, at: Rotation) -> usize {
+    pub(super) fn query_instance_index(&mut self, column: Column<Instance>, at: Rotation) -> usize {
         // Return existing query, if it exists
         for (index, instance_query) in self.instance_queries.iter().enumerate() {
             if instance_query == &(column, at) {
@@ -1237,9 +1248,9 @@ impl<F: Field> ConstraintSystem<F> {
 /// table.
 #[derive(Debug)]
 pub struct VirtualCells<'a, F: Field> {
-    meta: &'a mut ConstraintSystem<F>,
-    queried_selectors: Vec<Selector>,
-    queried_cells: Vec<VirtualCell>,
+    pub(super) meta: &'a mut ConstraintSystem<F>,
+    pub(super) queried_selectors: Vec<Selector>,
+    pub(super) queried_cells: Vec<VirtualCell>,
 }
 
 impl<'a, F: Field> VirtualCells<'a, F> {

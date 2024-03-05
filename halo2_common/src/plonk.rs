@@ -8,9 +8,7 @@
 // use crate::plonk::circuit::Column;
 use crate::transcript::ChallengeScalar;
 use halo2_middleware::circuit::ColumnMid;
-use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 pub mod error;
 pub mod keygen;

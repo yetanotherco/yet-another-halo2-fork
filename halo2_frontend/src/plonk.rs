@@ -1,4 +1,14 @@
+use halo2_middleware::ff::Field;
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+
 pub mod circuit;
+pub mod keygen;
+pub mod lookup;
+pub mod permutation;
+pub mod shuffle;
+
+pub use circuit::*;
+pub use keygen::*;
 
 /// A value assigned to a cell within a circuit.
 ///
