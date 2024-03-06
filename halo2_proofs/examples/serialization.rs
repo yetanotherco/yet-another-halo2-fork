@@ -8,7 +8,7 @@ use halo2_proofs::{
     circuit::{Layouter, SimpleFloorPlanner, Value},
     plonk::{
         create_proof, keygen_pk, keygen_vk_custom, pk_read, verify_proof, Advice, Circuit, Column,
-        ConstraintSystem, Error, Fixed, Instance,
+        ConstraintSystem, ErrorFront, Fixed, Instance,
     },
     poly::{
         kzg::{
@@ -101,7 +101,7 @@ impl Circuit<Fr> for StandardPlonk {
         &self,
         config: Self::Config,
         mut layouter: impl Layouter<Fr>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorFront> {
         layouter.assign_region(
             || "",
             |mut region| {

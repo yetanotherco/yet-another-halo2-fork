@@ -32,8 +32,6 @@ use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
 /// use halo2_frontend::{
 ///     circuit::{floor_planner, Layouter, Value},
 ///     dev::TracingFloorPlanner,
-/// };
-/// use halo2_common::{
 ///     plonk::{Circuit, ConstraintSystem, Error},
 /// };
 ///

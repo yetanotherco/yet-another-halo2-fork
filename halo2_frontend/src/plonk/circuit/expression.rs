@@ -265,7 +265,7 @@ impl SealedPhase for ThirdPhase {
 /// ```
 /// use halo2_middleware::poly::Rotation;
 /// # use halo2curves::pasta::Fp;
-/// # use halo2_common::plonk::ConstraintSystem;
+/// # use halo2_frontend::plonk::ConstraintSystem;
 ///
 /// # let mut meta = ConstraintSystem::<Fp>::default();
 /// let a = meta.advice_column();
@@ -287,8 +287,8 @@ impl SealedPhase for ThirdPhase {
 /// row when required:
 /// ```
 /// use halo2_middleware::circuit::Advice;
-/// use crate::circuit::{Chip, Layouter, Value};
-/// use crate::plonk::{Error, Column, Selector};
+/// use halo2_frontend::circuit::{Chip, Layouter, Value};
+/// use halo2_frontend::plonk::{Error, Column, Selector};
 /// use halo2_middleware::ff::Field;
 /// # use halo2_middleware::circuit::Fixed;
 ///

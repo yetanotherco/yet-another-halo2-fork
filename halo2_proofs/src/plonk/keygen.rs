@@ -1,10 +1,11 @@
+use crate::plonk::Error;
 use halo2_backend::plonk::{
     keygen::{keygen_pk_v2, keygen_vk_v2},
     ProvingKey, VerifyingKey,
 };
 use halo2_backend::{arithmetic::CurveAffine, poly::commitment::Params};
-use halo2_common::plonk::{circuit::Circuit, Error};
 use halo2_frontend::circuit::compile_circuit;
+use halo2_frontend::plonk::Circuit;
 use halo2_middleware::ff::FromUniformBytes;
 
 /// Generate a `VerifyingKey` from an instance of `Circuit`.
@@ -58,5 +59,5 @@ where
         circuit,
         vk.compress_selectors.unwrap_or_default(),
     )?;
-    keygen_pk_v2(params, vk, &compiled_circuit)
+    Ok(keygen_pk_v2(params, vk, &compiled_circuit)?)
 }

@@ -10,19 +10,20 @@ use halo2_backend::plonk::{
     prover::ProverV2Single,
     verifier::{verify_proof, verify_proof_single},
 };
-use halo2_common::{
-    circuit::{AssignedCell, Layouter, Region, SimpleFloorPlanner, Value},
-    plonk::{
-        circuit::{Challenge, Column},
-        Circuit, ConstraintSystem, Error, Expression, FirstPhase, SecondPhase, Selector,
-    },
-    transcript::{
-        Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
-    },
+use halo2_common::transcript::{
+    Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
 };
 use halo2_frontend::{
-    circuit::{compile_circuit, WitnessCalculator},
+    circuit::{
+        compile_circuit, AssignedCell, Layouter, Region, SimpleFloorPlanner, Value,
+        WitnessCalculator,
+    },
     dev::MockProver,
+    plonk::{
+        circuit::{Challenge, Column},
+        Circuit, ConstraintSystem, Error as ErrorFront, Expression, FirstPhase, SecondPhase,
+        Selector,
+    },
 };
 use halo2_middleware::{
     circuit::{Advice, Fixed, Instance},
@@ -72,7 +73,7 @@ impl MyCircuitConfig {
         offset: &mut usize,
         a_assigned: Option<AssignedCell<F, F>>,
         abcd: [u64; 4],
-    ) -> Result<(AssignedCell<F, F>, [AssignedCell<F, F>; 4]), Error> {
+    ) -> Result<(AssignedCell<F, F>, [AssignedCell<F, F>; 4]), ErrorFront> {
         let [a, b, c, d] = abcd;
         self.s_gate.enable(region, *offset)?;
         let a_assigned = if let Some(a_assigned) = a_assigned {
@@ -234,7 +235,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
         &self,
         config: &MyCircuitConfig,
         layouter: &mut impl Layouter<F>,
-    ) -> Result<(usize, Vec<AssignedCell<F, F>>), Error> {
+    ) -> Result<(usize, Vec<AssignedCell<F, F>>), ErrorFront> {
         let challenge = layouter.get_challenge(config.challenge);
         let (rows, instance_copy) = layouter.assign_region(
             || "unit",
@@ -422,7 +423,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> Circuit<F> for MyCircuit<F
         &self,
         config: Vec<MyCircuitConfig>,
         mut layouter: impl Layouter<F>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorFront> {
         // - 2 queries from first gate
         // - 3 for permutation argument
         // - 1 for multipoen

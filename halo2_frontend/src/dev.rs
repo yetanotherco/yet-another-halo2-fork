@@ -212,8 +212,6 @@ impl<F: Field> Mul<F> for Value<F> {
 /// use halo2_frontend::{
 ///     circuit::{Layouter, SimpleFloorPlanner, Value},
 ///     dev::{FailureLocation, MockProver, VerifyFailure},
-/// };
-/// use halo2_common::{
 ///     plonk::{circuit::Column, Circuit, ConstraintSystem, Error, Selector},
 /// };
 /// use halo2_middleware::circuit::{Advice, Any};

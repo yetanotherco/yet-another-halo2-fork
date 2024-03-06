@@ -5,6 +5,7 @@
 //! [halo]: https://eprint.iacr.org/2019/1021
 //! [plonk]: https://eprint.iacr.org/2019/953
 
+mod error;
 mod keygen;
 mod prover;
 mod verifier {
@@ -16,11 +17,11 @@ pub use keygen::{keygen_pk, keygen_vk, keygen_vk_custom};
 pub use prover::create_proof;
 pub use verifier::verify_proof;
 
-pub use halo2_backend::plonk::{ProvingKey, VerifyingKey};
-pub use halo2_common::plonk::{
-    circuit::{Challenge, Column},
-    Assigned, Circuit, ConstraintSystem, Error, Expression, FirstPhase, SecondPhase, Selector,
-    TableColumn, ThirdPhase,
+pub use error::Error;
+pub use halo2_backend::plonk::{Error as ErrorBack, ProvingKey, VerifyingKey};
+pub use halo2_frontend::plonk::{
+    Assigned, Challenge, Circuit, Column, ConstraintSystem, Error as ErrorFront, Expression,
+    FirstPhase, SecondPhase, Selector, TableColumn, ThirdPhase,
 };
 pub use halo2_middleware::circuit::{Advice, ConstraintSystemMid, Fixed, Instance};
 

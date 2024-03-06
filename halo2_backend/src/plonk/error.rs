@@ -2,13 +2,9 @@ use std::error;
 use std::fmt;
 use std::io;
 
-/// This is an error that could occur during proving or circuit synthesis.
-// TODO: these errors need to be cleaned up
+/// This is an error that could occur during proving.
 #[derive(Debug)]
 pub enum Error {
-    /// This is an error that can occur during synthesis of the circuit, for
-    /// example, when the witness is not present.
-    Synthesis,
     /// The provided instances do not match the circuit parameters.
     InvalidInstances,
     /// The constraint system is not satisfied.
@@ -26,11 +22,6 @@ pub enum Error {
     },
     /// Instance provided exceeds number of available rows
     InstanceTooLarge,
-    /// Circuit synthesis requires global constants, but circuit configuration did not
-    /// call [`ConstraintSystem::enable_constant`] on fixed columns with sufficient space.
-    ///
-    /// [`ConstraintSystem::enable_constant`]: crate::plonk::ConstraintSystem::enable_constant
-    NotEnoughColumnsForConstants,
     /// Generic error not covered by previous cases
     Other(String),
 }
@@ -52,7 +43,6 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::Synthesis => write!(f, "General synthesis error"),
             Error::InvalidInstances => write!(f, "Provided instances do not match the circuit"),
             Error::ConstraintSystemFailure => write!(f, "The constraint system is not satisfied"),
             Error::BoundsFailure => write!(f, "An out-of-bounds index was passed to the backend"),
@@ -63,12 +53,6 @@ impl fmt::Display for Error {
                 "k = {current_k} is too small for the given circuit. Try using a larger value of k",
             ),
             Error::InstanceTooLarge => write!(f, "Instance vectors are larger than the circuit"),
-            Error::NotEnoughColumnsForConstants => {
-                write!(
-                    f,
-                    "Too few fixed columns are enabled for global constants usage"
-                )
-            }
             Error::Other(error) => write!(f, "Other: {error}"),
         }
     }

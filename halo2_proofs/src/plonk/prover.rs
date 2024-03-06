@@ -1,8 +1,9 @@
+use crate::plonk::{Error, ErrorBack};
 use crate::poly::commitment::{CommitmentScheme, Params, Prover};
 use halo2_backend::plonk::{prover::ProverV2, ProvingKey};
-use halo2_common::plonk::{circuit::Circuit, Error};
 use halo2_common::transcript::{EncodedChallenge, TranscriptWrite};
 use halo2_frontend::circuit::{compile_circuit_cs, WitnessCalculator};
+use halo2_frontend::plonk::Circuit;
 use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
 use rand_core::RngCore;
 use std::collections::HashMap;
@@ -31,7 +32,7 @@ where
     Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
 {
     if circuits.len() != instances.len() {
-        return Err(Error::InvalidInstances);
+        return Err(Error::Backend(ErrorBack::InvalidInstances));
     }
     let (config, cs, _) = compile_circuit_cs::<_, ConcreteCircuit>(
         pk.get_vk().compress_selectors.unwrap_or_default(),
@@ -53,14 +54,14 @@ where
         }
         challenges = prover.commit_phase(*phase, witnesses).unwrap();
     }
-    prover.create_proof()
+    Ok(prover.create_proof()?)
 }
 
 #[test]
 fn test_create_proof() {
     use crate::{
         circuit::SimpleFloorPlanner,
-        plonk::{keygen_pk, keygen_vk, ConstraintSystem},
+        plonk::{keygen_pk, keygen_vk, ConstraintSystem, ErrorFront},
         poly::kzg::{
             commitment::{KZGCommitmentScheme, ParamsKZG},
             multiopen::ProverSHPLONK,
@@ -90,7 +91,7 @@ fn test_create_proof() {
             &self,
             _config: Self::Config,
             _layouter: impl crate::circuit::Layouter<F>,
-        ) -> Result<(), Error> {
+        ) -> Result<(), ErrorFront> {
             Ok(())
         }
     }
@@ -109,7 +110,10 @@ fn test_create_proof() {
         OsRng,
         &mut transcript,
     );
-    assert!(matches!(proof.unwrap_err(), Error::InvalidInstances));
+    assert!(matches!(
+        proof.unwrap_err(),
+        Error::Backend(ErrorBack::InvalidInstances)
+    ));
 
     // Create proof with correct number of instances
     create_proof::<KZGCommitmentScheme<_>, ProverSHPLONK<_>, _, _, _, _>(

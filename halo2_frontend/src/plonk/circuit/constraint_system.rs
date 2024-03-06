@@ -74,10 +74,9 @@ impl<F: Field> From<Expression<F>> for Vec<Constraint<F>> {
 /// A set of polynomial constraints with a common selector.
 ///
 /// ```
-/// use halo2_common::{plonk::{Constraints, Expression}};
 /// use halo2_middleware::poly::Rotation;
 /// use halo2curves::pasta::Fp;
-/// # use halo2_common::plonk::ConstraintSystem;
+/// # use halo2_frontend::plonk::{Constraints, Expression, ConstraintSystem};
 ///
 /// # let mut meta = ConstraintSystem::<Fp>::default();
 /// let a = meta.advice_column();

@@ -12,6 +12,7 @@ pub use expression::*;
 
 // TODO: Bring ColumnType, Advice, Fixed, Instance and Any here, where Advice has a sealed phase
 // Keep a slim copy of those types in middleware.
+// https://github.com/privacy-scaling-explorations/halo2/issues/295
 
 /// This trait allows a [`Circuit`] to direct some backend to assign a witness
 /// for a constraint system.

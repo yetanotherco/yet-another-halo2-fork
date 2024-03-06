@@ -34,7 +34,7 @@ impl<V> Value<V> {
     /// # Examples
     ///
     /// ```
-    /// use halo2_common::circuit::Value;
+    /// use halo2_frontend::circuit::Value;
     ///
     /// let v = Value::known(37);
     /// ```
@@ -640,8 +640,8 @@ impl<V> Value<V> {
     /// If you have a `Value<F: Field>`, convert it to `Value<Assigned<F>>` first:
     /// ```
     /// # use halo2curves::pasta::pallas::Base as F;
-    /// use halo2_common::circuit::Value;
-    /// use halo2_common::plonk::Assigned;
+    /// use halo2_frontend::circuit::Value;
+    /// use halo2_frontend::plonk::Assigned;
     ///
     /// let v = Value::known(F::from(2));
     /// let v: Value<Assigned<F>> = v.into();
