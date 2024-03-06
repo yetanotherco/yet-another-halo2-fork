@@ -1,8 +1,5 @@
-use crate::circuit::layouter::SyncDeps;
-use crate::circuit::Layouter;
-use crate::circuit::Value;
-use crate::plonk::Assigned;
-use halo2_common::plonk::Error;
+use crate::circuit::{layouter::SyncDeps, Layouter, Value};
+use crate::plonk::{Assigned, Error};
 use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
 use halo2_middleware::ff::Field;
 

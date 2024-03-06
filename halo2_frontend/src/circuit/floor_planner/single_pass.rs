@@ -12,12 +12,8 @@ use crate::{
         table_layouter::{compute_table_lengths, SimpleTableLayouter},
         Cell, Column, Layouter, Region, RegionIndex, RegionStart, Table, Value,
     },
-    plonk::{
-        circuit::expression::{Challenge, Selector},
-        Assignment, Circuit, FloorPlanner, TableColumn,
-    },
+    plonk::{Assignment, Challenge, Circuit, Error, FloorPlanner, Selector, TableColumn},
 };
-use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{Advice, Any, Fixed, Instance};
 
 /// A simple [`FloorPlanner`] that performs minimal optimizations.
@@ -385,7 +381,7 @@ mod tests {
 
     use super::SimpleFloorPlanner;
     use crate::dev::MockProver;
-    use halo2_common::plonk::{circuit::Column, Circuit, ConstraintSystem, Error};
+    use crate::plonk::{Circuit, Column, ConstraintSystem, Error};
     use halo2_middleware::circuit::Advice;
 
     #[test]

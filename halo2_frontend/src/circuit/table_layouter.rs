@@ -5,13 +5,9 @@ use std::{
     fmt::{self, Debug},
 };
 
-use halo2_middleware::ff::Field;
-
-use crate::plonk::Assigned;
-use crate::plonk::{Assignment, TableColumn};
-use halo2_common::plonk::Error;
-
 use super::Value;
+use crate::plonk::{Assigned, Assignment, Error, TableColumn};
+use halo2_middleware::ff::Field;
 
 /// Helper trait for implementing a custom [`Layouter`].
 ///
@@ -162,12 +158,12 @@ pub fn compute_table_lengths<F: Debug>(
 mod tests {
     use halo2curves::pasta::Fp;
 
+    use crate::circuit::Value;
+    use crate::plonk::{Circuit, ConstraintSystem, Error, TableColumn};
     use crate::{
         circuit::{Layouter, SimpleFloorPlanner},
         dev::MockProver,
     };
-    use halo2_common::circuit::Value;
-    use halo2_common::plonk::{Circuit, ConstraintSystem, Error, TableColumn};
     use halo2_middleware::poly::Rotation;
 
     #[test]

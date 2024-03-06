@@ -8,14 +8,12 @@
 //     Selector, ThirdPhase,
 // };
 use crate::plonk;
-use crate::plonk::circuit::constraint_system::ConstraintSystem;
-use crate::plonk::circuit::constraint_system::SelectorsToFixed;
-use crate::plonk::circuit::expression::sealed::{self, SealedPhase};
-use crate::plonk::circuit::expression::{FirstPhase, SecondPhase, ThirdPhase};
-use crate::plonk::circuit::Assignment;
-use crate::plonk::circuit::Circuit;
-use crate::plonk::circuit::FloorPlanner;
-use crate::plonk::permutation;
+use crate::plonk::{
+    permutation,
+    sealed::{self, SealedPhase},
+    Assignment, Circuit, ConstraintSystem, FirstPhase, FloorPlanner, SecondPhase, SelectorsToFixed,
+    ThirdPhase,
+};
 use halo2_middleware::circuit::{Advice, Any, CompiledCircuitV2, Fixed, Instance, PreprocessingV2};
 use halo2_middleware::ff::{BatchInvert, Field};
 use std::collections::BTreeSet;
@@ -26,18 +24,10 @@ use std::ops::RangeTo;
 pub mod floor_planner;
 mod table_layouter;
 
-// Re-exports from common
-// pub use halo2_common::circuit::floor_planner::single_pass::SimpleFloorPlanner;
-// pub use halo2_common::circuit::{layouter, Layouter, Value};
-
 use std::{fmt, marker::PhantomData};
 
 use crate::plonk::Assigned;
-use crate::plonk::{
-    circuit::expression::{Challenge, Column},
-    Selector, TableColumn,
-};
-use halo2_common::plonk::Error;
+use crate::plonk::{Challenge, Column, Error, Selector, TableColumn};
 
 mod value;
 pub use value::Value;

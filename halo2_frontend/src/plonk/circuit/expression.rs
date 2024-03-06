@@ -1,21 +1,16 @@
-// use super::{lookup, permutation, shuffle, Error};
-use crate::circuit::layouter::SyncDeps;
-use crate::circuit::{Layouter, Region, Value};
-use crate::plonk::circuit::constraint_system::VirtualCells;
-use crate::plonk::permutation;
-use crate::plonk::Assigned;
+use crate::circuit::Region;
+use crate::plonk::circuit::VirtualCells;
+use crate::plonk::Error;
 use core::cmp::max;
 use core::ops::{Add, Mul};
-use halo2_common::plonk::Error;
 use halo2_middleware::circuit::{
-    Advice, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid, ExpressionMid, Fixed,
-    GateMid, Instance, QueryMid, VarMid,
+    Advice, Any, ChallengeMid, ColumnMid, ColumnType, ExpressionMid, Fixed, Instance, QueryMid,
+    VarMid,
 };
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
 use halo2_middleware::poly::Rotation;
 use sealed::SealedPhase;
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::{Product, Sum};
 use std::{
@@ -292,9 +287,8 @@ impl SealedPhase for ThirdPhase {
 /// row when required:
 /// ```
 /// use halo2_middleware::circuit::Advice;
-/// use halo2_common::circuit::{Chip, Layouter, Value};
-/// use halo2_common::plonk::circuit::{Column, Selector};
-/// use halo2_common::plonk::Error;
+/// use crate::circuit::{Chip, Layouter, Value};
+/// use crate::plonk::{Error, Column, Selector};
 /// use halo2_middleware::ff::Field;
 /// # use halo2_middleware::circuit::Fixed;
 ///

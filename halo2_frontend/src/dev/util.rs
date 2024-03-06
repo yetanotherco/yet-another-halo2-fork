@@ -2,10 +2,7 @@ use group::ff::Field;
 use std::collections::BTreeMap;
 
 use super::{metadata, CellValue, InstanceValue, Value};
-use crate::plonk::{
-    circuit::expression::{AdviceQuery, Column, Expression, FixedQuery, InstanceQuery},
-    Gate, VirtualCell,
-};
+use crate::plonk::{AdviceQuery, Column, Expression, FixedQuery, Gate, InstanceQuery, VirtualCell};
 use halo2_middleware::circuit::{Advice, Any, ColumnType};
 use halo2_middleware::poly::Rotation;
 

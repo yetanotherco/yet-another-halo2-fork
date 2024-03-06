@@ -3,8 +3,7 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 use group::ff::Field;
 
-use crate::plonk::Assigned;
-use halo2_common::plonk::Error;
+use crate::plonk::{Assigned, Error};
 
 /// A value that might exist within a circuit.
 ///

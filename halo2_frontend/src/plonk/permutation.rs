@@ -1,17 +1,14 @@
 //! Implementation of permutation argument.
 
-use crate::plonk::Column;
-use halo2_common::plonk::Error;
+use crate::plonk::{Column, Error};
 use halo2_middleware::circuit::{Any, Cell};
 use halo2_middleware::permutation::ArgumentMid;
-
-// TODO: Clean up
 
 /// A permutation argument.
 #[derive(Default, Debug, Clone)]
 pub struct Argument {
     /// A sequence of columns involved in the argument.
-    pub columns: Vec<Column<Any>>,
+    pub(crate) columns: Vec<Column<Any>>,
 }
 
 impl From<ArgumentMid> for Argument {
@@ -75,9 +72,9 @@ impl Argument {
 
 #[derive(Clone, Debug)]
 pub struct Assembly {
-    pub n: usize,
-    pub columns: Vec<Column<Any>>,
-    pub copies: Vec<(Cell, Cell)>,
+    pub(crate) n: usize,
+    pub(crate) columns: Vec<Column<Any>>,
+    pub(crate) copies: Vec<(Cell, Cell)>,
 }
 
 impl Assembly {
@@ -97,12 +94,12 @@ impl Assembly {
         right_row: usize,
     ) -> Result<(), Error> {
         if !self.columns.contains(&left_column) {
-            panic!("ColumnNotInPermutation {:?}", left_column);
+            panic!("ColumnNotInPermutation {left_column:?}");
             // TODO: Enable this error
             // return Err(Error::ColumnNotInPermutation(left_column));
         }
         if !self.columns.contains(&right_column) {
-            panic!("ColumnNotInPermutation {:?}", right_column);
+            panic!("ColumnNotInPermutation {right_column:?}");
             // TODO: Enable this error
             // return Err(Error::ColumnNotInPermutation(right_column));
         }

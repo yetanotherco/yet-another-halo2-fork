@@ -244,9 +244,9 @@ pub fn slot_in_biggest_advice_first(
 
 #[test]
 fn test_slot_in() {
+    use crate::circuit::floor_planner::v1::strategy::slot_in;
     use crate::circuit::layouter::RegionShape;
-    use halo2_common::circuit::floor_planner::v1::strategy::slot_in;
-    use halo2_common::plonk::circuit::Column;
+    use crate::plonk::Column;
     use halo2_middleware::circuit::Any;
 
     let regions = vec![

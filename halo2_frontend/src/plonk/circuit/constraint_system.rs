@@ -1,35 +1,17 @@
 use super::compress_selectors;
-use super::expression::sealed::{self, SealedPhase};
-use crate::circuit::layouter::SyncDeps;
-use crate::circuit::{Layouter, Region, Value};
-use crate::plonk::circuit::expression::Challenge;
-use crate::plonk::circuit::expression::Phase;
-use crate::plonk::circuit::expression::Selector;
-use crate::plonk::circuit::expression::TableColumn;
-use crate::plonk::circuit::expression::{AdviceQuery, FixedQuery, InstanceQuery};
-use crate::plonk::circuit::expression::{Column, Expression};
-use crate::plonk::circuit::expression::{FirstPhase, SecondPhase, ThirdPhase};
-use crate::plonk::lookup;
-use crate::plonk::permutation;
-use crate::plonk::shuffle;
-use crate::plonk::Assigned;
-use core::cmp::max;
-use core::ops::{Add, Mul};
-use halo2_common::plonk::Error;
-use halo2_middleware::circuit::{
-    Advice, Any, ChallengeMid, ColumnMid, ColumnType, ConstraintSystemMid, ExpressionMid, Fixed,
-    GateMid, Instance, QueryMid, VarMid,
+use super::expression::sealed;
+use crate::plonk::{
+    lookup, permutation, shuffle, AdviceQuery, Challenge, Column, Expression, FirstPhase,
+    FixedQuery, InstanceQuery, Phase, Selector, TableColumn,
 };
+use core::cmp::max;
+use halo2_middleware::circuit::{Advice, Any, ConstraintSystemMid, Fixed, GateMid, Instance};
 use halo2_middleware::ff::Field;
 use halo2_middleware::metadata;
 use halo2_middleware::poly::Rotation;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::fmt::Debug;
-use std::iter::{Product, Sum};
-use std::{
-    convert::TryFrom,
-    ops::{Neg, Sub},
-};
 
 /// Represents an index into a vector where each entry corresponds to a distinct
 /// point that polynomials are queried at.
@@ -173,17 +155,16 @@ impl<F: Field, C: Into<Constraint<F>>, Iter: IntoIterator<Item = C>> IntoIterato
     }
 }
 
-// TODO: The fields should not be pub
 /// Gate
 #[derive(Clone, Debug)]
 pub struct Gate<F: Field> {
-    pub name: String,
-    pub constraint_names: Vec<String>,
-    pub polys: Vec<Expression<F>>,
+    pub(crate) name: String,
+    pub(crate) constraint_names: Vec<String>,
+    pub(crate) polys: Vec<Expression<F>>,
     /// We track queried selectors separately from other cells, so that we can use them to
     /// trigger debug checks on gates.
-    pub queried_selectors: Vec<Selector>,
-    pub queried_cells: Vec<VirtualCell>,
+    pub(crate) queried_selectors: Vec<Selector>,
+    pub(crate) queried_cells: Vec<VirtualCell>,
 }
 
 impl<F: Field> Gate<F> {
@@ -260,7 +241,7 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
                 .shuffles
                 .into_iter()
                 .map(|s| halo2_middleware::shuffle::ArgumentMid {
-                    name: s.name,
+                    name: s.name.clone(),
                     input_expressions: s.input_expressions.into_iter().map(|e| e.into()).collect(),
                     shuffle_expressions: s
                         .shuffle_expressions
@@ -328,7 +309,8 @@ pub struct ConstraintSystem<F: Field> {
     pub minimum_degree: Option<usize>,
 }
 
-/// TODO Document
+/// Helper struct with the parameters required to convert selector assignments into fixed column
+/// assignments.
 pub struct SelectorsToFixed {
     compress: bool,
     num_selectors: usize,
@@ -337,7 +319,8 @@ pub struct SelectorsToFixed {
 }
 
 impl SelectorsToFixed {
-    /// TODO Document
+    /// Convert selector assignments into fixed column assignments based on the parameters in
+    /// `SelectorsToFixed`.
     pub fn convert<F: Field>(&self, selectors: Vec<Vec<bool>>) -> Vec<Vec<F>> {
         // The number of provided selector assignments must be the number we
         // counted for this constraint system.
@@ -657,7 +640,8 @@ impl<F: Field> ConstraintSystem<F> {
         });
     }
 
-    /// TODO Document
+    /// Transform this `ConstraintSystem` into an equivalent one that replaces the selector columns
+    /// by fixed columns applying compression where possible.
     pub fn selectors_to_fixed_compressed(mut self) -> (Self, SelectorsToFixed) {
         // Compute the maximal degree of every selector. We only consider the
         // expressions in gates, as lookup arguments cannot support simple
@@ -729,6 +713,7 @@ impl<F: Field> ConstraintSystem<F> {
     /// find which fixed column corresponds with a given `Selector`.
     ///
     /// Do not call this twice. Yes, this should be a builder pattern instead.
+    #[deprecated(note = "Use `selectors_to_fixed_compressed` instead")]
     pub fn compress_selectors(self, selectors: Vec<Vec<bool>>) -> (Self, Vec<Vec<F>>) {
         let (cs, selectors_to_fixed) = self.selectors_to_fixed_compressed();
         let fixed_polys = selectors_to_fixed.convert(selectors);
@@ -736,80 +721,8 @@ impl<F: Field> ConstraintSystem<F> {
         (cs, fixed_polys)
     }
 
-    /// This will compress selectors together depending on their provided
-    /// assignments. This `ConstraintSystem` will then be modified to add new
-    /// fixed columns (representing the actual selectors) and will return the
-    /// polynomials for those columns. Finally, an internal map is updated to
-    /// find which fixed column corresponds with a given `Selector`.
-    ///
-    /// Do not call this twice. Yes, this should be a builder pattern instead.
-    pub fn compress_selectors_old(mut self, selectors: Vec<Vec<bool>>) -> (Self, Vec<Vec<F>>) {
-        // The number of provided selector assignments must be the number we
-        // counted for this constraint system.
-        assert_eq!(selectors.len(), self.num_selectors);
-
-        // Compute the maximal degree of every selector. We only consider the
-        // expressions in gates, as lookup arguments cannot support simple
-        // selectors. Selectors that are complex or do not appear in any gates
-        // will have degree zero.
-        let mut degrees = vec![0; selectors.len()];
-        for expr in self.gates.iter().flat_map(|gate| gate.polys.iter()) {
-            if let Some(selector) = expr.extract_simple_selector() {
-                degrees[selector.0] = max(degrees[selector.0], expr.degree());
-            }
-        }
-
-        // We will not increase the degree of the constraint system, so we limit
-        // ourselves to the largest existing degree constraint.
-        let max_degree = self.degree();
-
-        let mut new_columns = vec![];
-        let (polys, selector_assignment) = compress_selectors::process(
-            selectors
-                .into_iter()
-                .zip(degrees)
-                .enumerate()
-                .map(
-                    |(i, (activations, max_degree))| compress_selectors::SelectorDescription {
-                        selector: i,
-                        activations,
-                        max_degree,
-                    },
-                )
-                .collect(),
-            max_degree,
-            || {
-                let column = self.fixed_column();
-                new_columns.push(column);
-                Expression::Fixed(FixedQuery {
-                    index: Some(self.query_fixed_index(column, Rotation::cur())),
-                    column_index: column.index,
-                    rotation: Rotation::cur(),
-                })
-            },
-        );
-
-        let mut selector_map = vec![None; selector_assignment.len()];
-        let mut selector_replacements = vec![None; selector_assignment.len()];
-        for assignment in selector_assignment {
-            selector_replacements[assignment.selector] = Some(assignment.expression);
-            selector_map[assignment.selector] = Some(new_columns[assignment.combination_index]);
-        }
-
-        self.selector_map = selector_map
-            .into_iter()
-            .map(|a| a.unwrap())
-            .collect::<Vec<_>>();
-        let selector_replacements = selector_replacements
-            .into_iter()
-            .map(|a| a.unwrap())
-            .collect::<Vec<_>>();
-        self.replace_selectors_with_fixed(&selector_replacements);
-
-        (self, polys)
-    }
-
-    /// TODO Document
+    /// Transform this `ConstraintSystem` into an equivalent one that replaces the selector columns
+    /// by fixed columns with a direct mapping.
     pub fn selectors_to_fixed_direct(mut self) -> (Self, SelectorsToFixed) {
         let selectors_to_fixed = SelectorsToFixed {
             compress: true,
