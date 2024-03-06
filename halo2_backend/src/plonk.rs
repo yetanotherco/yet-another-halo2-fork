@@ -17,9 +17,8 @@ use halo2_common::SerdeFormat;
 
 use std::io;
 
-pub(crate) use halo2_common::plonk::Error;
-
 mod circuit;
+mod error;
 mod evaluation;
 pub mod keygen;
 mod lookup;
@@ -28,6 +27,8 @@ pub mod prover;
 mod shuffle;
 mod vanishing;
 pub mod verifier;
+
+pub use error::*;
 
 /// This is a verifying key which allows for the verification of proofs for a
 /// particular circuit.

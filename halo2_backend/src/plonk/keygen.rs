@@ -10,12 +10,13 @@ use crate::{
         ConstraintSystemBack, ExpressionBack, GateBack, LookupArgumentBack, QueryBack,
         ShuffleArgumentBack, VarBack,
     },
+    plonk::Error,
     poly::{
         commitment::{Blind, Params},
         EvaluationDomain,
     },
 };
-use halo2_common::plonk::{Error, Queries};
+use halo2_common::plonk::Queries;
 use halo2_middleware::circuit::{
     Any, ColumnMid, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, VarMid,
 };

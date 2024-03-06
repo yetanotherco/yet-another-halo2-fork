@@ -4,12 +4,12 @@ use halo2_middleware::ff::{Field, PrimeField};
 use super::{Argument, ProvingKey, VerifyingKey};
 use crate::{
     arithmetic::{parallelize, CurveAffine},
+    plonk::Error,
     poly::{
         commitment::{Blind, Params},
         EvaluationDomain,
     },
 };
-use halo2_common::plonk::Error;
 use halo2_middleware::circuit::ColumnMid;
 use halo2_middleware::permutation::{ArgumentMid, AssemblyMid};
 

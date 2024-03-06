@@ -7,14 +7,12 @@ use std::{collections::HashMap, iter};
 use crate::plonk::lookup::prover::lookup_commit_permuted;
 use crate::plonk::permutation::prover::permutation_commit;
 use crate::plonk::shuffle::prover::shuffle_commit_product;
-use crate::plonk::{lookup, permutation, shuffle, vanishing, ProvingKey};
+use crate::plonk::{lookup, permutation, shuffle, vanishing, Error, ProvingKey};
 use crate::poly::{
     commitment::{Blind, CommitmentScheme, Params, Prover},
     Basis, Coeff, LagrangeCoeff, Polynomial, ProverQuery,
 };
-use halo2_common::plonk::{
-    ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
-};
+use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY};
 
 use group::prime::PrimeCurveAffine;
 use halo2_common::arithmetic::{eval_polynomial, CurveAffine};

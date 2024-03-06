@@ -10,15 +10,6 @@ use crate::transcript::ChallengeScalar;
 use halo2_middleware::circuit::ColumnMid;
 use halo2_middleware::poly::Rotation;
 
-pub mod error;
-pub mod keygen;
-pub mod lookup;
-pub mod permutation;
-pub mod shuffle;
-
-pub use error::*;
-pub use keygen::*;
-
 /// List of queries (columns and rotations) used by a circuit
 #[derive(Debug, Clone)]
 pub struct Queries {

@@ -1,7 +1,6 @@
+use crate::plonk::Error;
 use group::Curve;
-use halo2_common::plonk::{
-    ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
-};
+use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY};
 use halo2_middleware::circuit::Any;
 use halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 use std::iter;
