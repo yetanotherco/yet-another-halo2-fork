@@ -88,6 +88,9 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
         circuit.params(),
     );
 
+    if (n as usize) < cs.minimum_rows() {
+        return Err(Error::not_enough_rows_available(k));
+    }
     let mut assembly = plonk::keygen::Assembly {
         k,
         fixed: vec![vec![F::ZERO.into(); n]; cs.num_fixed_columns],

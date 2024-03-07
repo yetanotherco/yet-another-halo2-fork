@@ -8,8 +8,8 @@ use halo2_proofs::circuit::{Cell, Layouter, SimpleFloorPlanner, Value};
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::{
     create_proof as create_plonk_proof, keygen_pk, keygen_vk, verify_proof as verify_plonk_proof,
-    Advice, Assigned, Circuit, Column, ConstraintSystem, Error, ErrorBack, ErrorFront, Fixed,
-    ProvingKey, TableColumn, VerifyingKey,
+    Advice, Assigned, Circuit, Column, ConstraintSystem, Error, ErrorFront, Fixed, ProvingKey,
+    TableColumn, VerifyingKey,
 };
 use halo2_proofs::poly::commitment::{CommitmentScheme, ParamsProver, Prover, Verifier};
 use halo2_proofs::poly::Rotation;
@@ -434,7 +434,7 @@ fn plonk_api() {
             let much_too_small_params= <$scheme as CommitmentScheme>::ParamsProver::new(1);
             assert_matches!(
                 keygen_vk(&much_too_small_params, &empty_circuit),
-                Err(Error::Backend(ErrorBack::NotEnoughRowsAvailable {
+                Err(Error::Frontend(ErrorFront::NotEnoughRowsAvailable {
                     current_k,
                 })) if current_k == 1
             );
@@ -444,7 +444,7 @@ fn plonk_api() {
             let slightly_too_small_params = <$scheme as CommitmentScheme>::ParamsProver::new(K-1);
             assert_matches!(
                 keygen_vk(&slightly_too_small_params, &empty_circuit),
-                Err(Error::Backend(ErrorBack::NotEnoughRowsAvailable {
+                Err(Error::Frontend(ErrorFront::NotEnoughRowsAvailable {
                     current_k,
                 })) if current_k == K - 1
             );
@@ -632,7 +632,7 @@ fn plonk_api() {
 
         // Check that the verification key has not changed unexpectedly
         {
-            //panic!("{:#?}", pk.get_vk().pinned());
+            // panic!("{:#?}", pk.get_vk().pinned());
             assert_eq!(
                 format!("{:#?}", pk.get_vk().pinned()),
                 r#"PinnedVerificationKey {
@@ -647,147 +647,221 @@ fn plonk_api() {
         num_fixed_columns: 7,
         num_advice_columns: 5,
         num_instance_columns: 1,
-        num_selectors: 0,
         gates: [
             Sum(
                 Sum(
                     Sum(
                         Sum(
                             Product(
-                                Advice {
-                                    query_index: 0,
-                                    column_index: 1,
-                                    rotation: Rotation(
-                                        0,
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 0,
+                                            column_index: 1,
+                                            column_type: Advice,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
                                     ),
-                                },
-                                Fixed {
-                                    query_index: 0,
-                                    column_index: 2,
-                                    rotation: Rotation(
-                                        0,
+                                ),
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 0,
+                                            column_index: 2,
+                                            column_type: Fixed,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
                                     ),
-                                },
+                                ),
                             ),
                             Product(
-                                Advice {
-                                    query_index: 1,
-                                    column_index: 2,
-                                    rotation: Rotation(
-                                        0,
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 1,
+                                            column_index: 2,
+                                            column_type: Advice,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
                                     ),
-                                },
-                                Fixed {
-                                    query_index: 1,
-                                    column_index: 3,
-                                    rotation: Rotation(
-                                        0,
+                                ),
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 1,
+                                            column_index: 3,
+                                            column_type: Fixed,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
                                     ),
-                                },
+                                ),
                             ),
                         ),
                         Product(
                             Product(
-                                Advice {
-                                    query_index: 0,
-                                    column_index: 1,
-                                    rotation: Rotation(
-                                        0,
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 0,
+                                            column_index: 1,
+                                            column_type: Advice,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
                                     ),
-                                },
-                                Advice {
-                                    query_index: 1,
-                                    column_index: 2,
-                                    rotation: Rotation(
-                                        0,
-                                    ),
-                                },
-                            ),
-                            Fixed {
-                                query_index: 2,
-                                column_index: 1,
-                                rotation: Rotation(
-                                    0,
                                 ),
-                            },
+                                Var(
+                                    Query(
+                                        QueryBack {
+                                            index: 1,
+                                            column_index: 2,
+                                            column_type: Advice,
+                                            rotation: Rotation(
+                                                0,
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            ),
+                            Var(
+                                Query(
+                                    QueryBack {
+                                        index: 2,
+                                        column_index: 1,
+                                        column_type: Fixed,
+                                        rotation: Rotation(
+                                            0,
+                                        ),
+                                    },
+                                ),
+                            ),
                         ),
                     ),
                     Negated(
                         Product(
-                            Advice {
-                                query_index: 2,
-                                column_index: 3,
-                                rotation: Rotation(
-                                    0,
+                            Var(
+                                Query(
+                                    QueryBack {
+                                        index: 2,
+                                        column_index: 3,
+                                        column_type: Advice,
+                                        rotation: Rotation(
+                                            0,
+                                        ),
+                                    },
                                 ),
-                            },
-                            Fixed {
-                                query_index: 3,
-                                column_index: 4,
-                                rotation: Rotation(
-                                    0,
+                            ),
+                            Var(
+                                Query(
+                                    QueryBack {
+                                        index: 3,
+                                        column_index: 4,
+                                        column_type: Fixed,
+                                        rotation: Rotation(
+                                            0,
+                                        ),
+                                    },
                                 ),
-                            },
+                            ),
                         ),
                     ),
                 ),
                 Product(
-                    Fixed {
-                        query_index: 4,
-                        column_index: 0,
-                        rotation: Rotation(
-                            0,
+                    Var(
+                        Query(
+                            QueryBack {
+                                index: 4,
+                                column_index: 0,
+                                column_type: Fixed,
+                                rotation: Rotation(
+                                    0,
+                                ),
+                            },
                         ),
-                    },
+                    ),
                     Product(
-                        Advice {
-                            query_index: 3,
-                            column_index: 4,
-                            rotation: Rotation(
-                                1,
+                        Var(
+                            Query(
+                                QueryBack {
+                                    index: 3,
+                                    column_index: 4,
+                                    column_type: Advice,
+                                    rotation: Rotation(
+                                        1,
+                                    ),
+                                },
                             ),
-                        },
-                        Advice {
-                            query_index: 4,
-                            column_index: 0,
-                            rotation: Rotation(
-                                -1,
+                        ),
+                        Var(
+                            Query(
+                                QueryBack {
+                                    index: 4,
+                                    column_index: 0,
+                                    column_type: Advice,
+                                    rotation: Rotation(
+                                        -1,
+                                    ),
+                                },
                             ),
-                        },
+                        ),
                     ),
                 ),
             ),
             Product(
-                Fixed {
-                    query_index: 5,
-                    column_index: 5,
-                    rotation: Rotation(
-                        0,
-                    ),
-                },
-                Sum(
-                    Advice {
-                        query_index: 0,
-                        column_index: 1,
-                        rotation: Rotation(
-                            0,
-                        ),
-                    },
-                    Negated(
-                        Instance {
-                            query_index: 0,
-                            column_index: 0,
+                Var(
+                    Query(
+                        QueryBack {
+                            index: 5,
+                            column_index: 5,
+                            column_type: Fixed,
                             rotation: Rotation(
                                 0,
                             ),
                         },
                     ),
                 ),
+                Sum(
+                    Var(
+                        Query(
+                            QueryBack {
+                                index: 0,
+                                column_index: 1,
+                                column_type: Advice,
+                                rotation: Rotation(
+                                    0,
+                                ),
+                            },
+                        ),
+                    ),
+                    Negated(
+                        Var(
+                            Query(
+                                QueryBack {
+                                    index: 0,
+                                    column_index: 0,
+                                    column_type: Instance,
+                                    rotation: Rotation(
+                                        0,
+                                    ),
+                                },
+                            ),
+                        ),
+                    ),
+                ),
             ),
         ],
         advice_queries: [
             (
-                Column {
+                ColumnMid {
                     index: 1,
                     column_type: Advice,
                 },
@@ -796,7 +870,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 2,
                     column_type: Advice,
                 },
@@ -805,7 +879,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 3,
                     column_type: Advice,
                 },
@@ -814,7 +888,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 4,
                     column_type: Advice,
                 },
@@ -823,7 +897,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Advice,
                 },
@@ -832,7 +906,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Advice,
                 },
@@ -841,7 +915,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 4,
                     column_type: Advice,
                 },
@@ -852,7 +926,7 @@ fn plonk_api() {
         ],
         instance_queries: [
             (
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Instance,
                 },
@@ -863,7 +937,7 @@ fn plonk_api() {
         ],
         fixed_queries: [
             (
-                Column {
+                ColumnMid {
                     index: 2,
                     column_type: Fixed,
                 },
@@ -872,7 +946,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 3,
                     column_type: Fixed,
                 },
@@ -881,7 +955,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 1,
                     column_type: Fixed,
                 },
@@ -890,7 +964,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 4,
                     column_type: Fixed,
                 },
@@ -899,7 +973,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Fixed,
                 },
@@ -908,7 +982,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 5,
                     column_type: Fixed,
                 },
@@ -917,7 +991,7 @@ fn plonk_api() {
                 ),
             ),
             (
-                Column {
+                ColumnMid {
                     index: 6,
                     column_type: Fixed,
                 },
@@ -926,53 +1000,53 @@ fn plonk_api() {
                 ),
             ),
         ],
-        permutation: Argument {
+        permutation: ArgumentMid {
             columns: [
-                Column {
+                ColumnMid {
                     index: 1,
                     column_type: Advice,
                 },
-                Column {
+                ColumnMid {
                     index: 2,
                     column_type: Advice,
                 },
-                Column {
+                ColumnMid {
                     index: 3,
                     column_type: Advice,
                 },
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Fixed,
                 },
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Advice,
                 },
-                Column {
+                ColumnMid {
                     index: 4,
                     column_type: Advice,
                 },
-                Column {
+                ColumnMid {
                     index: 0,
                     column_type: Instance,
                 },
-                Column {
+                ColumnMid {
                     index: 1,
                     column_type: Fixed,
                 },
-                Column {
+                ColumnMid {
                     index: 2,
                     column_type: Fixed,
                 },
-                Column {
+                ColumnMid {
                     index: 3,
                     column_type: Fixed,
                 },
-                Column {
+                ColumnMid {
                     index: 4,
                     column_type: Fixed,
                 },
-                Column {
+                ColumnMid {
                     index: 5,
                     column_type: Fixed,
                 },
@@ -980,27 +1054,37 @@ fn plonk_api() {
         },
         lookups: [
             Argument {
+                name: "lookup",
                 input_expressions: [
-                    Advice {
-                        query_index: 0,
-                        column_index: 1,
-                        rotation: Rotation(
-                            0,
+                    Var(
+                        Query(
+                            QueryBack {
+                                index: 0,
+                                column_index: 1,
+                                column_type: Advice,
+                                rotation: Rotation(
+                                    0,
+                                ),
+                            },
                         ),
-                    },
+                    ),
                 ],
                 table_expressions: [
-                    Fixed {
-                        query_index: 6,
-                        column_index: 6,
-                        rotation: Rotation(
-                            0,
+                    Var(
+                        Query(
+                            QueryBack {
+                                index: 6,
+                                column_index: 6,
+                                column_type: Fixed,
+                                rotation: Rotation(
+                                    0,
+                                ),
+                            },
                         ),
-                    },
+                    ),
                 ],
             },
         ],
-        constants: [],
         minimum_degree: None,
     },
     fixed_commitments: [
