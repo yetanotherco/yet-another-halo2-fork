@@ -259,53 +259,56 @@ impl<F: Field> From<ConstraintSystem<F>> for ConstraintSystemMid<F> {
 /// permutation arrangements.
 #[derive(Debug, Clone)]
 pub struct ConstraintSystem<F: Field> {
-    pub num_fixed_columns: usize,
-    pub num_advice_columns: usize,
-    pub num_instance_columns: usize,
-    pub num_selectors: usize,
-    pub num_challenges: usize,
+    pub(crate) num_fixed_columns: usize,
+    pub(crate) num_advice_columns: usize,
+    pub(crate) num_instance_columns: usize,
+    pub(crate) num_selectors: usize,
+    pub(crate) num_challenges: usize,
 
     /// Contains the index of each advice column that is left unblinded.
-    pub unblinded_advice_columns: Vec<usize>,
+    pub(crate) unblinded_advice_columns: Vec<usize>,
 
     /// Contains the phase for each advice column. Should have same length as num_advice_columns.
-    pub advice_column_phase: Vec<sealed::Phase>,
+    pub(crate) advice_column_phase: Vec<sealed::Phase>,
     /// Contains the phase for each challenge. Should have same length as num_challenges.
-    pub challenge_phase: Vec<sealed::Phase>,
+    pub(crate) challenge_phase: Vec<sealed::Phase>,
 
     /// This is a cached vector that maps virtual selectors to the concrete
     /// fixed column that they were compressed into. This is just used by dev
     /// tooling right now.
-    pub selector_map: Vec<Column<Fixed>>,
+    pub(crate) selector_map: Vec<Column<Fixed>>,
+    /// Status boolean indicating wether the selectors have been already transformed to fixed columns
+    /// or not.
+    selectors_to_fixed: bool,
 
-    pub gates: Vec<Gate<F>>,
-    pub advice_queries: Vec<(Column<Advice>, Rotation)>,
+    pub(crate) gates: Vec<Gate<F>>,
+    pub(crate) advice_queries: Vec<(Column<Advice>, Rotation)>,
     // Contains an integer for each advice column
     // identifying how many distinct queries it has
     // so far; should be same length as num_advice_columns.
-    pub num_advice_queries: Vec<usize>,
-    pub instance_queries: Vec<(Column<Instance>, Rotation)>,
-    pub fixed_queries: Vec<(Column<Fixed>, Rotation)>,
+    pub(crate) num_advice_queries: Vec<usize>,
+    pub(crate) instance_queries: Vec<(Column<Instance>, Rotation)>,
+    pub(crate) fixed_queries: Vec<(Column<Fixed>, Rotation)>,
 
     // Permutation argument for performing equality constraints
-    pub permutation: permutation::Argument,
+    pub(crate) permutation: permutation::Argument,
 
     // Vector of lookup arguments, where each corresponds to a sequence of
     // input expressions and a sequence of table expressions involved in the lookup.
-    pub lookups: Vec<lookup::Argument<F>>,
+    pub(crate) lookups: Vec<lookup::Argument<F>>,
 
     // Vector of shuffle arguments, where each corresponds to a sequence of
     // input expressions and a sequence of shuffle expressions involved in the shuffle.
-    pub shuffles: Vec<shuffle::Argument<F>>,
+    pub(crate) shuffles: Vec<shuffle::Argument<F>>,
 
     // List of indexes of Fixed columns which are associated to a circuit-general Column tied to their annotation.
-    pub general_column_annotations: HashMap<metadata::Column, String>,
+    pub(crate) general_column_annotations: HashMap<metadata::Column, String>,
 
     // Vector of fixed columns, which can be used to store constant values
     // that are copied into advice columns.
-    pub constants: Vec<Column<Fixed>>,
+    pub(crate) constants: Vec<Column<Fixed>>,
 
-    pub minimum_degree: Option<usize>,
+    pub(crate) minimum_degree: Option<usize>,
 }
 
 /// Helper struct with the parameters required to convert selector assignments into fixed column
@@ -325,7 +328,7 @@ impl SelectorsToFixed {
         // counted for this constraint system.
         assert_eq!(selectors.len(), self.num_selectors);
 
-        let polys = if self.compress {
+        if self.compress {
             let (polys, _) = compress_selectors::process(
                 selectors
                     .into_iter()
@@ -353,9 +356,7 @@ impl SelectorsToFixed {
                         .collect::<Vec<_>>()
                 })
                 .collect()
-        };
-
-        polys
+        }
     }
 }
 
@@ -371,6 +372,7 @@ impl<F: Field> Default for ConstraintSystem<F> {
             advice_column_phase: Vec::new(),
             challenge_phase: Vec::new(),
             selector_map: vec![],
+            selectors_to_fixed: false,
             gates: vec![],
             fixed_queries: Vec::new(),
             advice_queries: Vec::new(),
@@ -641,7 +643,12 @@ impl<F: Field> ConstraintSystem<F> {
 
     /// Transform this `ConstraintSystem` into an equivalent one that replaces the selector columns
     /// by fixed columns applying compression where possible.
+    ///
+    /// Panics if called twice.
     pub fn selectors_to_fixed_compressed(mut self) -> (Self, SelectorsToFixed) {
+        if self.selectors_to_fixed {
+            panic!("the selectors have already been transformed to fixed columns");
+        }
         // Compute the maximal degree of every selector. We only consider the
         // expressions in gates, as lookup arguments cannot support simple
         // selectors. Selectors that are complex or do not appear in any gates
@@ -657,7 +664,7 @@ impl<F: Field> ConstraintSystem<F> {
         // ourselves to the largest existing degree constraint.
         let max_degree = self.degree();
         let selectors_to_fixed = SelectorsToFixed {
-            compress: false,
+            compress: true,
             num_selectors: self.num_selectors,
             max_degree,
             degrees: degrees.clone(),
@@ -701,6 +708,7 @@ impl<F: Field> ConstraintSystem<F> {
             .map(|a| a.unwrap())
             .collect::<Vec<_>>();
         self.replace_selectors_with_fixed(&selector_replacements);
+        self.selectors_to_fixed = true;
 
         (self, selectors_to_fixed)
     }
@@ -722,9 +730,14 @@ impl<F: Field> ConstraintSystem<F> {
 
     /// Transform this `ConstraintSystem` into an equivalent one that replaces the selector columns
     /// by fixed columns with a direct mapping.
+    ///
+    /// Panics if called twice.
     pub fn selectors_to_fixed_direct(mut self) -> (Self, SelectorsToFixed) {
+        if self.selectors_to_fixed {
+            panic!("the selectors have already been transformed to fixed columns");
+        }
         let selectors_to_fixed = SelectorsToFixed {
-            compress: true,
+            compress: false,
             num_selectors: self.num_selectors,
             max_degree: 0,
             degrees: vec![],
@@ -743,7 +756,7 @@ impl<F: Field> ConstraintSystem<F> {
             .collect();
 
         self.replace_selectors_with_fixed(&selector_replacements);
-        self.num_selectors = 0;
+        self.selectors_to_fixed = true;
         (self, selectors_to_fixed)
     }
 

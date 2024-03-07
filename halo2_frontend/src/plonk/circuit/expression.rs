@@ -444,7 +444,7 @@ impl TableColumn {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct Challenge {
     pub index: usize,
-    pub phase: u8,
+    pub(crate) phase: u8,
 }
 
 impl Challenge {
