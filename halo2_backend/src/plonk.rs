@@ -11,8 +11,9 @@ use crate::poly::{
     Polynomial,
 };
 pub(crate) use evaluation::Evaluator;
+use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
+use evaluation::Evaluator;
 use halo2_common::plonk::{Circuit, ConstraintSystem, PinnedConstraintSystem};
-use halo2_common::transcript::{EncodedChallenge, Transcript};
 use halo2_common::SerdeFormat;
 
 use std::io;
@@ -460,3 +461,23 @@ impl<C: CurveAffine> VerifyingKey<C> {
         &self.domain
     }
 }
+
+#[derive(Clone, Copy, Debug)]
+pub struct Theta;
+pub type ChallengeTheta<F> = ChallengeScalar<F, Theta>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Beta;
+pub type ChallengeBeta<F> = ChallengeScalar<F, Beta>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Gamma;
+pub type ChallengeGamma<F> = ChallengeScalar<F, Gamma>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Y;
+pub type ChallengeY<F> = ChallengeScalar<F, Y>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct X;
+pub type ChallengeX<F> = ChallengeScalar<F, X>;

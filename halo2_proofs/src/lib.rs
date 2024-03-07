@@ -23,9 +23,7 @@ pub mod circuit {
 /// This module provides common utilities, traits and structures for group,
 /// field and polynomial arithmetic.
 pub mod arithmetic {
-    pub use halo2_backend::arithmetic::{
-        best_fft, parallelize, small_multiexp, CurveAffine, CurveExt, Field,
-    };
+    pub use halo2_backend::arithmetic::{parallelize, CurveAffine, CurveExt, Field};
 }
 /// Tools for developing circuits.
 pub mod dev {
@@ -48,7 +46,7 @@ pub mod poly {
 /// This module contains utilities and traits for dealing with Fiat-Shamir
 /// transcripts.
 pub mod transcript {
-    pub use halo2_common::transcript::{
+    pub use halo2_backend::transcript::{
         Blake2bRead, Blake2bWrite, Challenge255, EncodedChallenge, TranscriptReadBuffer,
         TranscriptWriterBuffer,
     };
