@@ -81,15 +81,16 @@ impl Assembly {
         right_column: ColumnMid,
         right_row: usize,
     ) -> Result<(), Error> {
-        // TODO: Error management instead of panic.  Move error type to backend.
-        let left_column = self.columns.iter().position(|c| c == &left_column).unwrap();
-        //     .ok_or(Error::ColumnNotInPermutation(left_column.into()))?;
+        let left_column = self
+            .columns
+            .iter()
+            .position(|c| c == &left_column)
+            .ok_or(Error::ColumnNotInPermutation(left_column))?;
         let right_column = self
             .columns
             .iter()
             .position(|c| c == &right_column)
-            .unwrap();
-        //     .ok_or(Error::ColumnNotInPermutation(right_column.into()))?;
+            .ok_or(Error::ColumnNotInPermutation(right_column))?;
 
         // Check bounds
         if left_row >= self.mapping[left_column].len()

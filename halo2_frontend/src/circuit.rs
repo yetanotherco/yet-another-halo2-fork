@@ -107,7 +107,7 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
 
     let mut fixed = batch_invert_assigned(assembly.fixed);
     let selector_polys = selectors_to_fixed.convert(assembly.selectors);
-    fixed.extend(selector_polys.into_iter());
+    fixed.extend(selector_polys);
 
     let preprocessing = PreprocessingV2 {
         permutation: halo2_middleware::permutation::AssemblyMid {

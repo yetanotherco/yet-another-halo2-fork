@@ -1,6 +1,8 @@
 use std::fmt;
 
 use super::TableColumn;
+use crate::plonk::Column;
+use halo2_middleware::circuit::Any;
 
 /// This is an error that could occur during circuit synthesis.
 #[derive(Debug)]
@@ -20,6 +22,9 @@ pub enum Error {
     ///
     /// [`ConstraintSystem::enable_constant`]: crate::plonk::ConstraintSystem::enable_constant
     NotEnoughColumnsForConstants,
+    /// The instance sets up a copy constraint involving a column that has not been
+    /// included in the permutation.
+    ColumnNotInPermutation(Column<Any>),
     /// An error relating to a lookup table.
     TableError(TableError),
     /// Generic error not covered by previous cases
@@ -48,6 +53,10 @@ impl fmt::Display for Error {
                     "Too few fixed columns are enabled for global constants usage"
                 )
             }
+            Error::ColumnNotInPermutation(column) => write!(
+                f,
+                "Column {column:?} must be included in the permutation. Help: try applying `meta.enable_equalty` on the column",
+            ),
             Error::TableError(error) => write!(f, "{error}"),
             Error::Other(error) => write!(f, "Other: {error}"),
         }

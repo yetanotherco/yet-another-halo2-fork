@@ -2,6 +2,8 @@ use std::error;
 use std::fmt;
 use std::io;
 
+use halo2_middleware::circuit::ColumnMid;
+
 /// This is an error that could occur during proving.
 #[derive(Debug)]
 pub enum Error {
@@ -22,6 +24,9 @@ pub enum Error {
     },
     /// Instance provided exceeds number of available rows
     InstanceTooLarge,
+    /// The instance sets up a copy constraint involving a column that has not been
+    /// included in the permutation.
+    ColumnNotInPermutation(ColumnMid),
     /// Generic error not covered by previous cases
     Other(String),
 }
@@ -53,6 +58,9 @@ impl fmt::Display for Error {
                 "k = {current_k} is too small for the given circuit. Try using a larger value of k",
             ),
             Error::InstanceTooLarge => write!(f, "Instance vectors are larger than the circuit"),
+            Error::ColumnNotInPermutation(column) => {
+                write!(f, "Column {column:?} must be included in the permutation",)
+            }
             Error::Other(error) => write!(f, "Other: {error}"),
         }
     }

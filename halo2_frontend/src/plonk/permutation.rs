@@ -94,14 +94,10 @@ impl Assembly {
         right_row: usize,
     ) -> Result<(), Error> {
         if !self.columns.contains(&left_column) {
-            panic!("ColumnNotInPermutation {left_column:?}");
-            // TODO: Enable this error
-            // return Err(Error::ColumnNotInPermutation(left_column));
+            return Err(Error::ColumnNotInPermutation(left_column));
         }
         if !self.columns.contains(&right_column) {
-            panic!("ColumnNotInPermutation {right_column:?}");
-            // TODO: Enable this error
-            // return Err(Error::ColumnNotInPermutation(right_column));
+            return Err(Error::ColumnNotInPermutation(right_column));
         }
         // Check bounds
         if left_row >= self.n || right_row >= self.n {

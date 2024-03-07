@@ -15,9 +15,6 @@ use halo2_backend::{
         Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
     },
 };
-use halo2_common::transcript::{
-    Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
-};
 use halo2_frontend::{
     circuit::{
         compile_circuit, AssignedCell, Layouter, Region, SimpleFloorPlanner, Value,
