@@ -839,7 +839,7 @@ fn render_shuffle<F: Field>(
 
 impl VerifyFailure {
     /// Emits this failure in pretty-printed format to stderr.
-    pub(super) fn emit<F: Field>(&self, prover: &MockProver<F>) {
+    pub fn emit<F: Field>(&self, prover: &MockProver<F>) {
         match self {
             Self::CellNotAssigned {
                 gate,

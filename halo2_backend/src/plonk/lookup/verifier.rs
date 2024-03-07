@@ -4,11 +4,10 @@ use super::Argument;
 use crate::{
     arithmetic::CurveAffine,
     plonk::circuit::{ExpressionBack, QueryBack, VarBack},
-    plonk::{Error, VerifyingKey},
+    plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error, VerifyingKey},
     poly::{commitment::MSM, VerifierQuery},
     transcript::{EncodedChallenge, TranscriptRead},
 };
-use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX};
 use halo2_middleware::circuit::Any;
 use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;

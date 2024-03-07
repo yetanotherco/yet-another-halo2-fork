@@ -3,13 +3,14 @@
 //!
 //! [halo]: https://eprint.iacr.org/2019/1021
 
-use crate::arithmetic::{best_multiexp, g_to_lagrange, parallelize, CurveAffine, CurveExt};
+use crate::arithmetic::{g_to_lagrange, parallelize, CurveAffine, CurveExt};
 use crate::helpers::CurveRead;
 use crate::poly::commitment::{Blind, CommitmentScheme, Params, ParamsProver, ParamsVerifier};
 use crate::poly::ipa::msm::MSMIPA;
 use crate::poly::{Coeff, LagrangeCoeff, Polynomial};
 
 use group::{Curve, Group};
+use halo2curves::msm::best_multiexp;
 use std::marker::PhantomData;
 
 mod prover;
@@ -23,12 +24,12 @@ use std::io;
 /// Public parameters for IPA commitment scheme
 #[derive(Debug, Clone)]
 pub struct ParamsIPA<C: CurveAffine> {
-    pub k: u32,
-    pub n: u64,
-    pub g: Vec<C>,
-    pub g_lagrange: Vec<C>,
-    pub w: C,
-    pub u: C,
+    pub(crate) k: u32,
+    pub(crate) n: u64,
+    pub(crate) g: Vec<C>,
+    pub(crate) g_lagrange: Vec<C>,
+    pub(crate) w: C,
+    pub(crate) u: C,
 }
 
 /// Concrete IPA commitment scheme

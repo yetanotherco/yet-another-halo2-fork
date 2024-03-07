@@ -2,7 +2,6 @@ use super::commitment::{IPACommitmentScheme, ParamsIPA};
 use super::msm::MSMIPA;
 use super::multiopen::VerifierIPA;
 use crate::{
-    arithmetic::best_multiexp,
     plonk::Error,
     poly::{
         commitment::MSM,
@@ -11,16 +10,17 @@ use crate::{
 };
 use group::Curve;
 use halo2_middleware::ff::Field;
+use halo2curves::msm::best_multiexp;
 use halo2curves::CurveAffine;
 use rand_core::OsRng;
 
 /// Wrapper for verification accumulator
 #[derive(Debug, Clone)]
 pub struct GuardIPA<'params, C: CurveAffine> {
-    pub msm: MSMIPA<'params, C>,
-    pub neg_c: C::Scalar,
-    pub u: Vec<C::Scalar>,
-    pub u_packed: Vec<C::Scalar>,
+    pub(crate) msm: MSMIPA<'params, C>,
+    pub(crate) neg_c: C::Scalar,
+    pub(crate) u: Vec<C::Scalar>,
+    pub(crate) u_packed: Vec<C::Scalar>,
 }
 
 /// An accumulator instance consisting of an evaluation claim and a proof.

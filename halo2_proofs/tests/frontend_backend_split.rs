@@ -5,10 +5,15 @@
 #[global_allocator]
 static ALLOC: dhat::Alloc = dhat::Alloc;
 
-use halo2_backend::plonk::{
-    keygen::{keygen_pk_v2, keygen_vk_v2},
-    prover::ProverV2Single,
-    verifier::{verify_proof, verify_proof_single},
+use halo2_backend::{
+    plonk::{
+        keygen::{keygen_pk_v2, keygen_vk_v2},
+        prover::ProverV2Single,
+        verifier::{verify_proof, verify_proof_single},
+    },
+    transcript::{
+        Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
+    },
 };
 use halo2_common::transcript::{
     Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,

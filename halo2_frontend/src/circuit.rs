@@ -1,12 +1,5 @@
 //! Traits and structs for implementing circuit components.
 
-// use halo2_common::plonk::{
-//     circuit::{Challenge, Column, SelectorsToFixed},
-//     permutation,
-//     sealed::{self, SealedPhase},
-//     Assigned, Assignment, Circuit, ConstraintSystem, Error, FirstPhase, FloorPlanner, SecondPhase,
-//     Selector, ThirdPhase,
-// };
 use crate::plonk;
 use crate::plonk::{
     permutation,
@@ -88,6 +81,7 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
 > {
     let n = 2usize.pow(k);
 
+    // After this, the ConstraintSystem should not have any selectors: `verify` does not need them, and `keygen_pk` regenerates `cs` from scratch anyways.
     let (config, cs, selectors_to_fixed) = compile_circuit_cs::<_, ConcreteCircuit>(
         compress_selectors,
         #[cfg(feature = "circuit-params")]

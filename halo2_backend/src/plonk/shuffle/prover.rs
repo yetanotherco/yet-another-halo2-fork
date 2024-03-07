@@ -4,16 +4,14 @@ use crate::plonk::evaluation::evaluate;
 use crate::{
     arithmetic::{eval_polynomial, parallelize, CurveAffine},
     plonk::circuit::ExpressionBack,
-    plonk::Error,
+    plonk::{ChallengeGamma, ChallengeTheta, ChallengeX, Error},
     poly::{
         commitment::{Blind, Params},
         Coeff, EvaluationDomain, LagrangeCoeff, Polynomial, ProverQuery,
     },
     transcript::{EncodedChallenge, TranscriptWrite},
 };
-use group::{ff::BatchInvert, Curve};
-use halo2_common::plonk::{ChallengeGamma, ChallengeTheta, ChallengeX};
-use halo2_middleware::ff::WithSmallOrderMulGroup;
+use group::{ff::BatchInvert, ff::WithSmallOrderMulGroup, Curve};
 use halo2_middleware::poly::Rotation;
 use rand_core::RngCore;
 use std::{

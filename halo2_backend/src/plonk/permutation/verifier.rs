@@ -4,30 +4,29 @@ use std::iter;
 use super::{Argument, VerifyingKey};
 use crate::{
     arithmetic::CurveAffine,
-    plonk::{self, Error},
+    plonk::{self, ChallengeBeta, ChallengeGamma, ChallengeX, Error},
     poly::{commitment::MSM, VerifierQuery},
     transcript::{EncodedChallenge, TranscriptRead},
 };
-use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeX};
 use halo2_middleware::circuit::Any;
 use halo2_middleware::poly::Rotation;
 
-pub struct Committed<C: CurveAffine> {
+pub(crate) struct Committed<C: CurveAffine> {
     permutation_product_commitments: Vec<C>,
 }
 
-pub struct EvaluatedSet<C: CurveAffine> {
+pub(crate) struct EvaluatedSet<C: CurveAffine> {
     permutation_product_commitment: C,
     permutation_product_eval: C::Scalar,
     permutation_product_next_eval: C::Scalar,
     permutation_product_last_eval: Option<C::Scalar>,
 }
 
-pub struct CommonEvaluated<C: CurveAffine> {
+pub(crate) struct CommonEvaluated<C: CurveAffine> {
     permutation_evals: Vec<C::Scalar>,
 }
 
-pub struct Evaluated<C: CurveAffine> {
+pub(crate) struct Evaluated<C: CurveAffine> {
     sets: Vec<EvaluatedSet<C>>,
 }
 

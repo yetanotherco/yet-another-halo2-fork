@@ -16,7 +16,7 @@ use std::fmt::Debug;
 /// Represents an index into a vector where each entry corresponds to a distinct
 /// point that polynomials are queried at.
 #[derive(Copy, Clone, Debug)]
-pub struct PointIndex(pub usize);
+pub(crate) struct PointIndex(pub usize);
 
 /// A "virtual cell" is a PLONK cell that has been queried at a particular relative offset
 /// within a custom gate.
@@ -506,7 +506,7 @@ impl<F: Field> ConstraintSystem<F> {
         index
     }
 
-    pub fn query_advice_index(&mut self, column: Column<Advice>, at: Rotation) -> usize {
+    pub(crate) fn query_advice_index(&mut self, column: Column<Advice>, at: Rotation) -> usize {
         // Return existing query, if it exists
         for (index, advice_query) in self.advice_queries.iter().enumerate() {
             if advice_query == &(column, at) {
@@ -549,7 +549,7 @@ impl<F: Field> ConstraintSystem<F> {
         }
     }
 
-    pub fn get_advice_query_index(&self, column: Column<Advice>, at: Rotation) -> usize {
+    pub(crate) fn get_advice_query_index(&self, column: Column<Advice>, at: Rotation) -> usize {
         for (index, advice_query) in self.advice_queries.iter().enumerate() {
             if advice_query == &(column, at) {
                 return index;
@@ -559,7 +559,7 @@ impl<F: Field> ConstraintSystem<F> {
         panic!("get_advice_query_index called for non-existent query");
     }
 
-    pub fn get_fixed_query_index(&self, column: Column<Fixed>, at: Rotation) -> usize {
+    pub(crate) fn get_fixed_query_index(&self, column: Column<Fixed>, at: Rotation) -> usize {
         for (index, fixed_query) in self.fixed_queries.iter().enumerate() {
             if fixed_query == &(column, at) {
                 return index;
@@ -569,7 +569,7 @@ impl<F: Field> ConstraintSystem<F> {
         panic!("get_fixed_query_index called for non-existent query");
     }
 
-    pub fn get_instance_query_index(&self, column: Column<Instance>, at: Rotation) -> usize {
+    pub(crate) fn get_instance_query_index(&self, column: Column<Instance>, at: Rotation) -> usize {
         for (index, instance_query) in self.instance_queries.iter().enumerate() {
             if instance_query == &(column, at) {
                 return index;

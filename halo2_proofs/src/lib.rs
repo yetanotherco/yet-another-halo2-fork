@@ -20,12 +20,10 @@ pub mod circuit {
         AssignedCell, Cell, Chip, Layouter, Region, SimpleFloorPlanner, Value,
     };
 }
-///! This module provides common utilities, traits and structures for group,
-///! field and polynomial arithmetic.
+/// This module provides common utilities, traits and structures for group,
+/// field and polynomial arithmetic.
 pub mod arithmetic {
-    pub use halo2_common::arithmetic::{
-        best_fft, parallelize, small_multiexp, CurveAffine, CurveExt, Field,
-    };
+    pub use halo2_backend::arithmetic::{parallelize, CurveAffine, CurveExt, Field};
 }
 /// Tools for developing circuits.
 pub mod dev {
@@ -48,9 +46,9 @@ pub mod poly {
 /// This module contains utilities and traits for dealing with Fiat-Shamir
 /// transcripts.
 pub mod transcript {
-    pub use halo2_common::transcript::{
-        Blake2bRead, Blake2bWrite, Challenge255, EncodedChallenge, TranscriptReadBuffer,
-        TranscriptWriterBuffer,
+    pub use halo2_backend::transcript::{
+        Blake2bRead, Blake2bWrite, Challenge255, EncodedChallenge, TranscriptRead,
+        TranscriptReadBuffer, TranscriptWrite, TranscriptWriterBuffer,
     };
 }
 mod helpers {

@@ -1,22 +1,22 @@
+use group::prime::PrimeCurveAffine;
 use group::Curve;
-use halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 use rand_core::RngCore;
 use std::collections::{BTreeSet, HashSet};
 use std::{collections::HashMap, iter};
 
-use crate::plonk::lookup::prover::lookup_commit_permuted;
-use crate::plonk::permutation::prover::permutation_commit;
-use crate::plonk::shuffle::prover::shuffle_commit_product;
-use crate::plonk::{lookup, permutation, shuffle, vanishing, Error, ProvingKey};
+use crate::arithmetic::{eval_polynomial, CurveAffine};
+use crate::plonk::{
+    lookup, lookup::prover::lookup_commit_permuted, permutation,
+    permutation::prover::permutation_commit, shuffle, shuffle::prover::shuffle_commit_product,
+    vanishing, ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY, Error,
+    ProvingKey,
+};
 use crate::poly::{
     commitment::{Blind, CommitmentScheme, Params, Prover},
     Basis, Coeff, LagrangeCoeff, Polynomial, ProverQuery,
 };
-use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, ChallengeY};
-
-use group::prime::PrimeCurveAffine;
-use halo2_common::arithmetic::{eval_polynomial, CurveAffine};
-use halo2_common::transcript::{EncodedChallenge, TranscriptWrite};
+use crate::transcript::{EncodedChallenge, TranscriptWrite};
+use halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 
 /// Collection of instance data used during proving for a single circuit proof.
 #[derive(Debug)]

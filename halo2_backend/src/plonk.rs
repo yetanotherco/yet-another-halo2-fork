@@ -1,6 +1,7 @@
 use blake2b_simd::Params as Blake2bParams;
 use group::ff::{Field, FromUniformBytes, PrimeField};
 
+use crate::arithmetic::CurveAffine;
 use crate::helpers::{
     polynomial_slice_byte_length, read_polynomial_vec, write_polynomial_slice, SerdeCurveAffine,
     SerdePrimeField,
@@ -10,9 +11,8 @@ use crate::poly::{
     Coeff, EvaluationDomain, ExtendedLagrangeCoeff, LagrangeCoeff, PinnedEvaluationDomain,
     Polynomial,
 };
+use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
 use evaluation::Evaluator;
-use halo2_common::arithmetic::CurveAffine;
-use halo2_common::transcript::{EncodedChallenge, Transcript};
 use halo2_common::SerdeFormat;
 
 use std::io;
@@ -379,3 +379,23 @@ impl<C: CurveAffine> VerifyingKey<C> {
         &self.domain
     }
 }
+
+#[derive(Clone, Copy, Debug)]
+pub struct Theta;
+pub type ChallengeTheta<F> = ChallengeScalar<F, Theta>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Beta;
+pub type ChallengeBeta<F> = ChallengeScalar<F, Beta>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Gamma;
+pub type ChallengeGamma<F> = ChallengeScalar<F, Gamma>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Y;
+pub type ChallengeY<F> = ChallengeScalar<F, Y>;
+
+#[derive(Clone, Copy, Debug)]
+pub struct X;
+pub type ChallengeX<F> = ChallengeScalar<F, X>;

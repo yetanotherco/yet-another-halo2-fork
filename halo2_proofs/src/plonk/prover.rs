@@ -1,7 +1,7 @@
 use crate::plonk::{Error, ErrorBack};
 use crate::poly::commitment::{CommitmentScheme, Params, Prover};
+use crate::transcript::{EncodedChallenge, TranscriptWrite};
 use halo2_backend::plonk::{prover::ProverV2, ProvingKey};
-use halo2_common::transcript::{EncodedChallenge, TranscriptWrite};
 use halo2_frontend::circuit::{compile_circuit_cs, WitnessCalculator};
 use halo2_frontend::plonk::Circuit;
 use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};

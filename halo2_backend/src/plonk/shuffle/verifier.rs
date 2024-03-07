@@ -4,20 +4,19 @@ use super::Argument;
 use crate::{
     arithmetic::CurveAffine,
     plonk::circuit::{ExpressionBack, QueryBack, VarBack},
-    plonk::{Error, VerifyingKey},
+    plonk::{ChallengeGamma, ChallengeTheta, ChallengeX, Error, VerifyingKey},
     poly::{commitment::MSM, VerifierQuery},
     transcript::{EncodedChallenge, TranscriptRead},
 };
-use halo2_common::plonk::{ChallengeGamma, ChallengeTheta, ChallengeX};
 use halo2_middleware::circuit::Any;
 use halo2_middleware::ff::Field;
 use halo2_middleware::poly::Rotation;
 
-pub struct Committed<C: CurveAffine> {
+pub(crate) struct Committed<C: CurveAffine> {
     product_commitment: C,
 }
 
-pub struct Evaluated<C: CurveAffine> {
+pub(crate) struct Evaluated<C: CurveAffine> {
     committed: Committed<C>,
     product_eval: C::Scalar,
     product_next_eval: C::Scalar,

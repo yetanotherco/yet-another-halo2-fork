@@ -4,7 +4,7 @@ use crate::plonk::evaluation::evaluate;
 use crate::{
     arithmetic::{eval_polynomial, parallelize, CurveAffine},
     plonk::circuit::ExpressionBack,
-    plonk::Error,
+    plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX, Error},
     poly::{
         commitment::{Blind, Params},
         Coeff, EvaluationDomain, LagrangeCoeff, Polynomial, ProverQuery,
@@ -15,7 +15,6 @@ use group::{
     ff::{BatchInvert, Field},
     Curve,
 };
-use halo2_common::plonk::{ChallengeBeta, ChallengeGamma, ChallengeTheta, ChallengeX};
 use halo2_middleware::ff::WithSmallOrderMulGroup;
 use halo2_middleware::poly::Rotation;
 use rand_core::RngCore;

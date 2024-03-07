@@ -1,13 +1,14 @@
-use crate::arithmetic::{best_multiexp, CurveAffine};
+use crate::arithmetic::CurveAffine;
 use crate::poly::{commitment::MSM, ipa::commitment::ParamsVerifierIPA};
 use group::Group;
 use halo2_middleware::ff::Field;
+use halo2curves::msm::best_multiexp;
 use std::collections::BTreeMap;
 
 /// A multiscalar multiplication in the polynomial commitment scheme
 #[derive(Debug, Clone)]
 pub struct MSMIPA<'params, C: CurveAffine> {
-    pub params: &'params ParamsVerifierIPA<C>,
+    pub(crate) params: &'params ParamsVerifierIPA<C>,
     g_scalars: Option<Vec<C::Scalar>>,
     w_scalar: Option<C::Scalar>,
     u_scalar: Option<C::Scalar>,
