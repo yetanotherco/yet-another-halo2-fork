@@ -10,9 +10,8 @@ use crate::poly::{
     Coeff, EvaluationDomain, ExtendedLagrangeCoeff, LagrangeCoeff, PinnedEvaluationDomain,
     Polynomial,
 };
-pub(crate) use evaluation::Evaluator;
 use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
-use evaluation::Evaluator;
+pub(crate) use evaluation::Evaluator;
 use halo2_common::plonk::{Circuit, ConstraintSystem, PinnedConstraintSystem};
 use halo2_common::SerdeFormat;
 

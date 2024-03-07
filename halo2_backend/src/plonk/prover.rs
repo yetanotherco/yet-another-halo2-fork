@@ -219,7 +219,7 @@ impl<
                     }
                 }
 
-                // Convert the lagrange polynomials to coefficients
+                // Convert from evaluation to coefficient form.
 
                 let instance_polys: Vec<_> = instance_values
                     .iter()
@@ -396,7 +396,7 @@ impl<
                     }
                 }
 
-                // Compute affine commitments to advice column polynomials.
+                // Compute commitments to advice column polynomials
                 let blinds: Vec<_> = column_indices
                     .iter()
                     .map(|i| {
@@ -437,7 +437,7 @@ impl<
                 Ok(())
             };
 
-        // Update bindings for each advice column
+        // Update blindings for each advice column
         // [TRANSCRIPT-3]
 
         for (witness, advice) in witness.into_iter().zip(advices.iter_mut()) {
