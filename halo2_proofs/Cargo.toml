@@ -77,7 +77,7 @@ test-dev-graph = [
     "plotters/ttf"
 ]
 bits = ["halo2curves/bits"]
-gadget-traces = ["halo2_common/gadget-traces"]
+gadget-traces = []
 thread-safe-region = []
 sanity-checks = []
 batch = ["rand_core/getrandom"]
