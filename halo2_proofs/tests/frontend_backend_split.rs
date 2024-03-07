@@ -140,7 +140,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
         (0..WIDTH_FACTOR).map(|_| instance.clone()).collect()
     }
 
-    fn configure_single(meta: &mut ConstraintSystem<F>) -> MyCircuitConfig {
+    fn configure_single(meta: &mut ConstraintSystem<F>, id: usize) -> MyCircuitConfig {
         let s_gate = meta.selector();
         let a = meta.advice_column();
         let b = meta.advice_column();
@@ -167,7 +167,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
 
         let one = Expression::Constant(F::ONE);
 
-        meta.create_gate("gate_a", |meta| {
+        meta.create_gate(format!("gate_a.{id}"), |meta| {
             let s_gate = meta.query_selector(s_gate);
             let b = meta.query_advice(b, Rotation::cur());
             let a1 = meta.query_advice(a, Rotation::next());
@@ -178,7 +178,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
             vec![s_gate * (a0 + b * c * d - a1)]
         });
 
-        meta.lookup_any("lookup", |meta| {
+        meta.lookup_any(format!("lookup.{id}"), |meta| {
             let s_lookup = meta.query_fixed(s_lookup, Rotation::cur());
             let s_ltable = meta.query_fixed(s_ltable, Rotation::cur());
             let a = meta.query_advice(a, Rotation::cur());
@@ -190,7 +190,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
             lhs.into_iter().zip(rhs).collect()
         });
 
-        meta.shuffle("shuffle", |meta| {
+        meta.shuffle(format!("shuffle.{id}"), |meta| {
             let s_shuffle = meta.query_fixed(s_shuffle, Rotation::cur());
             let s_stable = meta.query_fixed(s_stable, Rotation::cur());
             let a = meta.query_advice(a, Rotation::cur());
@@ -200,7 +200,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
             lhs.into_iter().zip(rhs).collect()
         });
 
-        meta.create_gate("gate_rlc", |meta| {
+        meta.create_gate(format!("gate_rlc.{id}"), |meta| {
             let s_rlc = meta.query_selector(s_rlc);
             let a = meta.query_advice(a, Rotation::cur());
             let b = meta.query_advice(b, Rotation::cur());
@@ -237,11 +237,25 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> MyCircuit<F, WIDTH_FACTOR>
         &self,
         config: &MyCircuitConfig,
         layouter: &mut impl Layouter<F>,
+        id: usize,
+        unit_id: usize,
     ) -> Result<(usize, Vec<AssignedCell<F, F>>), ErrorFront> {
         let challenge = layouter.get_challenge(config.challenge);
         let (rows, instance_copy) = layouter.assign_region(
-            || "unit",
+            || format!("unit.{id}-{unit_id}"),
             |mut region| {
+                // Column annotations
+                region.name_column(|| format!("a.{id}"), config.a);
+                region.name_column(|| format!("b.{id}"), config.b);
+                region.name_column(|| format!("c.{id}"), config.c);
+                region.name_column(|| format!("d.{id}"), config.d);
+                region.name_column(|| format!("e.{id}"), config.e);
+                region.name_column(|| format!("instance.{id}"), config.instance);
+                region.name_column(|| format!("s_lookup.{id}"), config.s_lookup);
+                region.name_column(|| format!("s_ltable.{id}"), config.s_ltable);
+                region.name_column(|| format!("s_shuffle.{id}"), config.s_shuffle);
+                region.name_column(|| format!("s_stable.{id}"), config.s_stable);
+
                 let mut offset = 0;
                 let mut instance_copy = Vec::new();
                 // First "a" value comes from instance
@@ -417,7 +431,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> Circuit<F> for MyCircuit<F
     fn configure(meta: &mut ConstraintSystem<F>) -> Vec<MyCircuitConfig> {
         assert!(WIDTH_FACTOR > 0);
         (0..WIDTH_FACTOR)
-            .map(|_| Self::configure_single(meta))
+            .map(|id| Self::configure_single(meta, id))
             .collect()
     }
 
@@ -433,11 +447,13 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> Circuit<F> for MyCircuit<F
         // - 1 for off-by-one errors
         let unusable_rows = 2 + 3 + 1 + 1 + 1;
         let max_rows = 2usize.pow(self.k) - unusable_rows;
-        for config in &config {
+        for (id, config) in config.iter().enumerate() {
             let mut total_rows = 0;
+            let mut unit_id = 0;
             loop {
-                let (rows, instance_copy) =
-                    self.synthesize_unit(config, &mut layouter).expect("todo");
+                let (rows, instance_copy) = self
+                    .synthesize_unit(config, &mut layouter, id, unit_id)
+                    .expect("todo");
                 if total_rows == 0 {
                     for (i, instance) in instance_copy.iter().enumerate() {
                         layouter.constrain_instance(instance.cell(), config.instance, 1 + i)?;
@@ -447,6 +463,7 @@ impl<F: Field + From<u64>, const WIDTH_FACTOR: usize> Circuit<F> for MyCircuit<F
                 if total_rows + rows > max_rows {
                     break;
                 }
+                unit_id += 1;
             }
             assert!(total_rows <= max_rows);
         }
@@ -487,10 +504,8 @@ fn test_mycircuit_mock() {
 
 use std::time::Instant;
 
-// const K: u32 = 8;
-// const WIDTH_FACTOR: usize = 1;
-const K: u32 = 16;
-const WIDTH_FACTOR: usize = 4;
+const K: u32 = 6;
+const WIDTH_FACTOR: usize = 1;
 
 #[test]
 fn test_mycircuit_full_legacy() {
