@@ -12,7 +12,7 @@ use crate::poly::{
     Polynomial,
 };
 use crate::transcript::{ChallengeScalar, EncodedChallenge, Transcript};
-use evaluation::Evaluator;
+pub(crate) use evaluation::Evaluator;
 use halo2_common::SerdeFormat;
 
 use std::io;
@@ -34,9 +34,13 @@ pub use error::*;
 /// particular circuit.
 #[derive(Clone, Debug)]
 pub struct VerifyingKey<C: CurveAffine> {
+    /// Evaluation domain
     domain: EvaluationDomain<C::Scalar>,
+    /// Commitments to fixed columns
     fixed_commitments: Vec<C>,
+    /// Permutation verifying key
     permutation: permutation::VerifyingKey<C>,
+    /// Constraint system
     cs: ConstraintSystemBack<C::Scalar>,
     /// Cached maximum degree of `cs` (which doesn't change after construction).
     cs_degree: usize,

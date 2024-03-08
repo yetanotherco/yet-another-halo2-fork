@@ -1,3 +1,7 @@
+//! This module
+//! - creates the proving and verifying keys for a circuit
+//! - crates a domain, constraint system, and configuration for a circuit
+
 #![allow(clippy::int_plus_one)]
 
 use group::Curve;
@@ -23,6 +27,7 @@ use halo2_middleware::circuit::{
 use halo2_middleware::{lookup, poly::Rotation, shuffle};
 use std::collections::HashMap;
 
+/// Creates a domain, constraint system, and configuration for a circuit.
 pub(crate) fn create_domain<C>(
     cs: &ConstraintSystemBack<C::Scalar>,
     k: u32,
@@ -97,6 +102,8 @@ where
         return Err(Error::not_enough_rows_available(params.k()));
     }
 
+    // Compute fixeds
+
     let fixed_polys: Vec<_> = circuit
         .preprocessing
         .fixed
@@ -112,12 +119,13 @@ where
         .map(|poly| vk.domain.coeff_to_extended(poly.clone()))
         .collect();
 
-    let permutation_pk = permutation::keygen::Assembly::new_from_assembly_mid(
-        params.n() as usize,
-        &cs.permutation,
-        &circuit.preprocessing.permutation,
-    )?
-    .build_pk(params, &vk.domain, &cs.permutation.clone());
+    let fixed_values = circuit
+        .preprocessing
+        .fixed
+        .clone()
+        .into_iter()
+        .map(Polynomial::new_lagrange_from_vec)
+        .collect();
 
     // Compute l_0(X)
     // TODO: this can be done more efficiently
@@ -156,18 +164,20 @@ where
     // Compute the optimized evaluation data structure
     let ev = Evaluator::new(&vk.cs);
 
+    // Compute the permutation proving key
+    let permutation_pk = permutation::keygen::Assembly::new_from_assembly_mid(
+        params.n() as usize,
+        &cs.permutation,
+        &circuit.preprocessing.permutation,
+    )?
+    .build_pk(params, &vk.domain, &cs.permutation.clone());
+
     Ok(ProvingKey {
         vk,
         l0,
         l_last,
         l_active_row,
-        fixed_values: circuit
-            .preprocessing
-            .fixed
-            .clone()
-            .into_iter()
-            .map(Polynomial::new_lagrange_from_vec)
-            .collect(),
+        fixed_values,
         fixed_polys,
         fixed_cosets,
         permutation: permutation_pk,
