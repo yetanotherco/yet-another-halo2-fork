@@ -7,23 +7,6 @@ pub trait Variable: Clone + Copy + std::fmt::Debug + Eq + PartialEq {
     /// Degree that an expression would have if it was only this variable.
     fn degree(&self) -> usize;
 
-    /// Return true if this variable is a virtual abstraction that may be transformed later.  Two
-    /// expressions containing virtual variables cannot be added or multiplied, this means an
-    /// expression can only contain up to one virtual variable.  An expression containing a virtual
-    /// variable cannot appear in a lookup.  Originally this is only fulfilled by the simple
-    /// selector abstraction in the halo2 frontend.
-    /// Overwrite this if the Variable has a virtual case.
-    fn is_virtual(&self) -> bool {
-        false
-    }
-
-    /// Return the name of the virtual variable case.  Originally this is used for "simple
-    /// selector".
-    /// Overwrite this if the Variable has a virtual case.
-    fn virtual_var_case() -> &'static str {
-        unimplemented!();
-    }
-
     /// Approximate the computational complexity an expression would have if it was only this
     /// variable.
     fn complexity(&self) -> usize {
@@ -204,19 +187,6 @@ impl<F: Field, V: Variable> Expression<F, V> {
     pub fn square(self) -> Self {
         self.clone() * self
     }
-
-    /// Returns whether or not this expression contains a virtual variable.  Originally this was
-    /// the simple `Selector`.
-    pub fn contains_virtual_var(&self) -> bool {
-        self.evaluate(
-            &|_| false,
-            &|var| var.is_virtual(),
-            &|a| a,
-            &|a, b| a || b,
-            &|a, b| a || b,
-            &|a, _| a,
-        )
-    }
 }
 
 impl<F: Field, V: Variable> Neg for Expression<F, V> {
@@ -229,12 +199,6 @@ impl<F: Field, V: Variable> Neg for Expression<F, V> {
 impl<F: Field, V: Variable> Add for Expression<F, V> {
     type Output = Expression<F, V>;
     fn add(self, rhs: Expression<F, V>) -> Expression<F, V> {
-        if self.contains_virtual_var() || rhs.contains_virtual_var() {
-            panic!(
-                "attempted to use a {} in an addition",
-                V::virtual_var_case()
-            );
-        }
         Expression::Sum(Box::new(self), Box::new(rhs))
     }
 }
@@ -242,12 +206,6 @@ impl<F: Field, V: Variable> Add for Expression<F, V> {
 impl<F: Field, V: Variable> Sub for Expression<F, V> {
     type Output = Expression<F, V>;
     fn sub(self, rhs: Expression<F, V>) -> Expression<F, V> {
-        if self.contains_virtual_var() || rhs.contains_virtual_var() {
-            panic!(
-                "attempted to use a {} in a subtraction",
-                V::virtual_var_case()
-            );
-        }
         Expression::Sum(Box::new(self), Box::new(-rhs))
     }
 }
@@ -255,12 +213,6 @@ impl<F: Field, V: Variable> Sub for Expression<F, V> {
 impl<F: Field, V: Variable> Mul for Expression<F, V> {
     type Output = Expression<F, V>;
     fn mul(self, rhs: Expression<F, V>) -> Expression<F, V> {
-        if self.contains_virtual_var() || rhs.contains_virtual_var() {
-            panic!(
-                "attempted to multiply two expressions containing {}s",
-                V::virtual_var_case()
-            );
-        }
         Expression::Product(Box::new(self), Box::new(rhs))
     }
 }
