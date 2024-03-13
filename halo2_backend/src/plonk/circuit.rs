@@ -238,7 +238,6 @@ impl<'a, F: Field> std::fmt::Debug for PinnedGates<'a, F> {
 }
 
 /// Represents the minimal parameters that determine a `ConstraintSystem`.
-#[allow(dead_code)]
 pub struct PinnedConstraintSystem<'a, F: Field> {
     num_fixed_columns: &'a usize,
     num_advice_columns: &'a usize,

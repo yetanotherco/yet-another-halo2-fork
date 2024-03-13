@@ -325,9 +325,6 @@ fn collect_queries<F: Field>(
 ) {
     let mut queries = QueriesMap {
         map: HashMap::new(),
-        // advice_map: HashMap::new(),
-        // instance_map: HashMap::new(),
-        // fixed_map: HashMap::new(),
         advice: Vec::new(),
         instance: Vec::new(),
         fixed: Vec::new(),
