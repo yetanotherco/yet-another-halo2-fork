@@ -52,7 +52,7 @@ pub struct VerifyingKey<C: CurveAffine> {
 }
 
 // Current version of the VK
-const VERSION: u8 = 0x03;
+const VERSION: u8 = 0x04;
 
 impl<C: SerdeCurveAffine> VerifyingKey<C>
 where
