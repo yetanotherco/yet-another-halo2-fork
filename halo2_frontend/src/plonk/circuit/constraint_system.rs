@@ -761,6 +761,7 @@ impl<F: Field> ConstraintSystem<F> {
     }
 
     /// Does not combine selectors and directly replaces them everywhere with fixed columns.
+    #[deprecated(note = "Use `selectors_to_fixed_direct` instead")]
     pub fn directly_convert_selectors_to_fixed(
         self,
         selectors: Vec<Vec<bool>>,

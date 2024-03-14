@@ -72,53 +72,6 @@ impl<F: Field, V: Variable> Expression<F, V> {
         }
     }
 
-    /// Evaluate the polynomial lazily using the provided closures to perform the
-    /// operations.
-    #[allow(clippy::too_many_arguments)]
-    pub fn evaluate_lazy<T: PartialEq>(
-        &self,
-        constant: &impl Fn(F) -> T,
-        var: &impl Fn(V) -> T,
-        negated: &impl Fn(T) -> T,
-        sum: &impl Fn(T, T) -> T,
-        product: &impl Fn(T, T) -> T,
-        scaled: &impl Fn(T, F) -> T,
-        zero: &T,
-    ) -> T {
-        match self {
-            Expression::Constant(scalar) => constant(*scalar),
-            Expression::Var(v) => var(*v),
-            Expression::Negated(a) => {
-                let a = a.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-                negated(a)
-            }
-            Expression::Sum(a, b) => {
-                let a = a.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-                let b = b.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-                sum(a, b)
-            }
-            Expression::Product(a, b) => {
-                let (a, b) = if a.complexity() <= b.complexity() {
-                    (a, b)
-                } else {
-                    (b, a)
-                };
-                let a = a.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-
-                if a == *zero {
-                    a
-                } else {
-                    let b = b.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-                    product(a, b)
-                }
-            }
-            Expression::Scaled(a, f) => {
-                let a = a.evaluate_lazy(constant, var, negated, sum, product, scaled, zero);
-                scaled(a, *f)
-            }
-        }
-    }
-
     fn write_identifier<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
         match self {
             Expression::Constant(scalar) => write!(writer, "{scalar:?}"),
