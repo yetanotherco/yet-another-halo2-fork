@@ -200,15 +200,15 @@ impl PartialOrd for Any {
 /// A column with an index and type
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ColumnMid {
-    /// The index of the column.
-    pub index: usize,
     /// The type of the column.
     pub column_type: Any,
+    /// The index of the column.
+    pub index: usize,
 }
 
 impl ColumnMid {
     pub fn new(column_type: Any, index: usize) -> Self {
-        ColumnMid { index, column_type }
+        ColumnMid { column_type, index }
     }
 }
 
