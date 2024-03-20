@@ -525,6 +525,9 @@ where
     E::G1: CurveExt<AffineExt = E::G1Affine>,
     E::G2Affine: SerdeCurveAffine,
 {
+    fn trimed_size(&self) -> u64 {
+        self.trimed_size as u64
+    }
 }
 
 impl<'params, E: Engine + Debug> ParamsProver<'params, E::G1Affine> for ParamsKZG<E>

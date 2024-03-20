@@ -92,7 +92,9 @@ pub trait ParamsProver<'params, C: CurveAffine>: Params<'params, C> {
 }
 
 /// Verifier specific functionality with circuit constraints
-pub trait ParamsVerifier<'params, C: CurveAffine>: Params<'params, C> {}
+pub trait ParamsVerifier<'params, C: CurveAffine>: Params<'params, C> {
+    fn trimed_size(&self) -> u64;
+}
 
 /// Multiscalar multiplication engine
 pub trait MSM<C: CurveAffine>: Clone + Debug + Send + Sync {

@@ -57,7 +57,12 @@ impl<C: CurveAffine> CommitmentScheme for IPACommitmentScheme<C> {
 /// Verifier parameters
 pub type ParamsVerifierIPA<C> = ParamsIPA<C>;
 
-impl<'params, C: CurveAffine> ParamsVerifier<'params, C> for ParamsIPA<C> {}
+impl<'params, C: CurveAffine> ParamsVerifier<'params, C> for ParamsIPA<C> {
+    fn trimed_size(&self) -> u64 {
+        // IPA parameters are cannot be trimed, so this is the domain size.
+        self.n
+    }
+}
 
 impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
     type MSM = MSMIPA<'params, C>;

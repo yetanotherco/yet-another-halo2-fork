@@ -13,6 +13,7 @@ use crate::plonk::{
     shuffle::verifier::shuffle_read_product_commitment, ChallengeBeta, ChallengeGamma,
     ChallengeTheta, ChallengeX, ChallengeY, Error,
 };
+use crate::poly::commitment::ParamsVerifier;
 use crate::poly::{
     commitment::{Blind, CommitmentScheme, Params, Verifier},
     VerificationStrategy, VerifierQuery,
@@ -80,7 +81,9 @@ where
                 instance
                     .iter()
                     .map(|instance| {
-                        if instance.len() > params.n() as usize - (vk.cs.blinding_factors() + 1) {
+                        if instance.len()
+                            > params.trimed_size() as usize - (vk.cs.blinding_factors() + 1)
+                        {
                             return Err(Error::InstanceTooLarge);
                         }
                         let mut poly = instance.to_vec();
