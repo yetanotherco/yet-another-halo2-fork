@@ -87,11 +87,8 @@ pub trait ParamsProver<'params, C: CurveAffine>: Params<'params, C> {
     fn commit(&self, poly: &Polynomial<C::ScalarExt, Coeff>, r: Blind<C::ScalarExt>)
         -> C::CurveExt;
 
-    /// Getter for g generators
-    fn get_g(&self) -> &[C];
-
     /// Returns verification parameters.
-    fn verifier_params(&'params self) -> &'params Self::ParamsVerifier;
+    fn into_verifier_params(self) -> Self::ParamsVerifier;
 }
 
 /// Verifier specific functionality with circuit constraints

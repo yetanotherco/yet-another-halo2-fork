@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use super::commitment::ParamsKZG;
+use super::commitment::ParamsVerifierKZG;
 use crate::{arithmetic::parallelize, poly::commitment::MSM};
 use group::{Curve, Group};
 use halo2curves::{
@@ -136,12 +136,13 @@ where
     }
 }
 
-impl<'params, E: MultiMillerLoop + Debug> From<&'params ParamsKZG<E>> for DualMSM<'params, E>
+impl<'params, E: MultiMillerLoop + Debug> From<&'params ParamsVerifierKZG<E>>
+    for DualMSM<'params, E>
 where
     E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
-    fn from(params: &'params ParamsKZG<E>) -> Self {
+    fn from(params: &'params ParamsVerifierKZG<E>) -> Self {
         DualMSM::new(params)
     }
 }
@@ -153,7 +154,7 @@ where
     E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
-    pub(crate) params: &'a ParamsKZG<E>,
+    pub(crate) params: &'a ParamsVerifierKZG<E>,
     pub(crate) left: MSMKZG<E>,
     pub(crate) right: MSMKZG<E>,
 }
@@ -164,7 +165,7 @@ where
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
     /// Create a new two channel MSM accumulator instance
-    pub fn new(params: &'a ParamsKZG<E>) -> Self {
+    pub fn new(params: &'a ParamsVerifierKZG<E>) -> Self {
         Self {
             params,
             left: MSMKZG::new(),

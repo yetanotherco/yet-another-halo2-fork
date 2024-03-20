@@ -520,7 +520,6 @@ fn test_mycircuit_full_legacy() {
     // Setup
     let mut rng = BlockRng::new(OneNg {});
     let params = ParamsKZG::<Bn256>::setup(k, &mut rng);
-    let verifier_params = params.verifier_params();
     let start = Instant::now();
     let vk = keygen_vk(&params, &circuit).expect("keygen_vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("keygen_pk should not fail");
@@ -548,13 +547,14 @@ fn test_mycircuit_full_legacy() {
     println!("Prove: {:?}", start.elapsed());
 
     // Verify
+    let verifier_params = params.into_verifier_params();
     let start = Instant::now();
     let mut verifier_transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
-    let strategy = SingleStrategy::new(verifier_params);
+    let strategy = SingleStrategy::new(&verifier_params);
 
     verify_proof::<KZGCommitmentScheme<Bn256>, VerifierSHPLONK<'_, Bn256>, _, _, _>(
-        &params,
+        &verifier_params,
         &vk,
         strategy,
         &[instances_slice],
@@ -576,7 +576,6 @@ fn test_mycircuit_full_split() {
     // Setup
     let mut rng = BlockRng::new(OneNg {});
     let params = ParamsKZG::<Bn256>::setup(k, &mut rng);
-    let verifier_params = params.verifier_params();
     let start = Instant::now();
     let vk = keygen_vk_v2(&params, &compiled_circuit).expect("keygen_vk should not fail");
     let pk =
@@ -615,14 +614,20 @@ fn test_mycircuit_full_split() {
     println!("Prove: {:?}", start.elapsed());
 
     // Verify
+    let max_instance_len = instances_slice
+        .iter()
+        .map(|col| col.len())
+        .max()
+        .unwrap_or(0usize);
+    let verifier_params = params.into_verifier_params().trim(max_instance_len);
     let start = Instant::now();
     println!("Verifying...");
     let mut verifier_transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
-    let strategy = SingleStrategy::new(verifier_params);
+    let strategy = SingleStrategy::new(&verifier_params);
 
     verify_proof_single::<KZGCommitmentScheme<Bn256>, VerifierSHPLONK<'_, Bn256>, _, _, _>(
-        &params,
+        &verifier_params,
         &vk,
         strategy,
         instances_slice,

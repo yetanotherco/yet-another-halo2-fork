@@ -4,6 +4,7 @@ use std::{
 };
 
 use ff::Field;
+use halo2_backend::poly::commitment::ParamsProver;
 use halo2_proofs::{
     circuit::{Layouter, SimpleFloorPlanner, Value},
     plonk::{
@@ -175,7 +176,8 @@ fn main() {
     .expect("prover should not fail");
     let proof = transcript.finalize();
 
-    let strategy = SingleStrategy::new(&params);
+    let verifier_params = params.into_verifier_params().trim(instances.len());
+    let strategy = SingleStrategy::new(&verifier_params);
     let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
     assert!(verify_proof::<
         KZGCommitmentScheme<Bn256>,
@@ -184,7 +186,7 @@ fn main() {
         Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
         SingleStrategy<'_, Bn256>,
     >(
-        &params,
+        &verifier_params,
         pk.get_vk(),
         strategy,
         &[instances],

@@ -11,7 +11,7 @@ use crate::{
     arithmetic::{eval_polynomial, parallelize, CurveAffine},
     plonk::{self, permutation::ProvingKey, ChallengeBeta, ChallengeGamma, ChallengeX, Error},
     poly::{
-        commitment::{Blind, Params},
+        commitment::{Blind, ParamsProver},
         Coeff, ExtendedLagrangeCoeff, LagrangeCoeff, Polynomial, ProverQuery,
     },
     transcript::{EncodedChallenge, TranscriptWrite},
@@ -49,7 +49,7 @@ pub(crate) struct Evaluated<C: CurveAffine> {
 pub(in crate::plonk) fn permutation_commit<
     'params,
     C: CurveAffine,
-    P: Params<'params, C>,
+    P: ParamsProver<'params, C>,
     E: EncodedChallenge<C>,
     R: RngCore,
     T: TranscriptWrite<C, E>,

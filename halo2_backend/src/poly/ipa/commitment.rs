@@ -146,7 +146,7 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
 impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
     type ParamsVerifier = ParamsVerifierIPA<C>;
 
-    fn verifier_params(&'params self) -> &'params Self::ParamsVerifier {
+    fn into_verifier_params(self) -> Self::ParamsVerifier {
         self
     }
 
@@ -201,6 +201,7 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
             k,
             n,
             g,
+
             g_lagrange,
             w,
             u,
@@ -222,16 +223,12 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
 
         best_multiexp::<C>(&tmp_scalars, &tmp_bases)
     }
-
-    fn get_g(&self) -> &[C] {
-        &self.g
-    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::poly::commitment::ParamsProver;
-    use crate::poly::commitment::{Blind, Params, MSM};
+    use crate::poly::commitment::{Blind, MSM};
+    use crate::poly::commitment::{Params, ParamsProver};
     use crate::poly::ipa::commitment::{create_proof, verify_proof, ParamsIPA};
     use crate::poly::ipa::msm::MSMIPA;
 

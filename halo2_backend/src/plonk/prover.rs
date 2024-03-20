@@ -476,7 +476,7 @@ impl<
     /// - 11. Compute and hash fixed evals
     /// - 12. Evaluate permutation, lookups and shuffles at x
     /// - 13. Generate all queries ([`PowerQuery`])
-    /// - 14. Send the queries to the [`Prover`]  
+    /// - 14. Send the queries to the [`Prover`]
     pub fn create_proof(mut self) -> Result<(), Error>
     where
         Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
