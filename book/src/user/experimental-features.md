@@ -141,6 +141,17 @@ They are introduced to improve quotient computation speed and memory usage for c
 
 ## Modular design (frontend-backend split)
 
+The halo2 implementation has been split into two separate parts: the frontend
+and the backend, following these definitions:
+- frontend: allows the user to specify the circuit logic and its satisfying
+  witness. It must provide a way to translate this logic into a low level
+  arithmetization format specified in the middleware module.
+- backend: the proving system implementation that receives the middleware
+  circuit arithmetization and performs the following tasks:
+  - Generate the setup (proving and verifying keys)
+  - Generate a proof (with witness as input)
+  - Verify a proof
+
 A note on naming: "halo2" can mean different things:
 - halo2 proof system, the protocol
 - halo2 proof system implementation, the backend
@@ -149,25 +160,12 @@ A note on naming: "halo2" can mean different things:
 - halo2 full-stack, the proof system full stack (the combination of the backend
   and frontend)
 
-The halo2 implementation has been split into two separate parts: the frontend
-and the backend, following these definitions:
-- frontend: The circuit library that allows the user to specify the logic of a
-  circuit as well as the implementation that translates this definition into
-  the appropriate low level arithmetization format required by the proving
-  system. It also handles witness calculation.
-  - Circuit compiler: an alternative name for a frontend that has higher
-    complexity. This part can itself have a frontend and backend.
-- backend: The proving system implementation that receives the circuit
-  arithmetization and performs the following tasks
-  - Generate the setup (proving and verifying keys)
-  - Generate a proof (with witness as input)
-  - Verify a proof
-
-Currently the backend implements the halo2 proof system.  Nevertheless, the
-public interface that the backend uses is generic for plonkish arithmetization.
-This allows for alternative frontend implementations as well as alternative
-plonkish proof system implementations.  The middleware contains the type
-definitions used to connect the frontend and backend.
+Currently the backend implements the "original" halo2 proof system extended
+with the features discussed in this document.  Nevertheless, the public
+interface that the backend uses is generic for plonkish arithmetization.  This
+allows for alternative frontend implementations as well as alternative plonkish
+proof system implementations.  The middleware contains the type definitions
+used to connect the frontend and backend.
 
 Summary of crates:
 - `halo2_frontend`: library used to define circuits and calculate their witness.
