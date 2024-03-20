@@ -212,11 +212,14 @@ impl ColumnMid {
     }
 }
 
-// TODO: Check where this is used, and see if it makes sense to have a more succint format like
-// Fixed0, or f0.
 impl fmt::Display for ColumnMid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Column('{:?}', {})", self.column_type, self.index)
+        let column_type = match self.column_type {
+            Any::Advice => "a",
+            Any::Fixed => "f",
+            Any::Instance => "i",
+        };
+        write!(f, "{}{}", column_type, self.index)
     }
 }
 
