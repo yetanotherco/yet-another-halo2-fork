@@ -252,11 +252,9 @@ impl SealedPhase for ThirdPhase {
 /// Selectors are disabled on all rows by default, and must be explicitly enabled on each
 /// row when required:
 /// ```
-/// use halo2_middleware::circuit::Advice;
 /// use halo2_frontend::circuit::{Chip, Layouter, Value};
-/// use halo2_frontend::plonk::{Error, Column, Selector};
+/// use halo2_frontend::plonk::{Advice, Fixed, Error, Column, Selector};
 /// use halo2_middleware::ff::Field;
-/// # use halo2_middleware::circuit::Fixed;
 ///
 /// struct Config {
 ///     a: Column<Advice>,

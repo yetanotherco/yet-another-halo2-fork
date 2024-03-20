@@ -212,9 +212,9 @@ impl<F: Field> Mul<F> for Value<F> {
 /// use halo2_frontend::{
 ///     circuit::{Layouter, SimpleFloorPlanner, Value},
 ///     dev::{FailureLocation, MockProver, VerifyFailure},
-///     plonk::{circuit::Column, Circuit, ConstraintSystem, Error, Selector},
+///     plonk::{circuit::Column, Circuit, ConstraintSystem, Error, Advice, Selector},
 /// };
-/// use halo2_middleware::circuit::{Advice, Any};
+/// use halo2_middleware::circuit::{Any, ColumnMid};
 /// use halo2_middleware::poly::Rotation;
 /// use halo2_middleware::ff::PrimeField;
 /// use halo2curves::pasta::Fp;
@@ -299,9 +299,9 @@ impl<F: Field> Mul<F> for Value<F> {
 ///             offset: 0,
 ///         },
 ///         cell_values: vec![
-///             (((Any::advice(), 0).into(), 0).into(), "0x2".to_string()),
-///             (((Any::advice(), 1).into(), 0).into(), "0x4".to_string()),
-///             (((Any::advice(), 2).into(), 0).into(), "0x8".to_string()),
+///             ((ColumnMid::new(Any::Advice, 0), 0).into(), "0x2".to_string()),
+///             ((ColumnMid::new(Any::Advice, 1), 0).into(), "0x4".to_string()),
+///             ((ColumnMid::new(Any::Advice, 2), 0).into(), "0x8".to_string()),
 ///         ],
 ///     }])
 /// );
