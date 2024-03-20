@@ -129,17 +129,16 @@ pub fn compile_circuit<F: Field, ConcreteCircuit: Circuit<F>>(
     ))
 }
 
-// TODO: Remove `pub`
 pub struct WitnessCollection<'a, F: Field> {
-    pub k: u32,
-    pub current_phase: sealed::Phase,
+    k: u32,
+    current_phase: sealed::Phase,
     advice_column_phase: &'a Vec<sealed::Phase>,
-    pub advice: Vec<Vec<Assigned<F>>>,
+    advice: Vec<Vec<Assigned<F>>>,
     // pub unblinded_advice: HashSet<usize>,
-    pub challenges: &'a HashMap<usize, F>,
-    pub instances: &'a [&'a [F]],
-    pub usable_rows: RangeTo<usize>,
-    pub _marker: std::marker::PhantomData<F>,
+    challenges: &'a HashMap<usize, F>,
+    instances: &'a [&'a [F]],
+    usable_rows: RangeTo<usize>,
+    _marker: std::marker::PhantomData<F>,
 }
 
 impl<'a, F: Field> Assignment<F> for WitnessCollection<'a, F> {
