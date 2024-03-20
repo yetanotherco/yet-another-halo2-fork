@@ -1,3 +1,25 @@
+//! A module for the prover side of the lookup argument.
+//! 
+//! Usage overview: 
+//! ```
+//!    // Construct commitments to the compressed input and table expressions
+//!    let permutation : Permuted =
+//!        lookup_commit_permuted( Argument { input_expressions, table_expressions },
+//!          {advice, fixed, instance}_values, challenges, transcript, ...) 
+//!   
+//!    // Construct the grand product polynomial 
+//!    let commited_grand_product_polynomial : Committed = 
+//!        permutation.commit_product(beta, gamma, transcript, ...)
+//!   
+//!    // Add to transcript the evaluation of each polinomial at (x, x rotated or x inverted) 
+//!    let evaluated_grand_product_polynomial : Evaluated  = 
+//!        commited_grand_product_polynomial.evaluate(x, transcript, ...)
+//! 
+//!     // Return [`ProverQuery`]s to open the commitments at x
+//!     let queries : Iterator<PowerQuery> =
+//!        evaluated_grand_product_polynomial.open(x) 
+//! ```
+
 use super::super::ProvingKey;
 use super::Argument;
 use crate::plonk::evaluation::evaluate;
@@ -387,6 +409,19 @@ type ExpressionPair<F> = (Polynomial<F, LagrangeCoeff>, Polynomial<F, LagrangeCo
 /// - the first row in a sequence of like values in A' is the row
 ///   that has the corresponding value in S'.
 /// This method returns (A', S') if no errors are encountered.
+/// 
+/// Example:
+/// 
+/// A   A'  S     S' first repeated row in A'  S' filled with leftover table elements
+/// --  --  --    ---------------------------- --------------------------------------
+/// 6   1     1   1                            1
+/// 7   5     2   5                            5
+/// 7   6     3   6                            6
+/// 6   6     4                                4  
+/// 1   7     5   7                            7
+/// 5   7     6                                3 
+/// 7   7     7                                2
+///     rand                                   rand           
 fn permute_expression_pair<'params, C: CurveAffine, P: Params<'params, C>, R: RngCore>(
     pk: &ProvingKey<C>,
     params: &P,
@@ -446,6 +481,7 @@ fn permute_expression_pair<'params, C: CurveAffine, P: Params<'params, C>, R: Rn
     }
     assert!(repeated_input_rows.is_empty());
 
+    // Add random blinding factors to the end
     permuted_input_expression
         .extend((0..(blinding_factors + 1)).map(|_| C::Scalar::random(&mut rng)));
     permuted_table_coeffs.extend((0..(blinding_factors + 1)).map(|_| C::Scalar::random(&mut rng)));

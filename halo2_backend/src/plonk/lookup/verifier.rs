@@ -1,3 +1,27 @@
+//! Usage overview: 
+//! ```
+//!    // Read the permutated input and table commitments from transcript
+//!    let permuted_input_table_commitments : PermutationCommitments = 
+//!        lookup_read_permuted_commitments(transcript); 
+//! 
+//!    // Read the product commitment from transcript
+//!    let product_commitment : Commited = 
+//!        permuted_input_table_commitments.read_product_commitment(transcript); 
+//!
+//!    // Read the evaluation points from transcript
+//!    let evaluated : Evaluated = 
+//!       product_commitment.evaluate(transcript);
+//! 
+//!    // Return a list of coefficients that will be used to construct
+//!    // the h polynomial. 
+//!    let coeffs : Iterator<C::Scalar> =
+//!       evaluated.expressions(fixeds, advices, instances, challenge, thetha, gamma);
+//!  
+//!    // Return a list of queries that opens at x
+//!    let queries : Iterator<VerifierQuery> = 
+//!       evaluated.queries(x)
+//!```
+
 use std::iter;
 
 use super::Argument;

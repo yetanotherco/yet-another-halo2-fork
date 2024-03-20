@@ -1,3 +1,19 @@
+//! Usage overview: 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
+//! 
 use group::{
     ff::{BatchInvert, Field},
     Curve,
