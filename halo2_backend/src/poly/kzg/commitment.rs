@@ -398,7 +398,7 @@ impl<E: Engine + Debug> From<ParamsKZG<E>> for ParamsVerifierKZG<E> {
             k: value.k,
             n: value.n,
             trimed_size: value.n as u32,
-            g_lagrange: value.g_lagrange.clone(),
+            g_lagrange: value.g_lagrange,
             g: value.g[0],
             g2: value.g2,
             s_g2: value.s_g2,
