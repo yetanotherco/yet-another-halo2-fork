@@ -37,7 +37,6 @@ impl ColumnType for Advice {
             index: None,
             column_index: index,
             rotation: at,
-            // phase: sealed::Phase(self.phase),
         })
     }
 }

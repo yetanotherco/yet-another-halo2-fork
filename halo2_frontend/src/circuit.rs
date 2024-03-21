@@ -134,11 +134,9 @@ pub struct WitnessCollection<'a, F: Field> {
     current_phase: sealed::Phase,
     advice_column_phase: &'a Vec<sealed::Phase>,
     advice: Vec<Vec<Assigned<F>>>,
-    // pub unblinded_advice: HashSet<usize>,
     challenges: &'a HashMap<usize, F>,
     instances: &'a [&'a [F]],
     usable_rows: RangeTo<usize>,
-    _marker: std::marker::PhantomData<F>,
 }
 
 impl<'a, F: Field> Assignment<F> for WitnessCollection<'a, F> {
@@ -337,7 +335,6 @@ impl<'a, F: Field, ConcreteCircuit: Circuit<F>> WitnessCalculator<'a, F, Concret
             // number of blinding factors and an extra row for use in the
             // permutation argument.
             usable_rows: ..self.unusable_rows_start,
-            _marker: std::marker::PhantomData,
         };
 
         // Synthesize the circuit to obtain the witness and other information.
