@@ -10,4 +10,4 @@ pub struct Argument<F: Field, V: Variable> {
     pub table_expressions: Vec<Expression<F, V>>,
 }
 
-pub type ArgumentMid<F> = Argument<F, VarMid>;
+pub type ArgumentMid<F> = Argument<F, VarMid<F>>;

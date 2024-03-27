@@ -1,18 +1,21 @@
 use crate::expression::{Expression, Variable};
 use crate::poly::Rotation;
 use crate::{lookup, permutation, shuffle};
+use core::marker::PhantomData;
+use core::ops::{Add, Mul, Neg, Sub};
 use ff::Field;
 use std::collections::HashMap;
 use std::fmt;
 
 /// A challenge squeezed from transcript after advice columns at the phase have been committed.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
-pub struct ChallengeMid {
+pub struct ChallengeMid<F: Field> {
     pub index: usize,
     pub phase: u8,
+    _marker: PhantomData<F>,
 }
 
-impl ChallengeMid {
+impl<F: Field> ChallengeMid<F> {
     /// Index of this challenge.
     pub fn index(&self) -> usize {
         self.index
@@ -25,24 +28,52 @@ impl ChallengeMid {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct QueryMid {
+pub struct QueryMid<F: Field> {
     /// Column index
     pub column_index: usize,
     /// The type of the column.
     pub column_type: Any,
     /// Rotation of this query
     pub rotation: Rotation,
+    _marker: PhantomData<F>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum VarMid {
+pub enum VarMid<F: Field> {
     /// This is a generic column query
-    Query(QueryMid),
+    Query(QueryMid<F>),
     /// This is a challenge
-    Challenge(ChallengeMid),
+    Challenge(ChallengeMid<F>),
 }
 
-impl Variable for VarMid {
+impl<F: Field> From<VarMid<F>> for ExpressionMid<F> {
+    fn from(value: VarMid<F>) -> Self {
+        Self::Var(value)
+    }
+}
+
+impl<F: Field, I: Into<ExpressionMid<F>>> Add<I> for VarMid<F> {
+    type Output = ExpressionMid<F>;
+    fn add(self, rhs: I) -> ExpressionMid<F> {
+        ExpressionMid::Sum(Box::new(self.into()), Box::new(rhs.into()))
+    }
+}
+
+impl<F: Field, I: Into<ExpressionMid<F>>> Sub<I> for VarMid<F> {
+    type Output = ExpressionMid<F>;
+    fn sub(self, rhs: I) -> ExpressionMid<F> {
+        ExpressionMid::Sum(Box::new(self.into()), Box::new(-rhs.into()))
+    }
+}
+
+impl<F: Field, I: Into<ExpressionMid<F>>> Mul<I> for VarMid<F> {
+    type Output = ExpressionMid<F>;
+    fn mul(self, rhs: I) -> ExpressionMid<F> {
+        ExpressionMid::Product(Box::new(self.into()), Box::new(rhs.into()))
+    }
+}
+
+impl<F: Field> Variable for VarMid<F> {
     fn degree(&self) -> usize {
         match self {
             VarMid::Query(_) => 1,
@@ -74,7 +105,7 @@ impl Variable for VarMid {
     }
 }
 
-pub type ExpressionMid<F> = Expression<F, VarMid>;
+pub type ExpressionMid<F> = Expression<F, VarMid<F>>;
 
 /// A Gate contains a single polynomial identity with a name as metadata.
 #[derive(Clone, Debug)]
@@ -95,7 +126,7 @@ impl<F: Field, V: Variable> Gate<F, V> {
     }
 }
 
-pub type GateMid<F> = Gate<F, VarMid>;
+pub type GateMid<F> = Gate<F, VarMid<F>>;
 
 /// This is a description of the circuit environment, such as the gate, column and
 /// permutation arrangements.
