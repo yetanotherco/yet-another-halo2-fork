@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use alloc::boxed::Box;
 use alloc::rc::Rc;
 use core::fmt::Debug;
 use core::iter::{Product, Sum};
@@ -29,58 +30,22 @@ use p3_field::{AbstractField, Field};
 
 use crate::symbolic_variable::SymbolicVariable;
 
+#[derive(Clone, Debug)]
+pub enum Location {
+    FirstRow,
+    LastRow,
+    Transition,
+}
+
 /// An expression over `SymbolicVariable`s.
 #[derive(Clone, Debug)]
 pub enum SymbolicExpression<F: Field> {
     Variable(SymbolicVariable<F>),
-    IsFirstRow,
-    IsLastRow,
-    IsTransition,
+    Location(Location),
     Constant(F),
-    Add {
-        x: Rc<Self>,
-        y: Rc<Self>,
-        degree_multiple: usize,
-    },
-    Sub {
-        x: Rc<Self>,
-        y: Rc<Self>,
-        degree_multiple: usize,
-    },
-    Neg {
-        x: Rc<Self>,
-        degree_multiple: usize,
-    },
-    Mul {
-        x: Rc<Self>,
-        y: Rc<Self>,
-        degree_multiple: usize,
-    },
-}
-
-impl<F: Field> SymbolicExpression<F> {
-    /// Returns the multiple of `n` (the trace length) in this expression's degree.
-    pub fn degree_multiple(&self) -> usize {
-        match self {
-            SymbolicExpression::Variable(_) => 1,
-            SymbolicExpression::IsFirstRow => 1,
-            SymbolicExpression::IsLastRow => 1,
-            SymbolicExpression::IsTransition => 0,
-            SymbolicExpression::Constant(_) => 0,
-            SymbolicExpression::Add {
-                degree_multiple, ..
-            } => *degree_multiple,
-            SymbolicExpression::Sub {
-                degree_multiple, ..
-            } => *degree_multiple,
-            SymbolicExpression::Neg {
-                degree_multiple, ..
-            } => *degree_multiple,
-            SymbolicExpression::Mul {
-                degree_multiple, ..
-            } => *degree_multiple,
-        }
-    }
+    Add(Box<Self>, Box<Self>),
+    Neg(Box<Self>),
+    Mul(Box<Self>, Box<Self>),
 }
 
 impl<F: Field> Default for SymbolicExpression<F> {
@@ -157,12 +122,7 @@ impl<F: Field> Add for SymbolicExpression<F> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
-        let degree_multiple = self.degree_multiple().max(rhs.degree_multiple());
-        Self::Add {
-            x: Rc::new(self),
-            y: Rc::new(rhs),
-            degree_multiple,
-        }
+        Self::Add(Box::new(self), Box::new(rhs))
     }
 }
 
@@ -202,12 +162,7 @@ impl<F: Field> Sub for SymbolicExpression<F> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
-        let degree_multiple = self.degree_multiple().max(rhs.degree_multiple());
-        Self::Sub {
-            x: Rc::new(self),
-            y: Rc::new(rhs),
-            degree_multiple,
-        }
+        Self::Add(Box::new(self), Box::new(-rhs))
     }
 }
 
@@ -235,11 +190,7 @@ impl<F: Field> Neg for SymbolicExpression<F> {
     type Output = Self;
 
     fn neg(self) -> Self {
-        let degree_multiple = self.degree_multiple();
-        Self::Neg {
-            x: Rc::new(self),
-            degree_multiple,
-        }
+        Self::Neg(Box::new(self))
     }
 }
 
@@ -247,13 +198,7 @@ impl<F: Field> Mul for SymbolicExpression<F> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self {
-        #[allow(clippy::suspicious_arithmetic_impl)]
-        let degree_multiple = self.degree_multiple() + rhs.degree_multiple();
-        Self::Mul {
-            x: Rc::new(self),
-            y: Rc::new(rhs),
-            degree_multiple,
-        }
+        Self::Mul(Box::new(self), Box::new(rhs))
     }
 }
 

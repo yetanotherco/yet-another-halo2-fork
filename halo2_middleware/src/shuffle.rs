@@ -10,4 +10,4 @@ pub struct Argument<F: Field, V: Variable> {
     pub shuffle_expressions: Vec<Expression<F, V>>,
 }
 
-pub type ArgumentMid<F> = Argument<F, VarMid<F>>;
+pub type ArgumentMid<F> = Argument<F, VarMid>;

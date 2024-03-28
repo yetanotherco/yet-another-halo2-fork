@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#![allow(unused_imports)]
+
 use std::borrow::Borrow;
 
 use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
@@ -28,7 +30,7 @@ use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
 // use p3_commit::ExtensionMmcs;
 // use p3_dft::Radix2DitParallel;
 // use p3_field::extension::BinomialExtensionField;
-use p3_field::{AbstractField, Field, PrimeField64};
+use p3_field::{AbstractField, Field, PrimeField};
 // use p3_fri::{FriConfig, TwoAdicFriPcs};
 use p3_matrix::dense::RowMajorMatrix;
 use p3_matrix::{Matrix, MatrixRowSlices};
@@ -78,7 +80,7 @@ impl<AB: AirBuilderWithPublicValues> Air<AB> for FibonacciAir {
     }
 }
 
-pub fn generate_trace_rows<F: PrimeField64>(a: u64, b: u64, n: usize) -> RowMajorMatrix<F> {
+pub fn generate_trace_rows<F: PrimeField>(a: u64, b: u64, n: usize) -> RowMajorMatrix<F> {
     assert!(n.is_power_of_two());
 
     let mut trace =
@@ -123,14 +125,105 @@ impl<F> Borrow<FibonacciRow<F>> for [F] {
     }
 }
 
-use halo2curves::bn256::Fr;
-use p3_frontend::compile;
+use halo2_backend::poly::commitment::ParamsProver;
+use halo2_backend::poly::kzg::commitment::{KZGCommitmentScheme, ParamsKZG};
+use halo2_backend::poly::kzg::multiopen::{ProverSHPLONK, VerifierSHPLONK};
+use halo2_backend::poly::kzg::strategy::SingleStrategy;
+use halo2_backend::{
+    plonk::{
+        keygen::{keygen_pk_v2, keygen_vk_v2},
+        prover::ProverV2Single,
+        verifier::{verify_proof, verify_proof_single},
+    },
+    transcript::{
+        Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
+    },
+};
+use halo2_middleware::circuit::CompiledCircuitV2;
+use halo2curves::bn256::{Bn256, Fr, G1Affine};
+use p3_frontend::{compile_circuit_cs, compile_preprocessing, trace_to_wit, FWrap};
+use rand_core::block::BlockRng;
+use rand_core::block::BlockRngCore;
+use std::time::Instant;
+
+// One number generator, that can be used as a deterministic Rng, outputing fixed values.
+struct OneNg {}
+
+impl BlockRngCore for OneNg {
+    type Item = u32;
+    type Results = [u32; 16];
+
+    fn generate(&mut self, results: &mut Self::Results) {
+        for elem in results.iter_mut() {
+            *elem = 1;
+        }
+    }
+}
 
 #[test]
 fn test_fib() {
+    let k = 5;
+    let n = 2usize.pow(k);
+    // TODO: 5 must be bigger than unusable rows.  Add a helper function to calculate this
+    let size = n - 5;
     let air = FibonacciAir {};
     let num_public_values = 3;
-    compile::<Fr, _>(&air, num_public_values);
+    let cs = compile_circuit_cs::<Fr, _>(&air, num_public_values);
+    let preprocessing = compile_preprocessing::<Fr, _>(k, size, &air);
+    println!("{:?}", cs);
+    // println!("{:?}", preprocessing);
+    let compiled_circuit = CompiledCircuitV2 { cs, preprocessing };
+    let trace = generate_trace_rows::<FWrap<Fr>>(0, 1, n);
+    let witness = trace_to_wit(k, trace);
+    // println!("{:?}", witness);
+
+    // Setup
+    let mut rng = BlockRng::new(OneNg {});
+    let params = ParamsKZG::<Bn256>::setup(k, &mut rng);
+    let verifier_params = params.verifier_params();
+    let start = Instant::now();
+    let vk = keygen_vk_v2(&params, &compiled_circuit).expect("keygen_vk should not fail");
+    let pk =
+        keygen_pk_v2(&params, vk.clone(), &compiled_circuit).expect("keygen_pk should not fail");
+    println!("Keygen: {:?}", start.elapsed());
+    drop(compiled_circuit);
+
+    // Proving
+    println!("Proving...");
+    let start = Instant::now();
+    let instances_slice: &[&[Fr]] = &[];
+    let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+    let mut prover =
+        ProverV2Single::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<'_, Bn256>, _, _, _>::new(
+            &params,
+            &pk,
+            instances_slice,
+            &mut rng,
+            &mut transcript,
+        )
+        .unwrap();
+    println!("phase 0");
+    prover.commit_phase(0, witness).unwrap();
+    prover.create_proof().unwrap();
+    let proof = transcript.finalize();
+    println!("Prove: {:?}", start.elapsed());
+
+    // Verify
+    let start = Instant::now();
+    println!("Verifying...");
+    let mut verifier_transcript =
+        Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
+    let strategy = SingleStrategy::new(verifier_params);
+
+    verify_proof_single::<KZGCommitmentScheme<Bn256>, VerifierSHPLONK<'_, Bn256>, _, _, _>(
+        &params,
+        &vk,
+        strategy,
+        instances_slice,
+        &mut verifier_transcript,
+    )
+    .expect("verify succeeds");
+    println!("Verify: {:?}", start.elapsed());
 }
 
 // type Val = BabyBear;
