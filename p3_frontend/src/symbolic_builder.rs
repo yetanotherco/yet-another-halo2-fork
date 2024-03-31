@@ -24,11 +24,12 @@ use alloc::vec;
 use alloc::vec::Vec;
 use core::marker::PhantomData;
 
-use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues};
+use p3_air::{Air, AirBuilder};
 use p3_field::Field;
 use p3_matrix::dense::RowMajorMatrix;
 use p3_util::log2_ceil_usize;
 
+use crate::air::AirBuilderWithPublicValues;
 use crate::symbolic_expression::{Location, SymbolicExpression};
 use crate::symbolic_variable::SymbolicVariable;
 
@@ -48,7 +49,7 @@ where
 /// An `AirBuilder` for evaluating constraints symbolically, and recording them for later use.
 pub struct SymbolicAirBuilder<F: Field> {
     pub(crate) main: RowMajorMatrix<SymbolicVariable<F>>,
-    pub(crate) public_values: Vec<F>,
+    pub(crate) public_values: Vec<SymbolicVariable<F>>,
     pub(crate) constraints: Vec<SymbolicExpression<F>>,
 }
 
@@ -57,17 +58,14 @@ impl<F: Field> SymbolicAirBuilder<F> {
         let values = [false, true]
             .into_iter()
             .flat_map(|is_next| {
-                (0..width).map(move |column| SymbolicVariable {
-                    is_next,
-                    column,
-                    _phantom: PhantomData,
-                })
+                (0..width).map(move |column| SymbolicVariable::new_query(is_next, column))
             })
             .collect();
         Self {
             main: RowMajorMatrix::new(values, width),
-            // TODO replace zeros once we have SymbolicExpression::PublicValue
-            public_values: vec![F::zero(); num_public_values],
+            public_values: (0..num_public_values)
+                .map(|i| SymbolicVariable::new_public(i))
+                .collect(),
             constraints: vec![],
         }
     }
@@ -110,8 +108,7 @@ impl<F: Field> AirBuilder for SymbolicAirBuilder<F> {
 }
 
 impl<F: Field> AirBuilderWithPublicValues for SymbolicAirBuilder<F> {
-    // TODO: The return type for this method is unexpected, it should be Self::Expr or Self::Var.
-    fn public_values(&self) -> &[Self::F] {
+    fn public_values(&self) -> &[Self::Var] {
         self.public_values.as_slice()
     }
 }

@@ -24,7 +24,8 @@
 
 use std::borrow::Borrow;
 
-use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
+use p3_air::{Air, AirBuilder, BaseAir};
+use p3_frontend::AirBuilderWithPublicValues;
 // use p3_baby_bear::{BabyBear, DiffusionMatrixBabybear};
 // use p3_challenger::DuplexChallenger;
 // use p3_commit::ExtensionMmcs;
@@ -141,7 +142,10 @@ use halo2_backend::{
 };
 use halo2_middleware::circuit::CompiledCircuitV2;
 use halo2curves::bn256::{Bn256, Fr, G1Affine};
-use p3_frontend::{compile_circuit_cs, compile_preprocessing, trace_to_wit, FWrap};
+use p3_frontend::{
+    check_witness, compile_circuit_cs, compile_preprocessing, get_public_inputs, trace_to_wit,
+    FWrap,
+};
 use rand_core::block::BlockRng;
 use rand_core::block::BlockRngCore;
 use std::time::Instant;
@@ -164,17 +168,20 @@ impl BlockRngCore for OneNg {
 fn test_fib() {
     let k = 5;
     let n = 2usize.pow(k);
-    // TODO: 5 must be bigger than unusable rows.  Add a helper function to calculate this
-    let size = n - 5;
+    // TODO: 6 must be bigger than unusable rows.  Add a helper function to calculate this
+    let size = n - 6;
     let air = FibonacciAir {};
     let num_public_values = 3;
-    let cs = compile_circuit_cs::<Fr, _>(&air, num_public_values);
-    let preprocessing = compile_preprocessing::<Fr, _>(k, size, &air);
-    println!("{:?}", cs);
+    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values);
+    let preprocessing = compile_preprocessing::<Fr, _>(k, size, &preprocessing_info, &air);
+    // println!("{:#?}", cs);
     // println!("{:?}", preprocessing);
     let compiled_circuit = CompiledCircuitV2 { cs, preprocessing };
     let trace = generate_trace_rows::<FWrap<Fr>>(0, 1, n);
     let witness = trace_to_wit(k, trace);
+    let pis = get_public_inputs(&preprocessing_info, size, &witness);
+
+    check_witness(&compiled_circuit, k, &witness, &[&pis]);
     // println!("{:?}", witness);
 
     // Setup
@@ -191,7 +198,7 @@ fn test_fib() {
     // Proving
     println!("Proving...");
     let start = Instant::now();
-    let instances_slice: &[&[Fr]] = &[];
+    let instances_slice: &[&[Fr]] = &[&pis];
     let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
     let mut prover =
         ProverV2Single::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<'_, Bn256>, _, _, _>::new(

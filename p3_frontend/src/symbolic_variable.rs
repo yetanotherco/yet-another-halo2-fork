@@ -29,19 +29,31 @@ use crate::symbolic_expression::SymbolicExpression;
 
 /// A variable within the evaluation window, i.e. a column in either the local or next row.
 #[derive(Copy, Clone, Debug)]
-pub struct SymbolicVariable<F: Field> {
+pub struct SymbolicVariable<F: Field>(pub Var, pub PhantomData<F>);
+
+#[derive(Copy, Clone, Debug)]
+pub enum Var {
+    Query(Query),
+    Public(Public),
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Query {
     pub is_next: bool,
     pub column: usize,
-    pub(crate) _phantom: PhantomData<F>,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Public {
+    pub index: usize,
 }
 
 impl<F: Field> SymbolicVariable<F> {
-    pub fn new(is_next: bool, column: usize) -> Self {
-        Self {
-            is_next,
-            column,
-            _phantom: PhantomData,
-        }
+    pub fn new_query(is_next: bool, column: usize) -> Self {
+        Self(Var::Query(Query { is_next, column }), PhantomData)
+    }
+    pub fn new_public(index: usize) -> Self {
+        Self(Var::Public(Public { index }), PhantomData)
     }
 }
 

@@ -30,7 +30,7 @@ use p3_field::{AbstractField, Field};
 
 use crate::symbolic_variable::SymbolicVariable;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Location {
     FirstRow,
     LastRow,
