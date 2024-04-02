@@ -1,3 +1,7 @@
+//! Conversion from a circuit that implements the `Air` trait into a halo2_backend compatible
+//! circuit.  Includes helper functions to convert plonky3 witness format into halo2_backend
+//! witness format.
+
 extern crate alloc;
 
 use halo2_middleware::circuit::{
@@ -57,9 +61,9 @@ fn sym_to_expr<F: PrimeField + Hash>(e: &SymbolicExpression<FWrap<F>>) -> Expres
         SymbolicExpression::Location(Location::LastRow) => fixed_query_r0(COL_LAST),
         SymbolicExpression::Location(Location::Transition) => fixed_query_r0(COL_TRANS),
         SymbolicExpression::Constant(c) => ExpressionMid::Constant(c.0),
-        SymbolicExpression::Add(lhs, rhs) => sym_to_expr(&*lhs) + sym_to_expr(&*rhs),
-        SymbolicExpression::Neg(e) => -sym_to_expr(&*e),
-        SymbolicExpression::Mul(lhs, rhs) => sym_to_expr(&*lhs) * sym_to_expr(&*rhs),
+        SymbolicExpression::Add(lhs, rhs) => sym_to_expr(lhs) + sym_to_expr(rhs),
+        SymbolicExpression::Neg(e) => -sym_to_expr(e),
+        SymbolicExpression::Mul(lhs, rhs) => sym_to_expr(lhs) * sym_to_expr(rhs),
     }
 }
 
@@ -161,7 +165,7 @@ fn extract_copy_public<F: PrimeField + Hash>(
 pub fn get_public_inputs<F: Field>(
     preprocessing_info: &PreprocessingInfo,
     size: usize,
-    witness: &Vec<Option<Vec<F>>>,
+    witness: &[Option<Vec<F>>],
 ) -> Vec<F> {
     let mut public_inputs = vec![F::ZERO; preprocessing_info.num_public_values];
     for (cell, public_index) in &preprocessing_info.copy_public {
@@ -202,7 +206,7 @@ where
         // Check if the constraint is an equality against a public input and store it as a copy
         // constraint.  Otherwise it's a gate that can't have public variables.
         if let Some((cell, public)) = extract_copy_public(constraint) {
-            copy_public.push((cell.clone(), public));
+            copy_public.push((cell, public));
             let column = ColumnMid {
                 column_type: Any::Advice,
                 index: cell.0,
@@ -261,14 +265,14 @@ pub fn trace_to_wit<F: Field>(k: u32, trace: RowMajorMatrix<FWrap<F>>) -> Vec<Op
             witness[column_index][row_offset] = row[column_index].0;
         }
     }
-    witness.into_iter().map(|column| Some(column)).collect()
+    witness.into_iter().map(Some).collect()
 }
 
 // TODO: Move to middleware
 pub fn check_witness<F: Field>(
     circuit: &CompiledCircuitV2<F>,
     k: u32,
-    witness: &Vec<Option<Vec<F>>>,
+    witness: &[Option<Vec<F>>],
     public: &[&[F]],
 ) {
     let n = 2usize.pow(k);

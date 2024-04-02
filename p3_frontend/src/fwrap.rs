@@ -1,3 +1,6 @@
+//! `FWrap` is a Wrapper type over `ff::Field` (halo2 compatible field type) that satisfies the
+//! plonky3 field traits.
+
 use halo2_middleware::ff::{Field, PrimeField};
 use num_bigint::BigUint;
 use p3_field::{AbstractField, Field as p3Field, Packable, PrimeField as p3PrimeField};
@@ -187,6 +190,7 @@ impl<F: Field> Div for FWrap<F> {
 
     fn div(self, rhs: Self) -> Self {
         let rhs_inv = rhs.0.invert().expect("division by 0");
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Self(self.0 * rhs_inv)
     }
 }
@@ -209,6 +213,7 @@ impl<F: PrimeField + Hash> p3Field for FWrap<F> {
         }
     }
 
+    #[allow(clippy::let_and_return)]
     fn order() -> BigUint {
         let minus_one = F::ZERO - F::ONE;
         let minus_one_repr = minus_one.to_repr();

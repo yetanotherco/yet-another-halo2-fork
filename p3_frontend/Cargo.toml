@@ -6,7 +6,7 @@ authors = [
 ]
 edition = "2021"
 description = """
-Plonky3 frontend implementation.
+Plonky3 frontend implementation.  Allows using a circuit defined with the Air trait from plonky3 to be proved with a halo2 backend.
 """
 license = "MIT OR Apache-2.0"
 categories = ["cryptography"]

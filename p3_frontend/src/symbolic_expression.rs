@@ -1,3 +1,5 @@
+//! `SymbolicExpression` copied from plonky3 and adapted for the Air to Plonkish usecase.
+
 // The MIT License (MIT)
 //
 // Copyright (c) 2022 The Plonky3 Authors
