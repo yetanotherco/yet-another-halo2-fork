@@ -22,12 +22,10 @@
 
 use alloc::vec;
 use alloc::vec::Vec;
-use core::marker::PhantomData;
 
 use p3_air::{Air, AirBuilder};
 use p3_field::Field;
 use p3_matrix::dense::RowMajorMatrix;
-use p3_util::log2_ceil_usize;
 
 use crate::air::AirBuilderWithPublicValues;
 use crate::symbolic_expression::{Location, SymbolicExpression};
