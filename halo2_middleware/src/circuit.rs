@@ -1,8 +1,6 @@
 use crate::expression::{Expression, Variable};
 use crate::poly::Rotation;
 use crate::{lookup, permutation, shuffle};
-use core::marker::PhantomData;
-use core::ops::{Add, Mul, Neg, Sub};
 use ff::Field;
 use std::collections::HashMap;
 use std::fmt;

@@ -33,12 +33,6 @@ pub enum Expression<F, V: Variable> {
     Product(Box<Expression<F, V>>, Box<Expression<F, V>>),
 }
 
-impl<F: Field, V: Variable> From<F> for Expression<F, V> {
-    fn from(value: F) -> Self {
-        Self::Constant(value)
-    }
-}
-
 impl<F: Field, V: Variable> Expression<F, V> {
     /// Evaluate the polynomial using the provided closures to perform the
     /// operations.
@@ -142,24 +136,31 @@ impl<F: Field, V: Variable> Neg for Expression<F, V> {
     }
 }
 
-impl<F: Field, V: Variable, I: Into<Expression<F, V>>> Add<I> for Expression<F, V> {
+impl<F: Field, V: Variable> Add for Expression<F, V> {
     type Output = Expression<F, V>;
-    fn add(self, rhs: I) -> Expression<F, V> {
-        Expression::Sum(Box::new(self), Box::new(rhs.into()))
+    fn add(self, rhs: Expression<F, V>) -> Expression<F, V> {
+        Expression::Sum(Box::new(self), Box::new(rhs))
     }
 }
 
-impl<F: Field, V: Variable, I: Into<Expression<F, V>>> Sub<I> for Expression<F, V> {
+impl<F: Field, V: Variable> Sub for Expression<F, V> {
     type Output = Expression<F, V>;
-    fn sub(self, rhs: I) -> Expression<F, V> {
-        Expression::Sum(Box::new(self), Box::new(-rhs.into()))
+    fn sub(self, rhs: Expression<F, V>) -> Expression<F, V> {
+        Expression::Sum(Box::new(self), Box::new(-rhs))
     }
 }
 
-impl<F: Field, V: Variable, I: Into<Expression<F, V>>> Mul<I> for Expression<F, V> {
+impl<F: Field, V: Variable> Mul for Expression<F, V> {
     type Output = Expression<F, V>;
-    fn mul(self, rhs: I) -> Expression<F, V> {
-        Expression::Product(Box::new(self), Box::new(rhs.into()))
+    fn mul(self, rhs: Expression<F, V>) -> Expression<F, V> {
+        Expression::Product(Box::new(self), Box::new(rhs))
+    }
+}
+
+impl<F: Field, V: Variable> Mul<F> for Expression<F, V> {
+    type Output = Expression<F, V>;
+    fn mul(self, rhs: F) -> Expression<F, V> {
+        Expression::Product(Box::new(self), Box::new(Expression::Constant(rhs)))
     }
 }
 

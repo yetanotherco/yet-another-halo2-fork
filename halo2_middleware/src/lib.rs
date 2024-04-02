@@ -1,4 +1,3 @@
-#![allow(unused_imports)]
 pub mod circuit;
 pub mod expression;
 pub mod lookup;
