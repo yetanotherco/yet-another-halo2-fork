@@ -3,7 +3,9 @@
 
 use halo2_middleware::ff::{Field, PrimeField};
 use num_bigint::BigUint;
-use p3_field::{AbstractField, Field as p3Field, Packable, PrimeField as p3PrimeField};
+use p3_field::{
+    AbstractField, Field as p3Field, Packable, PrimeField as p3PrimeField, PrimeField64,
+};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::hash::Hash;
@@ -237,5 +239,18 @@ impl<F: PrimeField + Hash + Ord> p3PrimeField for FWrap<F> {
         } else {
             BigUint::from_bytes_be(self.0.to_repr().as_ref())
         }
+    }
+}
+
+// In general an `FWrap` will need more than 64 bits.  This trait is only implemented in order to
+// use `FWrap` with witness generation from plonky3 that requries this trait but doesn't use the
+// order.
+impl<F: PrimeField + Hash + Ord> PrimeField64 for FWrap<F> {
+    const ORDER_U64: u64 = 0;
+
+    fn as_canonical_u64(&self) -> u64 {
+        self.as_canonical_biguint()
+            .try_into()
+            .expect("field fits in u64")
     }
 }

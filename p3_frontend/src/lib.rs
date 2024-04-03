@@ -41,9 +41,26 @@ const COL_FIRST: usize = 0;
 const COL_LAST: usize = 1;
 const COL_TRANS: usize = 2;
 
-fn sym_to_expr<F: PrimeField + Hash>(e: &SymbolicExpression<FWrap<F>>) -> ExpressionMid<F> {
+// If the gate is enabled everywhere, transform it to only be enabled in usable rows
+fn disable_in_unusable_rows<F: PrimeField + Hash>(
+    e: &SymbolicExpression<FWrap<F>>,
+) -> SymbolicExpression<FWrap<F>> {
+    use SymbolicExpression as SE;
     match e {
-        SymbolicExpression::Variable(SymbolicVariable(Var::Query(query), _)) => {
+        SE::Mul(lhs, _) => match &**lhs {
+            SE::Location(_) => return e.clone(),
+            _ => {}
+        },
+        _ => {}
+    }
+    let usable_location = SE::Location(Location::Transition) + SE::Location(Location::LastRow);
+    usable_location * e.clone()
+}
+
+fn sym_to_expr<F: PrimeField + Hash>(e: &SymbolicExpression<FWrap<F>>) -> ExpressionMid<F> {
+    use SymbolicExpression as SE;
+    match e {
+        SE::Variable(SymbolicVariable(Var::Query(query), _)) => {
             ExpressionMid::Var(VarMid::Query(QueryMid {
                 column_index: query.column,
                 column_type: Any::Advice,
@@ -54,16 +71,16 @@ fn sym_to_expr<F: PrimeField + Hash>(e: &SymbolicExpression<FWrap<F>>) -> Expres
                 },
             }))
         }
-        SymbolicExpression::Variable(SymbolicVariable(Var::Public(public), _)) => {
+        SE::Variable(SymbolicVariable(Var::Public(public), _)) => {
             panic!("unexpected public variable {:?} in expression", public)
         }
-        SymbolicExpression::Location(Location::FirstRow) => fixed_query_r0(COL_FIRST),
-        SymbolicExpression::Location(Location::LastRow) => fixed_query_r0(COL_LAST),
-        SymbolicExpression::Location(Location::Transition) => fixed_query_r0(COL_TRANS),
-        SymbolicExpression::Constant(c) => ExpressionMid::Constant(c.0),
-        SymbolicExpression::Add(lhs, rhs) => sym_to_expr(lhs) + sym_to_expr(rhs),
-        SymbolicExpression::Neg(e) => -sym_to_expr(e),
-        SymbolicExpression::Mul(lhs, rhs) => sym_to_expr(lhs) * sym_to_expr(rhs),
+        SE::Location(Location::FirstRow) => fixed_query_r0(COL_FIRST),
+        SE::Location(Location::LastRow) => fixed_query_r0(COL_LAST),
+        SE::Location(Location::Transition) => fixed_query_r0(COL_TRANS),
+        SE::Constant(c) => ExpressionMid::Constant(c.0),
+        SE::Add(lhs, rhs) => sym_to_expr(lhs) + sym_to_expr(rhs),
+        SE::Neg(e) => -sym_to_expr(e),
+        SE::Mul(lhs, rhs) => sym_to_expr(lhs) * sym_to_expr(rhs),
     }
 }
 
@@ -187,14 +204,18 @@ pub struct PreprocessingInfo {
 pub fn compile_circuit_cs<F, A>(
     air: &A,
     num_public_values: usize,
+    profiler: Option<dhat::Profiler>,
 ) -> (ConstraintSystemMid<F>, PreprocessingInfo)
 where
     F: PrimeField + Hash,
     A: Air<SymbolicAirBuilder<FWrap<F>>>,
 {
     let mut builder = SymbolicAirBuilder::new(air.width(), num_public_values);
+    builder.profiler = profiler;
+    println!("eval...");
     air.eval(&mut builder);
 
+    println!("convert...");
     let num_fixed_columns = LOCATION_COLUMNS;
     let num_advice_columns = air.width();
 
@@ -216,9 +237,10 @@ where
             }
             continue;
         };
+        let constraint = disable_in_unusable_rows(constraint);
         gates.push(GateMid {
             name: format!("constraint{i}"),
-            poly: sym_to_expr(constraint),
+            poly: sym_to_expr(&constraint),
         });
     }
     let mut num_instance_columns = 0;
@@ -278,6 +300,7 @@ pub fn check_witness<F: Field>(
     let n = 2usize.pow(k);
     let cs = &circuit.cs;
     let preprocessing = &circuit.preprocessing;
+    // Verify all gates
     for (i, gate) in cs.gates.iter().enumerate() {
         for offset in 0..n {
             let res = gate.poly.evaluate(
@@ -310,7 +333,7 @@ pub fn check_witness<F: Field>(
                     "Unsatisfied gate {} \"{}\" at offset {}",
                     i, gate.name, offset
                 );
-                panic!("");
+                panic!("KO");
             }
         }
     }

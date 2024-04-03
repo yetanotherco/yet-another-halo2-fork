@@ -20,15 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#![allow(unused_imports)]
-
 use std::borrow::Borrow;
 
 use p3_air::{Air, AirBuilder, BaseAir};
-use p3_field::{AbstractField, Field, PrimeField};
+use p3_field::PrimeField;
 use p3_frontend::AirBuilderWithPublicValues;
 use p3_matrix::dense::RowMajorMatrix;
-use p3_matrix::{Matrix, MatrixRowSlices};
+use p3_matrix::MatrixRowSlices;
 
 /// For testing the public values feature
 
@@ -122,7 +120,7 @@ use halo2_backend::{
     plonk::{
         keygen::{keygen_pk_v2, keygen_vk_v2},
         prover::ProverV2Single,
-        verifier::{verify_proof, verify_proof_single},
+        verifier::verify_proof_single,
     },
     transcript::{
         Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
@@ -160,7 +158,7 @@ fn test_fib() {
     let size = n - 6;
     let air = FibonacciAir {};
     let num_public_values = 3;
-    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values);
+    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values, None);
     let preprocessing = compile_preprocessing::<Fr, _>(k, size, &preprocessing_info, &air);
     // println!("{:#?}", cs);
     // println!("{:?}", preprocessing);

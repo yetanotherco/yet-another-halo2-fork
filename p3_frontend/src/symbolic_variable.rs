@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use core::fmt;
 use core::marker::PhantomData;
 use core::ops::{Add, Mul, Sub};
 
@@ -32,6 +33,15 @@ use crate::symbolic_expression::SymbolicExpression;
 /// A variable within the evaluation window, i.e. a column in either the local or next row.
 #[derive(Copy, Clone, Debug)]
 pub struct SymbolicVariable<F: Field>(pub Var, pub PhantomData<F>);
+
+impl<F: Field> fmt::Display for SymbolicVariable<F> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.0 {
+            Var::Query(q) => write!(f, "w{}{}", q.column, if q.is_next { "'" } else { "" }),
+            Var::Public(p) => write!(f, "p{}", p.index),
+        }
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub enum Var {
