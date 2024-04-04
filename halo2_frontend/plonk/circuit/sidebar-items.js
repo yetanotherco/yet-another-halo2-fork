@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["compress_selectors","constraint_system","expression"],"struct":["Advice","Fixed","Instance"],"trait":["Assignment","Circuit","ColumnType","FloorPlanner"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["strategy"],"struct":["AssignmentPass","MeasurementPass","V1","V1Pass"]};

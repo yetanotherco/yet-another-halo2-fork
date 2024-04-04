@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"halo2_frontend":[["impl&lt;'a, F: Field, L: <a class=\"trait\" href=\"halo2_frontend/circuit/trait.Layouter.html\" title=\"trait halo2_frontend::circuit::Layouter\">Layouter</a>&lt;F&gt; + 'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"halo2_frontend/circuit/struct.NamespacedLayouter.html\" title=\"struct halo2_frontend::circuit::NamespacedLayouter\">NamespacedLayouter</a>&lt;'a, F, L&gt;"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

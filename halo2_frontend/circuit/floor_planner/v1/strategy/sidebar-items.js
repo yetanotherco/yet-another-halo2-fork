@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["slot_in","slot_in_biggest_advice_first"],"struct":["Allocations"],"type":["CircuitAllocations"]};

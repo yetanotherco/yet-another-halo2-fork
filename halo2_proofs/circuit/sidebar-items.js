@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["floor_planner","layouter"],"struct":["AssignedCell","Cell","NamespacedLayouter","Region","RegionIndex","RegionStart","SimpleFloorPlanner","SimpleTableLayouter","Table","Value"],"trait":["Chip","Layouter","TableLayouter"]};
+window.SIDEBAR_ITEMS = {"mod":["floor_planner"],"struct":["AssignedCell","Cell","Region","SimpleFloorPlanner","Value"],"trait":["Chip","Layouter"]};

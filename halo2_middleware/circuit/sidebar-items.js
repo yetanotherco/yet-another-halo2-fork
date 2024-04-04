@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Any","VarMid"],"struct":["Cell","ChallengeMid","ColumnMid","CompiledCircuitV2","ConstraintSystemMid","Gate","PreprocessingV2","QueryMid"],"type":["ExpressionMid","GateMid"]};

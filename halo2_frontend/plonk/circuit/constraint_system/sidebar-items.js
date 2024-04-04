@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Constraint","ConstraintSystem","Constraints","Gate","SelectorsToFixed","VirtualCell","VirtualCells"]};
