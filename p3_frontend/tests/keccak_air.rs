@@ -1,6 +1,3 @@
-// #[global_allocator]
-// static ALLOC: dhat::Alloc = dhat::Alloc;
-
 use p3_air::BaseAir;
 use p3_keccak_air::{generate_trace_rows, KeccakAir, NUM_ROUNDS};
 use p3_util::log2_ceil_usize;
@@ -21,7 +18,9 @@ use halo2_backend::{
 };
 use halo2_middleware::circuit::CompiledCircuitV2;
 use halo2curves::bn256::{Bn256, Fr, G1Affine};
-use p3_frontend::{check_witness, compile_circuit_cs, compile_preprocessing, trace_to_wit, FWrap};
+use p3_frontend::{
+    check_witness, compile_circuit_cs, compile_preprocessing, trace_to_wit, CompileParams, FWrap,
+};
 use rand::random;
 use rand_core::block::BlockRng;
 use rand_core::block::BlockRngCore;
@@ -43,9 +42,9 @@ impl BlockRngCore for OneNg {
 
 #[test]
 fn test_keccak() {
-    // let profiler = Some(dhat::Profiler::new_heap());
-    let profiler = None;
     let num_hashes = 4;
+    // TODO: Replace `random()` with a pseudorandom generator with known seed for deterministic
+    // results.
     let inputs = (0..num_hashes).map(|_| random()).collect::<Vec<_>>();
     let size = inputs.len() * NUM_ROUNDS;
     // TODO: 6 must be bigger than unusable rows.  Add a helper function to calculate this
@@ -58,7 +57,8 @@ fn test_keccak() {
     println!("columns = {}", <KeccakAir as BaseAir<Fr>>::width(&air));
     let num_public_values = 0;
     println!("compile circuit cs...");
-    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values, profiler);
+    let params = CompileParams { disable_zk: false };
+    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values, &params);
     println!(
         "degree = {}",
         cs.gates.iter().map(|g| g.poly.degree()).max().unwrap()
@@ -70,8 +70,6 @@ fn test_keccak() {
     // println!("{:#?}", cs);
     // println!("{:?}", preprocessing);
     let compiled_circuit = CompiledCircuitV2 { cs, preprocessing };
-    // TODO: Replace `random()` with a pseudorandom generator with known seed for deterministic
-    // results.
     println!("generate trace rows...");
     let trace = generate_trace_rows::<FWrap<Fr>>(inputs);
     println!("trace to wit...");

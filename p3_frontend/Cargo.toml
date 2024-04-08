@@ -25,7 +25,6 @@ p3-uni-stark = { git = "https://github.com/Plonky3/Plonky3", rev = "7b5b8a6" }
 halo2_middleware = { path = "../halo2_middleware" }
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 num-bigint = { version = "0.4.3", default-features = false }
-dhat = "0.3.2"
 
 [dev-dependencies]
 halo2curves = { version = "0.6.0", default-features = false }

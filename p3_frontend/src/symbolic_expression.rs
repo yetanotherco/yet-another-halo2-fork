@@ -55,6 +55,7 @@ pub enum SymbolicExpression<F: Field> {
     Location(Location),
     Constant(F),
     Add(Rc<Self>, Rc<Self>),
+    Sub(Rc<Self>, Rc<Self>),
     Neg(Rc<Self>),
     Mul(Rc<Self>, Rc<Self>),
 }
@@ -96,6 +97,9 @@ impl<F: Field> fmt::Display for SymbolicExpression<F> {
                 } else {
                     write!(f, "({} + {})", lhs, rhs)
                 }
+            }
+            Self::Sub(lhs, rhs) => {
+                write!(f, "({} - {})", lhs, rhs)
             }
             Self::Neg(neg) => write!(f, "-({})", neg),
             Self::Mul(lhs, rhs) => write!(f, "{} * {}", lhs, rhs),
@@ -233,7 +237,7 @@ impl<F: Field> Sub for SymbolicExpression<F> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
-        Self::Add(Rc::new(self), Rc::new(-rhs))
+        Self::Sub(Rc::new(self), Rc::new(rhs))
     }
 }
 

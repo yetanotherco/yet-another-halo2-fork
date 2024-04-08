@@ -51,7 +51,6 @@ pub struct SymbolicAirBuilder<F: Field> {
     pub(crate) main: RowMajorMatrix<SymbolicVariable<F>>,
     pub(crate) public_values: Vec<SymbolicVariable<F>>,
     pub(crate) constraints: Vec<SymbolicExpression<F>>,
-    pub(crate) profiler: Option<dhat::Profiler>,
 }
 
 impl<F: Field> SymbolicAirBuilder<F> {
@@ -68,7 +67,6 @@ impl<F: Field> SymbolicAirBuilder<F> {
                 .map(|i| SymbolicVariable::new_public(i))
                 .collect(),
             constraints: vec![],
-            profiler: None,
         }
     }
 
@@ -105,17 +103,7 @@ impl<F: Field> AirBuilder for SymbolicAirBuilder<F> {
     }
 
     fn assert_zero<I: Into<Self::Expr>>(&mut self, x: I) {
-        let e = x.into();
-        // println!("assert zero {}", self.constraints.len());
-        // if self.constraints.len() == 48 {
-        //     println!("assert zero {}", self.constraints.len());
-        //     println!("{}", e);
-        // }
-        // if self.constraints.len() == 475 {
-        //     self.profiler = None;
-        //     panic!("END");
-        // }
-        self.constraints.push(e);
+        self.constraints.push(x.into());
     }
 }
 

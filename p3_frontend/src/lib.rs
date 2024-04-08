@@ -41,7 +41,8 @@ const COL_FIRST: usize = 0;
 const COL_LAST: usize = 1;
 const COL_TRANS: usize = 2;
 
-// If the gate is enabled everywhere, transform it to only be enabled in usable rows
+// If the gate is enabled everywhere, transform it to only be enabled in usable rows so that it
+// gets disabled in poisoned rows.
 fn disable_in_unusable_rows<F: PrimeField + Hash>(
     e: &SymbolicExpression<FWrap<F>>,
 ) -> SymbolicExpression<FWrap<F>> {
@@ -79,6 +80,7 @@ fn sym_to_expr<F: PrimeField + Hash>(e: &SymbolicExpression<FWrap<F>>) -> Expres
         SE::Location(Location::Transition) => fixed_query_r0(COL_TRANS),
         SE::Constant(c) => ExpressionMid::Constant(c.0),
         SE::Add(lhs, rhs) => sym_to_expr(lhs) + sym_to_expr(rhs),
+        SE::Sub(lhs, rhs) => sym_to_expr(lhs) - sym_to_expr(rhs),
         SE::Neg(e) => -sym_to_expr(e),
         SE::Mul(lhs, rhs) => sym_to_expr(lhs) * sym_to_expr(rhs),
     }
@@ -144,22 +146,20 @@ fn extract_copy_public<F: PrimeField + Hash>(
     use SymbolicExpression as SE;
     use SymbolicVariable as SV;
     // Example:
-    // Mul(
-    //   Location(FirstRow),
-    //   Add(
-    //     Variable(SymbolicVariable(Query(Query { is_next: false, column: 0 }))),
-    //     Neg(Variable(SymbolicVariable(Public(Public { index: 0 }))))))
+    // Mul(Location(FirstRow),
+    //     Sub(Variable(SymbolicVariable(Query(Query { is_next: false, column: 0 }))),
+    //         Variable(SymbolicVariable(Public(Public { index: 0 })))))
     let (mul_lhs, mul_rhs) = match e {
         SE::Mul(lhs, rhs) => (&**lhs, &**rhs),
         _ => return None,
     };
-    let (cell_location, (add_lhs, add_rhs)) = match (mul_lhs, mul_rhs) {
-        (SE::Location(location @ (Location::FirstRow | Location::LastRow)), SE::Add(lhs, rhs)) => {
+    let (cell_location, (sub_lhs, sub_rhs)) = match (mul_lhs, mul_rhs) {
+        (SE::Location(location @ (Location::FirstRow | Location::LastRow)), SE::Sub(lhs, rhs)) => {
             (*location, (&**lhs, &**rhs))
         }
         _ => return None,
     };
-    let (cell_column, neg) = match (add_lhs, add_rhs) {
+    let (cell_column, public) = match (sub_lhs, sub_rhs) {
         (
             SE::Variable(SV(
                 Var::Query(Query {
@@ -168,12 +168,8 @@ fn extract_copy_public<F: PrimeField + Hash>(
                 }),
                 _,
             )),
-            SE::Neg(neg),
-        ) => (*column, &**neg),
-        _ => return None,
-    };
-    let public = match neg {
-        SE::Variable(SV(Var::Public(Public { index }), _)) => *index,
+            SE::Variable(SV(Var::Public(Public { index }), _)),
+        ) => (*column, *index),
         _ => return None,
     };
     Some(((cell_column, cell_location), public))
@@ -196,26 +192,29 @@ pub fn get_public_inputs<F: Field>(
     public_inputs
 }
 
+#[derive(Debug, Clone)]
 pub struct PreprocessingInfo {
     copy_public: Vec<((usize, Location), usize)>,
     num_public_values: usize,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct CompileParams {
+    pub disable_zk: bool,
+}
+
 pub fn compile_circuit_cs<F, A>(
     air: &A,
     num_public_values: usize,
-    profiler: Option<dhat::Profiler>,
+    params: &CompileParams,
 ) -> (ConstraintSystemMid<F>, PreprocessingInfo)
 where
     F: PrimeField + Hash,
     A: Air<SymbolicAirBuilder<FWrap<F>>>,
 {
     let mut builder = SymbolicAirBuilder::new(air.width(), num_public_values);
-    builder.profiler = profiler;
-    println!("eval...");
     air.eval(&mut builder);
 
-    println!("convert...");
     let num_fixed_columns = LOCATION_COLUMNS;
     let num_advice_columns = air.width();
 
@@ -237,7 +236,11 @@ where
             }
             continue;
         };
-        let constraint = disable_in_unusable_rows(constraint);
+        let constraint = if params.disable_zk {
+            constraint.clone()
+        } else {
+            disable_in_unusable_rows(constraint)
+        };
         gates.push(GateMid {
             name: format!("constraint{i}"),
             poly: sym_to_expr(&constraint),
@@ -251,13 +254,18 @@ where
         });
         num_instance_columns += 1;
     }
+    let unblinded_advice_columns = if params.disable_zk {
+        (0..num_advice_columns).collect()
+    } else {
+        Vec::new()
+    };
 
     let cs = ConstraintSystemMid::<F> {
         num_fixed_columns,
         num_advice_columns,
         num_instance_columns,
         num_challenges: 0,
-        unblinded_advice_columns: Vec::new(),
+        unblinded_advice_columns,
         advice_column_phase: (0..num_advice_columns).map(|_| 0).collect(),
         challenge_phase: Vec::new(),
         gates,
@@ -269,13 +277,11 @@ where
         general_column_annotations: HashMap::new(),
         minimum_degree: None,
     };
-    (
-        cs,
-        PreprocessingInfo {
-            copy_public,
-            num_public_values,
-        },
-    )
+    let preprocessing_info = PreprocessingInfo {
+        copy_public,
+        num_public_values,
+    };
+    (cs, preprocessing_info)
 }
 
 pub fn trace_to_wit<F: Field>(k: u32, trace: RowMajorMatrix<FWrap<F>>) -> Vec<Option<Vec<F>>> {
@@ -300,6 +306,7 @@ pub fn check_witness<F: Field>(
     let n = 2usize.pow(k);
     let cs = &circuit.cs;
     let preprocessing = &circuit.preprocessing;
+    // TODO: Simulate blinding rows
     // Verify all gates
     for (i, gate) in cs.gates.iter().enumerate() {
         for offset in 0..n {

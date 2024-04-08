@@ -130,7 +130,7 @@ use halo2_middleware::circuit::CompiledCircuitV2;
 use halo2curves::bn256::{Bn256, Fr, G1Affine};
 use p3_frontend::{
     check_witness, compile_circuit_cs, compile_preprocessing, get_public_inputs, trace_to_wit,
-    FWrap,
+    CompileParams, FWrap,
 };
 use rand_core::block::BlockRng;
 use rand_core::block::BlockRngCore;
@@ -158,7 +158,8 @@ fn test_fib() {
     let size = n - 6;
     let air = FibonacciAir {};
     let num_public_values = 3;
-    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, num_public_values, None);
+    let (cs, preprocessing_info) =
+        compile_circuit_cs::<Fr, _>(&air, num_public_values, &CompileParams::default());
     let preprocessing = compile_preprocessing::<Fr, _>(k, size, &preprocessing_info, &air);
     // println!("{:#?}", cs);
     // println!("{:?}", preprocessing);
