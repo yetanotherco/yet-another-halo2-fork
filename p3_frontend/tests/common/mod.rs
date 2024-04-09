@@ -38,6 +38,7 @@ impl BlockRngCore for OneNg {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub(crate) fn compile_witgen<A>(
     air: A,
     params: &CompileParams,
@@ -54,7 +55,7 @@ where
     println!("n = {n}");
     println!("size = {size}");
     println!("columns = {}", A::width(&air));
-    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, &params, num_public_values);
+    let (cs, preprocessing_info) = compile_circuit_cs::<Fr, _>(&air, params, num_public_values);
     println!(
         "degree = {}",
         cs.gates.iter().map(|g| g.poly.degree()).max().unwrap()
@@ -79,9 +80,9 @@ pub(crate) fn setup_prove_verify(
     let params = ParamsKZG::<Bn256>::setup(k, &mut rng);
     let verifier_params = params.verifier_params();
     let start = Instant::now();
-    let vk = keygen_vk_v2(&params, &compiled_circuit).expect("keygen_vk should not fail");
+    let vk = keygen_vk_v2(&params, compiled_circuit).expect("keygen_vk should not fail");
     let pk =
-        keygen_pk_v2(&params, vk.clone(), &compiled_circuit).expect("keygen_pk should not fail");
+        keygen_pk_v2(&params, vk.clone(), compiled_circuit).expect("keygen_pk should not fail");
     println!("Keygen: {:?}", start.elapsed());
 
     // Proving
