@@ -8,7 +8,7 @@ static ALLOC: dhat::Alloc = dhat::Alloc;
 use halo2_backend::{
     plonk::{
         keygen::{keygen_pk_v2, keygen_vk_v2},
-        prover::ProverV2Single,
+        prover::ProverSingle,
         verifier::{verify_proof, verify_proof_single},
     },
     transcript::{
@@ -592,7 +592,7 @@ fn test_mycircuit_full_split() {
     let mut witness_calc = WitnessCalculator::new(k, &circuit, &config, &cs, instances_slice);
     let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
     let mut prover =
-        ProverV2Single::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<'_, Bn256>, _, _, _>::new(
+        ProverSingle::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<'_, Bn256>, _, _, _>::new(
             &params,
             &pk,
             instances_slice,

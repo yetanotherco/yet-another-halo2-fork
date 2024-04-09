@@ -14,7 +14,7 @@ use crate::plonk::{
     ProvingKey,
 };
 use crate::poly::{
-    commitment::{Blind, CommitmentScheme, Params, Prover},
+    commitment::{self, Blind, CommitmentScheme, Params},
     Basis, Coeff, LagrangeCoeff, Polynomial, ProverQuery,
 };
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
@@ -35,27 +35,27 @@ struct AdviceSingle<C: CurveAffine, B: Basis> {
 }
 
 /// The prover object used to create proofs interactively by passing the witnesses to commit at
-/// each phase.  This works for a single proof.  This is a wrapper over ProverV2.
+/// each phase.  This works for a single proof.  This is a wrapper over Prover.
 #[derive(Debug)]
-pub struct ProverV2Single<
+pub struct ProverSingle<
     'a,
     'params,
     Scheme: CommitmentScheme,
-    P: Prover<'params, Scheme>,
+    P: commitment::Prover<'params, Scheme>,
     E: EncodedChallenge<Scheme::Curve>,
     R: RngCore,
     T: TranscriptWrite<Scheme::Curve, E>,
->(ProverV2<'a, 'params, Scheme, P, E, R, T>);
+>(Prover<'a, 'params, Scheme, P, E, R, T>);
 
 impl<
         'a,
         'params,
         Scheme: CommitmentScheme,
-        P: Prover<'params, Scheme>,
+        P: commitment::Prover<'params, Scheme>,
         E: EncodedChallenge<Scheme::Curve>,
         R: RngCore,
         T: TranscriptWrite<Scheme::Curve, E>,
-    > ProverV2Single<'a, 'params, Scheme, P, E, R, T>
+    > ProverSingle<'a, 'params, Scheme, P, E, R, T>
 {
     /// Create a new prover object
     pub fn new(
@@ -70,13 +70,7 @@ impl<
     where
         Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
     {
-        Ok(Self(ProverV2::new(
-            params,
-            pk,
-            &[instance],
-            rng,
-            transcript,
-        )?))
+        Ok(Self(Prover::new(params, pk, &[instance], rng, transcript)?))
     }
 
     /// Commit the `witness` at `phase` and return the challenges after `phase`.
@@ -103,11 +97,11 @@ impl<
 /// The prover object used to create proofs interactively by passing the witnesses to commit at
 /// each phase.  This supports batch proving.
 #[derive(Debug)]
-pub struct ProverV2<
+pub struct Prover<
     'a,
     'params,
     Scheme: CommitmentScheme,
-    P: Prover<'params, Scheme>,
+    P: commitment::Prover<'params, Scheme>,
     E: EncodedChallenge<Scheme::Curve>,
     R: RngCore,
     T: TranscriptWrite<Scheme::Curve, E>,
@@ -137,11 +131,11 @@ impl<
         'a,
         'params,
         Scheme: CommitmentScheme,
-        P: Prover<'params, Scheme>,
+        P: commitment::Prover<'params, Scheme>,
         E: EncodedChallenge<Scheme::Curve>,
         R: RngCore,
         T: TranscriptWrite<Scheme::Curve, E>,
-    > ProverV2<'a, 'params, Scheme, P, E, R, T>
+    > Prover<'a, 'params, Scheme, P, E, R, T>
 {
     /// Create a new prover object
     pub fn new(
@@ -259,7 +253,7 @@ impl<
 
         let challenges = HashMap::<usize, Scheme::Scalar>::with_capacity(meta.num_challenges);
 
-        Ok(ProverV2 {
+        Ok(Prover {
             params,
             pk,
             phases,
