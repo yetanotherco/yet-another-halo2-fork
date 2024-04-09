@@ -367,7 +367,6 @@ impl<
         // Also sets advice_polys with the (blinding) updated advice columns and advice_blinds with
         // the blinding factor used for each advice column.
 
-        println!("unusable_rows = {}", meta.blinding_factors() + 1);
         let mut commit_phase_fn =
             |advice: &mut AdviceSingle<Scheme::Curve, LagrangeCoeff>,
              witness: Vec<Option<Polynomial<Scheme::Scalar, LagrangeCoeff>>>|
