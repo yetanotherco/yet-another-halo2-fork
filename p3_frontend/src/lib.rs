@@ -47,12 +47,10 @@ fn disable_in_unusable_rows<F: PrimeField + Hash>(
     e: &SymbolicExpression<FWrap<F>>,
 ) -> SymbolicExpression<FWrap<F>> {
     use SymbolicExpression as SE;
-    match e {
-        SE::Mul(lhs, _) => match &**lhs {
-            SE::Location(_) => return e.clone(),
-            _ => {}
-        },
-        _ => {}
+    if let SE::Mul(lhs, _) = e {
+        if let SE::Location(_) = &**lhs {
+            return e.clone();
+        }
     }
     let usable_location = SE::Location(Location::Transition) + SE::Location(Location::LastRow);
     usable_location * e.clone()
@@ -102,6 +100,9 @@ where
 
     fixed[COL_FIRST][0] = F::ONE;
     fixed[COL_LAST][size - 1] = F::ONE;
+    // TODO: Figure out if transition is supposed to be enabled when transitioning from Last to
+    // First or not.  The current implementation assumes it's not enabled, but maybe Air assumes
+    // it's enabled?
     for i in 0..size - 1 {
         fixed[COL_TRANS][i] = F::ONE;
     }
