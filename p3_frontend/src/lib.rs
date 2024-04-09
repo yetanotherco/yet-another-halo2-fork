@@ -180,7 +180,10 @@ pub fn get_public_inputs<F: Field>(
     preprocessing_info: &PreprocessingInfo,
     size: usize,
     witness: &[Option<Vec<F>>],
-) -> Vec<F> {
+) -> Vec<Vec<F>> {
+    if preprocessing_info.num_public_values == 0 {
+        return Vec::new();
+    }
     let mut public_inputs = vec![F::ZERO; preprocessing_info.num_public_values];
     for (cell, public_index) in &preprocessing_info.copy_public {
         let offset = match cell.1 {
@@ -190,7 +193,7 @@ pub fn get_public_inputs<F: Field>(
         };
         public_inputs[*public_index] = witness[cell.0].as_ref().unwrap()[offset]
     }
-    public_inputs
+    vec![public_inputs]
 }
 
 #[derive(Debug, Clone)]
@@ -206,8 +209,8 @@ pub struct CompileParams {
 
 pub fn compile_circuit_cs<F, A>(
     air: &A,
-    num_public_values: usize,
     params: &CompileParams,
+    num_public_values: usize,
 ) -> (ConstraintSystemMid<F>, PreprocessingInfo)
 where
     F: PrimeField + Hash,
@@ -302,7 +305,7 @@ pub fn check_witness<F: Field>(
     circuit: &CompiledCircuitV2<F>,
     k: u32,
     witness: &[Option<Vec<F>>],
-    public: &[&[F]],
+    public: &[Vec<F>],
 ) {
     let n = 2usize.pow(k);
     let cs = &circuit.cs;
