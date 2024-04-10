@@ -88,7 +88,7 @@ pub trait ParamsProver<'params, C: CurveAffine>: Params<'params, C> {
         -> C::CurveExt;
 
     /// Returns verification parameters.
-    fn into_verifier_params(self) -> Self::ParamsVerifier;
+    fn verifier_params(&self) -> Self::ParamsVerifier;
 }
 
 /// Verifier specific functionality with circuit constraints

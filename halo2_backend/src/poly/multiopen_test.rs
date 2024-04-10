@@ -36,7 +36,7 @@ mod test {
             Blake2bWrite<_, _, Challenge255<_>>,
         >(&params);
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<
             IPACommitmentScheme<EqAffine>,
@@ -73,7 +73,7 @@ mod test {
             Keccak256Write<_, _, Challenge255<_>>,
         >(&params);
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<
             IPACommitmentScheme<EqAffine>,
@@ -106,7 +106,7 @@ mod test {
         let proof =
             create_proof::<_, ProverGWC<_>, _, Blake2bWrite<_, _, Challenge255<_>>>(&params);
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<_, VerifierGWC<_>, _, Blake2bRead<_, _, Challenge255<_>>, AccumulatorStrategy<_>>(
             &verifier_params,
@@ -141,7 +141,7 @@ mod test {
             Blake2bWrite<_, _, Challenge255<_>>,
         >(&params);
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<
             KZGCommitmentScheme<Bn256>,

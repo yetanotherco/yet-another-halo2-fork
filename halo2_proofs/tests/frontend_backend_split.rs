@@ -547,7 +547,7 @@ fn test_mycircuit_full_legacy() {
     println!("Prove: {:?}", start.elapsed());
 
     // Verify
-    let verifier_params = params.into_verifier_params();
+    let verifier_params = params.verifier_params();
     let start = Instant::now();
     let mut verifier_transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
@@ -619,7 +619,7 @@ fn test_mycircuit_full_split() {
         .map(|col| col.len())
         .max()
         .unwrap_or(0usize);
-    let verifier_params = params.into_verifier_params().trim(max_instance_len);
+    let verifier_params = params.verifier_params().trim(max_instance_len);
     let start = Instant::now();
     println!("Verifying...");
     let mut verifier_transcript =

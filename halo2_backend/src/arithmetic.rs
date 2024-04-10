@@ -27,14 +27,23 @@ where
 }
 
 /// Convert coefficient bases group elements to lagrange basis by inverse FFT.
-pub fn g_to_lagrange<C: CurveAffine>(g_projective: Vec<C::Curve>, k: u32) -> Vec<C> {
+/// TODO: Expand explanation.
+/// -> If we interpret g_projective as an SRS: [1], [s], [s^2]... [s^n-1]
+/// -> The resulting g_lagrange are the commitments (using this SRS) to the
+/// Lagrange polynomials of the 2^n domain.
+pub fn g_to_lagrange<C: CurveAffine>(g_projective: &[C::Curve], g_lagrange: &mut [C], k: u32) {
+    debug_assert_eq!(g_lagrange.len(), g_projective.len());
+
+    // n_inv = 2^(-k)
     let n_inv = C::Scalar::TWO_INV.pow_vartime([k as u64, 0, 0, 0]);
+
+    // Compute omega^-1, where omega is generator of our 2^k sized domain.
     let mut omega_inv = C::Scalar::ROOT_OF_UNITY_INV;
     for _ in k..C::Scalar::S {
         omega_inv = omega_inv.square();
     }
 
-    let mut g_lagrange_projective = g_projective;
+    let mut g_lagrange_projective = g_projective.to_vec();
     best_fft(&mut g_lagrange_projective, omega_inv, k);
     parallelize(&mut g_lagrange_projective, |g, _| {
         for g in g.iter_mut() {
@@ -42,15 +51,13 @@ pub fn g_to_lagrange<C: CurveAffine>(g_projective: Vec<C::Curve>, k: u32) -> Vec
         }
     });
 
-    let mut g_lagrange = vec![C::identity(); 1 << k];
-    parallelize(&mut g_lagrange, |g_lagrange, starts| {
+    // Normalize projective into affine coordinates.
+    parallelize(g_lagrange, |g_lagrange, starts| {
         C::Curve::batch_normalize(
             &g_lagrange_projective[starts..(starts + g_lagrange.len())],
             g_lagrange,
         );
     });
-
-    g_lagrange
 }
 
 /// This evaluates a provided polynomial (in coefficient form) at `point`.

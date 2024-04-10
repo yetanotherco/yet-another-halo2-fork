@@ -176,7 +176,7 @@ fn main() {
     .expect("prover should not fail");
     let proof = transcript.finalize();
 
-    let verifier_params = params.into_verifier_params().trim(instances.len());
+    let verifier_params = params.verifier_params().trim(instances.len());
     let strategy = SingleStrategy::new(&verifier_params);
     let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
     assert!(verify_proof::<

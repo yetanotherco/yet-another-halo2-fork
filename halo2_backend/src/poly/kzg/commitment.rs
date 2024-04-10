@@ -159,12 +159,25 @@ where
         g2: E::G2Affine,
         s_g2: E::G2Affine,
     ) -> Self {
+        let n = 1 << k;
         Self {
             k,
-            n: 1 << k,
+            n,
             g_lagrange: match g_lagrange {
                 Some(g_l) => g_l,
-                None => g_to_lagrange(g.iter().map(PrimeCurveAffine::to_curve).collect(), k),
+                None => {
+                    let mut g_lagrange: Vec<E::G1Affine> =
+                        vec![E::G1Affine::identity(); n as usize].into();
+                    g_to_lagrange(
+                        g.iter()
+                            .map(PrimeCurveAffine::to_curve)
+                            .collect::<Vec<<E::G1Affine as PrimeCurveAffine>::Curve>>()
+                            .as_slice(),
+                        &mut g_lagrange,
+                        k,
+                    );
+                    g_lagrange
+                }
             },
             g,
             g2,
@@ -443,7 +456,15 @@ where
         self.n = 1 << k;
 
         self.g.truncate(self.n as usize);
-        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
+        g_to_lagrange(
+            self.g
+                .iter()
+                .map(|g| g.to_curve())
+                .collect::<Vec<<E::G1Affine as PrimeCurveAffine>::Curve>>()
+                .as_slice(),
+            &mut self.g_lagrange,
+            k,
+        );
     }
 
     fn commit_lagrange(&self, poly: &Polynomial<E::Fr, LagrangeCoeff>, _: Blind<E::Fr>) -> E::G1 {
@@ -538,7 +559,7 @@ where
 {
     type ParamsVerifier = ParamsVerifierKZG<E>;
 
-    fn into_verifier_params(self) -> Self::ParamsVerifier {
+    fn verifier_params(&self) -> Self::ParamsVerifier {
         // This does not trim the G1 element vector `g_lagrange` so the resulting
         // parameters could be much made much smaller by calling `trim`.
         self.into()

@@ -9,9 +9,11 @@ use crate::poly::commitment::{Blind, CommitmentScheme, Params, ParamsProver, Par
 use crate::poly::ipa::msm::MSMIPA;
 use crate::poly::{Coeff, LagrangeCoeff, Polynomial};
 
+use group::prime::PrimeCurveAffine;
 use group::{Curve, Group};
 use halo2curves::msm::best_multiexp;
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 mod prover;
 mod verifier;
@@ -26,8 +28,8 @@ use std::io;
 pub struct ParamsIPA<C: CurveAffine> {
     pub(crate) k: u32,
     pub(crate) n: u64,
-    pub(crate) g: Vec<C>,
-    pub(crate) g_lagrange: Vec<C>,
+    pub(crate) g: Arc<[C]>,
+    pub(crate) g_lagrange: Arc<[C]>,
     pub(crate) w: C,
     pub(crate) u: C,
 }
@@ -80,8 +82,18 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
 
         self.k = k;
         self.n = 1 << k;
-        self.g.truncate(self.n as usize);
-        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
+
+        let downsized_g = &self.g[..self.n as usize];
+        let downsized_g_projective = downsized_g
+            .iter()
+            .map(PrimeCurveAffine::to_curve)
+            .collect::<Vec<<C as PrimeCurveAffine>::Curve>>();
+
+        let mut g_lagrange = vec![C::identity(); self.n as usize];
+        g_to_lagrange(downsized_g_projective.as_slice(), &mut g_lagrange, k);
+
+        self.g = downsized_g.into();
+        self.g_lagrange = g_lagrange.into();
     }
 
     fn empty_msm(&'params self) -> MSMIPA<C> {
@@ -111,10 +123,10 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
     /// Writes params to a buffer.
     fn write<W: io::Write>(&self, writer: &mut W) -> io::Result<()> {
         writer.write_all(&self.k.to_le_bytes())?;
-        for g_element in &self.g {
+        for g_element in self.g.iter() {
             writer.write_all(g_element.to_bytes().as_ref())?;
         }
-        for g_lagrange_element in &self.g_lagrange {
+        for g_lagrange_element in self.g_lagrange.iter() {
             writer.write_all(g_lagrange_element.to_bytes().as_ref())?;
         }
         writer.write_all(self.w.to_bytes().as_ref())?;
@@ -131,8 +143,8 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
 
         let n: u64 = 1 << k;
 
-        let g: Vec<_> = (0..n).map(|_| C::read(reader)).collect::<Result<_, _>>()?;
-        let g_lagrange: Vec<_> = (0..n).map(|_| C::read(reader)).collect::<Result<_, _>>()?;
+        let g: Arc<_> = (0..n).map(|_| C::read(reader)).collect::<Result<_, _>>()?;
+        let g_lagrange: Arc<_> = (0..n).map(|_| C::read(reader)).collect::<Result<_, _>>()?;
 
         let w = C::read(reader)?;
         let u = C::read(reader)?;
@@ -151,8 +163,8 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
 impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
     type ParamsVerifier = ParamsVerifierIPA<C>;
 
-    fn into_verifier_params(self) -> Self::ParamsVerifier {
-        self
+    fn verifier_params(&self) -> Self::ParamsVerifier {
+        self.clone()
     }
 
     /// Initializes parameters for the curve, given a random oracle to draw
@@ -196,7 +208,8 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
 
         // Let's evaluate all of the Lagrange basis polynomials
         // using an inverse FFT.
-        let g_lagrange = g_to_lagrange(g_projective, k);
+        let mut g_lagrange: Vec<C> = vec![C::identity(); n as usize];
+        g_to_lagrange(&g_projective, &mut g_lagrange, k);
 
         let hasher = C::CurveExt::hash_to_curve("Halo2-Parameters");
         let w = hasher(&[1]).to_affine();
@@ -205,9 +218,8 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
         ParamsIPA {
             k,
             n,
-            g,
-
-            g_lagrange,
+            g: g.into(),
+            g_lagrange: g_lagrange.into(),
             w,
             u,
         }

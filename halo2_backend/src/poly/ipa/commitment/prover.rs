@@ -95,7 +95,7 @@ pub fn create_proof<
 
     // Initialize the vector `G'` from the URS. We'll be progressively collapsing
     // this vector into smaller and smaller vectors until it is of length 1.
-    let mut g_prime = params.g.clone();
+    let mut g_prime: Vec<C> = params.g.to_vec();
 
     // Perform the inner product argument, round by round.
     for j in 0..params.k {
