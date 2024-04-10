@@ -863,6 +863,79 @@
 <a href="#847" id="847">847</a>
 <a href="#848" id="848">848</a>
 <a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Generate a proof
 
 </span><span class="kw">use </span>group::prime::PrimeCurveAffine;
@@ -884,6 +957,10 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::transcript::{EncodedChallenge, TranscriptWrite};
 <span class="kw">use </span>halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
+<span class="kw">use </span>halo2_middleware::zal::{
+    impls::{H2cEngine, PlonkEngine, PlonkEngineConfig},
+    traits::MsmAccel,
+};
 
 <span class="doccomment">/// Collection of instance data used during proving for a single circuit proof.
 </span><span class="attr">#[derive(Debug)]
@@ -910,7 +987,8 @@
     E: EncodedChallenge&lt;Scheme::Curve&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
-&gt;(ProverV2&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T&gt;);
+    M: MsmAccel&lt;Scheme::Curve&gt;,
+&gt;(ProverV2&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T, M&gt;);
 
 <span class="kw">impl</span>&lt;
         <span class="lifetime">&#39;a</span>,
@@ -920,10 +998,12 @@
         E: EncodedChallenge&lt;Scheme::Curve&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
-    &gt; ProverV2Single&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T&gt;
+        M: MsmAccel&lt;Scheme::Curve&gt;,
+    &gt; ProverV2Single&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T, M&gt;
 {
     <span class="doccomment">/// Create a new prover object
-    </span><span class="kw">pub fn </span>new(
+    </span><span class="kw">pub fn </span>new_with_engine(
+        engine: PlonkEngine&lt;Scheme::Curve, M&gt;,
         params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
         pk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProvingKey&lt;Scheme::Curve&gt;,
         <span class="comment">// TODO: If this was a vector the usage would be simpler
@@ -935,13 +1015,30 @@
     <span class="kw">where
         </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
     {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(ProverV2::new(
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(ProverV2::new_with_engine(
+            engine,
             params,
             pk,
             <span class="kw-2">&amp;</span>[instance],
             rng,
             transcript,
         )<span class="question-mark">?</span>))
+    }
+
+    <span class="kw">pub fn </span>new(
+        params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
+        pk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProvingKey&lt;Scheme::Curve&gt;,
+        <span class="comment">// TODO: If this was a vector the usage would be simpler
+        // https://github.com/privacy-scaling-explorations/halo2/issues/265
+        </span>instance: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[Scheme::Scalar]],
+        rng: R,
+        transcript: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ProverV2Single&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T, H2cEngine&gt;, Error&gt;
+    <span class="kw">where
+        </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
+    {
+        <span class="kw">let </span>engine = PlonkEngineConfig::build_default();
+        ProverV2Single::new_with_engine(engine, params, pk, instance, rng, transcript)
     }
 
     <span class="doccomment">/// Commit the `witness` at `phase` and return the challenges after `phase`.
@@ -976,7 +1073,9 @@
     E: EncodedChallenge&lt;Scheme::Curve&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
+    M: MsmAccel&lt;Scheme::Curve&gt;,
 &gt; {
+    engine: PlonkEngine&lt;Scheme::Curve, M&gt;,
     <span class="comment">// Circuit and setup fields
     </span>params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
     <span class="comment">// Plonk proving key
@@ -1006,10 +1105,12 @@
         E: EncodedChallenge&lt;Scheme::Curve&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
-    &gt; ProverV2&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T&gt;
+        M: MsmAccel&lt;Scheme::Curve&gt;,
+    &gt; ProverV2&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T, M&gt;
 {
     <span class="doccomment">/// Create a new prover object
-    </span><span class="kw">pub fn </span>new(
+    </span><span class="kw">pub fn </span>new_with_engine(
+        engine: PlonkEngine&lt;Scheme::Curve, M&gt;,
         params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
         pk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProvingKey&lt;Scheme::Curve&gt;,
         <span class="comment">// TODO: If this was a vector the usage would be simpler.
@@ -1065,7 +1166,9 @@
 
                     </span><span class="kw">let </span>instance_commitments_projective: Vec&lt;<span class="kw">_</span>&gt; = instance_values
                         .iter()
-                        .map(|poly| params.commit_lagrange(poly, Blind::default()))
+                        .map(|poly| {
+                            params.commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, poly, Blind::default())
+                        })
                         .collect();
                     <span class="kw">let </span><span class="kw-2">mut </span>instance_commitments =
                         <span class="macro">vec!</span>[Scheme::Curve::identity(); instance_commitments_projective.len()];
@@ -1125,6 +1228,7 @@
         </span><span class="kw">let </span>challenges = HashMap::&lt;usize, Scheme::Scalar&gt;::with_capacity(meta.num_challenges);
 
         <span class="prelude-val">Ok</span>(ProverV2 {
+            engine,
             params,
             pk,
             phases,
@@ -1232,69 +1336,70 @@
         // Also sets advice_polys with the (blinding) updated advice columns and advice_blinds with
         // the blinding factor used for each advice column.
 
-        </span><span class="kw">let </span><span class="kw-2">mut </span>commit_phase_fn =
-            |advice: <span class="kw-2">&amp;mut </span>AdviceSingle&lt;Scheme::Curve, LagrangeCoeff&gt;,
-             witness: Vec&lt;<span class="prelude-ty">Option</span>&lt;Polynomial&lt;Scheme::Scalar, LagrangeCoeff&gt;&gt;&gt;|
-             -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-                <span class="kw">let </span>unusable_rows_start = params.n() <span class="kw">as </span>usize - (meta.blinding_factors() + <span class="number">1</span>);
-                <span class="kw">let </span><span class="kw-2">mut </span>advice_values: Vec&lt;<span class="kw">_</span>&gt; = witness.into_iter().flatten().collect();
-                <span class="kw">let </span>unblinded_advice: HashSet&lt;usize&gt; =
-                    HashSet::from_iter(meta.unblinded_advice_columns.clone());
+        </span><span class="kw">let </span><span class="kw-2">mut </span>commit_phase_fn = |advice: <span class="kw-2">&amp;mut </span>AdviceSingle&lt;Scheme::Curve, LagrangeCoeff&gt;,
+                                   witness: Vec&lt;
+            <span class="prelude-ty">Option</span>&lt;Polynomial&lt;Scheme::Scalar, LagrangeCoeff&gt;&gt;,
+        &gt;|
+         -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+            <span class="kw">let </span>unusable_rows_start = params.n() <span class="kw">as </span>usize - (meta.blinding_factors() + <span class="number">1</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>advice_values: Vec&lt;<span class="kw">_</span>&gt; = witness.into_iter().flatten().collect();
+            <span class="kw">let </span>unblinded_advice: HashSet&lt;usize&gt; =
+                HashSet::from_iter(meta.unblinded_advice_columns.clone());
 
-                <span class="comment">// Add blinding factors to advice columns.
-                </span><span class="kw">for </span>(column_index, advice_values) <span class="kw">in </span>column_indices.iter().zip(<span class="kw-2">&amp;mut </span>advice_values) {
-                    <span class="kw">if </span>!unblinded_advice.contains(column_index) {
-                        <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;mut </span>advice_values[unusable_rows_start..] {
-                            <span class="kw-2">*</span>cell = Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
-                        }
-                    } <span class="kw">else </span>{
-                        <span class="attr">#[cfg(feature = <span class="string">&quot;sanity-checks&quot;</span>)]
-                        </span><span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;</span>advice_values[unusable_rows_start..] {
-                            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>cell, Scheme::Scalar::ZERO);
-                        }
+            <span class="comment">// Add blinding factors to advice columns.
+            </span><span class="kw">for </span>(column_index, advice_values) <span class="kw">in </span>column_indices.iter().zip(<span class="kw-2">&amp;mut </span>advice_values) {
+                <span class="kw">if </span>!unblinded_advice.contains(column_index) {
+                    <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;mut </span>advice_values[unusable_rows_start..] {
+                        <span class="kw-2">*</span>cell = Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
+                    }
+                } <span class="kw">else </span>{
+                    <span class="attr">#[cfg(feature = <span class="string">&quot;sanity-checks&quot;</span>)]
+                    </span><span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;</span>advice_values[unusable_rows_start..] {
+                        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>cell, Scheme::Scalar::ZERO);
                     }
                 }
+            }
 
-                <span class="comment">// Compute commitments to advice column polynomials
-                </span><span class="kw">let </span>blinds: Vec&lt;<span class="kw">_</span>&gt; = column_indices
-                    .iter()
-                    .map(|i| {
-                        <span class="kw">if </span>unblinded_advice.contains(i) {
-                            Blind::default()
-                        } <span class="kw">else </span>{
-                            Blind(Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng))
-                        }
-                    })
-                    .collect();
-                <span class="kw">let </span>advice_commitments_projective: Vec&lt;<span class="kw">_</span>&gt; = advice_values
-                    .iter()
-                    .zip(blinds.iter())
-                    .map(|(poly, blind)| params.commit_lagrange(poly, <span class="kw-2">*</span>blind))
-                    .collect();
-                <span class="kw">let </span><span class="kw-2">mut </span>advice_commitments_affine =
-                    <span class="macro">vec!</span>[Scheme::Curve::identity(); advice_commitments_projective.len()];
-                &lt;Scheme::Curve <span class="kw">as </span>CurveAffine&gt;::CurveExt::batch_normalize(
-                    <span class="kw-2">&amp;</span>advice_commitments_projective,
-                    <span class="kw-2">&amp;mut </span>advice_commitments_affine,
-                );
-                <span class="kw">let </span>advice_commitments_affine = advice_commitments_affine;
-                drop(advice_commitments_projective);
+            <span class="comment">// Compute commitments to advice column polynomials
+            </span><span class="kw">let </span>blinds: Vec&lt;<span class="kw">_</span>&gt; = column_indices
+                .iter()
+                .map(|i| {
+                    <span class="kw">if </span>unblinded_advice.contains(i) {
+                        Blind::default()
+                    } <span class="kw">else </span>{
+                        Blind(Scheme::Scalar::random(<span class="kw-2">&amp;mut </span>rng))
+                    }
+                })
+                .collect();
+            <span class="kw">let </span>advice_commitments_projective: Vec&lt;<span class="kw">_</span>&gt; = advice_values
+                .iter()
+                .zip(blinds.iter())
+                .map(|(poly, blind)| params.commit_lagrange(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.msm_backend, poly, <span class="kw-2">*</span>blind))
+                .collect();
+            <span class="kw">let </span><span class="kw-2">mut </span>advice_commitments_affine =
+                <span class="macro">vec!</span>[Scheme::Curve::identity(); advice_commitments_projective.len()];
+            &lt;Scheme::Curve <span class="kw">as </span>CurveAffine&gt;::CurveExt::batch_normalize(
+                <span class="kw-2">&amp;</span>advice_commitments_projective,
+                <span class="kw-2">&amp;mut </span>advice_commitments_affine,
+            );
+            <span class="kw">let </span>advice_commitments_affine = advice_commitments_affine;
+            drop(advice_commitments_projective);
 
-                <span class="comment">// Update transcript.
-                // [TRANSCRIPT-3]
-                </span><span class="kw">for </span>commitment <span class="kw">in </span><span class="kw-2">&amp;</span>advice_commitments_affine {
-                    <span class="self">self</span>.transcript.write_point(<span class="kw-2">*</span>commitment)<span class="question-mark">?</span>;
-                }
+            <span class="comment">// Update transcript.
+            // [TRANSCRIPT-3]
+            </span><span class="kw">for </span>commitment <span class="kw">in </span><span class="kw-2">&amp;</span>advice_commitments_affine {
+                <span class="self">self</span>.transcript.write_point(<span class="kw-2">*</span>commitment)<span class="question-mark">?</span>;
+            }
 
-                <span class="comment">// Set advice_polys &amp; advice_blinds
-                </span><span class="kw">for </span>((column_index, advice_values), blind) <span class="kw">in
-                    </span>column_indices.iter().zip(advice_values).zip(blinds)
-                {
-                    advice.advice_polys[<span class="kw-2">*</span>column_index] = advice_values;
-                    advice.advice_blinds[<span class="kw-2">*</span>column_index] = blind;
-                }
-                <span class="prelude-val">Ok</span>(())
-            };
+            <span class="comment">// Set advice_polys &amp; advice_blinds
+            </span><span class="kw">for </span>((column_index, advice_values), blind) <span class="kw">in
+                </span>column_indices.iter().zip(advice_values).zip(blinds)
+            {
+                advice.advice_polys[<span class="kw-2">*</span>column_index] = advice_values;
+                advice.advice_blinds[<span class="kw-2">*</span>column_index] = blind;
+            }
+            <span class="prelude-val">Ok</span>(())
+        };
 
         <span class="comment">// Update blindings for each advice column
         // [TRANSCRIPT-3]
@@ -1341,7 +1446,7 @@
     /// - 11. Compute and hash fixed evals
     /// - 12. Evaluate permutation, lookups and shuffles at x
     /// - 13. Generate all queries ([`ProverQuery`])
-    /// - 14. Send the queries to the [`Prover`]  
+    /// - 14. Send the queries to the [`Prover`]
     </span><span class="kw">pub fn </span>create_proof(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
@@ -1380,6 +1485,7 @@
                     .iter()
                     .map(|lookup| {
                         lookup_commit_permuted(
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.engine,
                             lookup,
                             pk,
                             params,
@@ -1419,6 +1525,7 @@
             .zip(advices.iter())
             .map(|(instance, advice)| {
                 permutation_commit(
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.engine,
                     <span class="kw-2">&amp;</span>cs.permutation,
                     params,
                     pk,
@@ -1444,7 +1551,15 @@
                 </span>lookups
                     .into_iter()
                     .map(|lookup| {
-                        lookup.commit_product(pk, params, beta, gamma, <span class="kw-2">&amp;mut </span>rng, <span class="self">self</span>.transcript)
+                        lookup.commit_product(
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.engine,
+                            pk,
+                            params,
+                            beta,
+                            gamma,
+                            <span class="kw-2">&amp;mut </span>rng,
+                            <span class="self">self</span>.transcript,
+                        )
                     })
                     .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             })
@@ -1462,6 +1577,7 @@
                     .iter()
                     .map(|shuffle| {
                         shuffle_commit_product(
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.engine,
                             shuffle,
                             pk,
                             params,
@@ -1482,7 +1598,13 @@
 
         <span class="comment">// 5. Commit to the vanishing argument&#39;s random polynomial for blinding h(x_3) -------------------
         // [TRANSCRIPT-12]
-        </span><span class="kw">let </span>vanishing = vanishing::Argument::commit(params, domain, <span class="kw-2">&amp;mut </span>rng, <span class="self">self</span>.transcript)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>vanishing = vanishing::Argument::commit(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.engine.msm_backend,
+            params,
+            domain,
+            <span class="kw-2">&amp;mut </span>rng,
+            <span class="self">self</span>.transcript,
+        )<span class="question-mark">?</span>;
 
         <span class="comment">// 6. Generate the advice polys ------------------------------------------------------------------
 
@@ -1532,7 +1654,14 @@
 
         <span class="comment">// 8. Construct the vanishing argument&#39;s h(X) commitments --------------------------------------
         // [TRANSCRIPT-14]
-        </span><span class="kw">let </span>vanishing = vanishing.construct(params, domain, h_poly, <span class="kw-2">&amp;mut </span>rng, <span class="self">self</span>.transcript)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>vanishing = vanishing.construct(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.engine,
+            params,
+            domain,
+            h_poly,
+            <span class="kw-2">&amp;mut </span>rng,
+            <span class="self">self</span>.transcript,
+        )<span class="question-mark">?</span>;
 
         <span class="comment">// 9. Compute x  --------------------------------------------------------------------------------
         // [TRANSCRIPT-15]
@@ -1701,7 +1830,7 @@
 
         </span><span class="kw">let </span>prover = P::new(params);
         prover
-            .create_proof(rng, <span class="self">self</span>.transcript, queries)
+            .create_proof_with_engine(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.msm_backend, rng, <span class="self">self</span>.transcript, queries)
             .map_err(|<span class="kw">_</span>| Error::ConstraintSystemFailure)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -1710,6 +1839,23 @@
     <span class="doccomment">/// Returns the phases of the circuit
     </span><span class="kw">pub fn </span>phases(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="self">self</span>.phases.as_slice()
+    }
+
+    <span class="doccomment">/// Create a new prover object
+    </span><span class="kw">pub fn </span>new(
+        params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
+        pk: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProvingKey&lt;Scheme::Curve&gt;,
+        <span class="comment">// TODO: If this was a vector the usage would be simpler.
+        // https://github.com/privacy-scaling-explorations/halo2/issues/265
+        </span>circuits_instances: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[Scheme::Scalar]]],
+        rng: R,
+        transcript: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ProverV2&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;params</span>, Scheme, P, E, R, T, H2cEngine&gt;, Error&gt;
+    <span class="kw">where
+        </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
+    {
+        <span class="kw">let </span>engine = PlonkEngineConfig::build_default();
+        ProverV2::new_with_engine(engine, params, pk, circuits_instances, rng, transcript)
     }
 }
 </code></pre></div></section></main></body></html>

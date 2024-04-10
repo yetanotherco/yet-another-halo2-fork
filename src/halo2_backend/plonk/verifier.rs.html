@@ -507,11 +507,18 @@
 <a href="#491" id="491">491</a>
 <a href="#492" id="492">492</a>
 <a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Verify a plonk proof
 
 </span><span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::circuit::Any;
 <span class="kw">use </span>halo2_middleware::ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
+<span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 <span class="kw">use </span>std::iter;
 
 <span class="kw">use super</span>::{vanishing, VerifyingKey};
@@ -573,6 +580,9 @@
 <span class="kw">where
     </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
+    <span class="comment">// ZAL: Verification is (supposedly) cheap, hence we don&#39;t use an accelerator engine
+    </span><span class="kw">let </span>default_engine = H2cEngine::new();
+
     <span class="comment">// Check that instances matches the expected number of instance columns
     </span><span class="kw">for </span>instances <span class="kw">in </span>instances.iter() {
         <span class="kw">if </span>instances.len() != vk.cs.num_instance_columns {
@@ -596,7 +606,9 @@
                         poly.resize(params.n() <span class="kw">as </span>usize, Scheme::Scalar::ZERO);
                         <span class="kw">let </span>poly = vk.domain.lagrange_from_vec(poly);
 
-                        <span class="prelude-val">Ok</span>(params.commit_lagrange(<span class="kw-2">&amp;</span>poly, Blind::default()).to_affine())
+                        <span class="prelude-val">Ok</span>(params
+                            .commit_lagrange(<span class="kw-2">&amp;</span>default_engine, <span class="kw-2">&amp;</span>poly, Blind::default())
+                            .to_affine())
                     })
                     .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             })

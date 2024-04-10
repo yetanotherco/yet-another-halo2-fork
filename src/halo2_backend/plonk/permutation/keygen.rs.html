@@ -288,8 +288,10 @@
 <a href="#272" id="272">272</a>
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::{Field, PrimeField};
+<span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 
 <span class="kw">use super</span>::{Argument, ProvingKey, VerifyingKey};
 <span class="kw">use crate</span>::{
@@ -555,7 +557,7 @@
         <span class="comment">// Compute commitment to permutation polynomial
         </span>commitments.push(
             params
-                .commit_lagrange(permutation, Blind::default())
+                .commit_lagrange(<span class="kw-2">&amp;</span>H2cEngine::new(), permutation, Blind::default())
                 .to_affine(),
         );
     }

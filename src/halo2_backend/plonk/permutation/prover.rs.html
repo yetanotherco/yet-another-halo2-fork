@@ -344,11 +344,16 @@
 <a href="#328" id="328">328</a>
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>group::{
     ff::{BatchInvert, Field},
     Curve,
 };
-<span class="kw">use </span>halo2_middleware::ff::PrimeField;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
+<span class="kw">use </span>halo2_middleware::{ff::PrimeField, zal::impls::PlonkEngine};
 <span class="kw">use </span>rand_core::RngCore;
 <span class="kw">use </span>std::iter::{<span class="self">self</span>, ExactSizeIterator};
 
@@ -399,7 +404,9 @@
     E: EncodedChallenge&lt;C&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;C, E&gt;,
+    M: MsmAccel&lt;C&gt;,
 &gt;(
+    engine: <span class="kw-2">&amp;</span>PlonkEngine&lt;C, M&gt;,
     arg: <span class="kw-2">&amp;</span>Argument,
     params: <span class="kw-2">&amp;</span>P,
     pk: <span class="kw-2">&amp;</span>plonk::ProvingKey&lt;C&gt;,
@@ -517,7 +524,8 @@
 
         <span class="kw">let </span>blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
 
-        <span class="kw">let </span>permutation_product_commitment_projective = params.commit_lagrange(<span class="kw-2">&amp;</span>z, blind);
+        <span class="kw">let </span>permutation_product_commitment_projective =
+            params.commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, <span class="kw-2">&amp;</span>z, blind);
         <span class="kw">let </span>permutation_product_blind = blind;
         <span class="kw">let </span>z = domain.lagrange_to_coeff(z);
         <span class="kw">let </span>permutation_product_poly = z.clone();

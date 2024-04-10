@@ -150,9 +150,12 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::plonk::Error;
 <span class="kw">use </span>group::ff::Field;
 <span class="kw">use </span>halo2_middleware::ff::FromUniformBytes;
+<span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 <span class="kw">use </span>halo2curves::CurveAffine;
 <span class="kw">use </span>rand_core::OsRng;
 
@@ -281,7 +284,8 @@
             );
 
         <span class="kw">match </span>final_msm {
-            <span class="prelude-val">Ok</span>(msm) =&gt; msm.check(),
+            <span class="comment">// ZAL: Verification is (supposedly) cheap, hence we don&#39;t use an accelerator engine
+            </span><span class="prelude-val">Ok</span>(msm) =&gt; msm.check(<span class="kw-2">&amp;</span>H2cEngine::new()),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
         }
     }

@@ -180,8 +180,9 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>halo2_middleware::ff::Field;
-<span class="kw">use </span>halo2curves::msm::best_multiexp;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>rand_core::RngCore;
 
 <span class="kw">use </span><span class="kw">super</span>::ParamsIPA;
@@ -207,12 +208,13 @@
 /// opening v, and the point x. It&#39;s probably also nice for the transcript
 /// to have seen the elliptic curve description and the URS, if you want to
 /// be rigorous.
-</span><span class="kw">pub fn </span>create_proof&lt;
+</span><span class="kw">pub fn </span>create_proof_with_engine&lt;
     C: CurveAffine,
     E: EncodedChallenge&lt;C&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;C, E&gt;,
 &gt;(
+    engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;,
     params: <span class="kw-2">&amp;</span>ParamsIPA&lt;C&gt;,
     <span class="kw-2">mut </span>rng: R,
     transcript: <span class="kw-2">&amp;mut </span>T,
@@ -237,7 +239,7 @@
     </span><span class="kw">let </span>s_poly_blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
 
     <span class="comment">// Write a commitment to the random polynomial to the transcript
-    </span><span class="kw">let </span>s_poly_commitment = params.commit(<span class="kw-2">&amp;</span>s_poly, s_poly_blind).to_affine();
+    </span><span class="kw">let </span>s_poly_commitment = params.commit(engine, <span class="kw-2">&amp;</span>s_poly, s_poly_blind).to_affine();
     transcript.write_point(s_poly_commitment)<span class="question-mark">?</span>;
 
     <span class="comment">// Challenge that will ensure that the prover cannot change P but can only
@@ -287,14 +289,14 @@
         //
         // TODO: If we modify multiexp to take &quot;extra&quot; bases, we could speed
         // this piece up a bit by combining the multiexps.
-        </span><span class="kw">let </span>l_j = best_multiexp(<span class="kw-2">&amp;</span>p_prime[half..], <span class="kw-2">&amp;</span>g_prime[<span class="number">0</span>..half]);
-        <span class="kw">let </span>r_j = best_multiexp(<span class="kw-2">&amp;</span>p_prime[<span class="number">0</span>..half], <span class="kw-2">&amp;</span>g_prime[half..]);
+        </span><span class="kw">let </span>l_j = engine.msm(<span class="kw-2">&amp;</span>p_prime[half..], <span class="kw-2">&amp;</span>g_prime[<span class="number">0</span>..half]);
+        <span class="kw">let </span>r_j = engine.msm(<span class="kw-2">&amp;</span>p_prime[<span class="number">0</span>..half], <span class="kw-2">&amp;</span>g_prime[half..]);
         <span class="kw">let </span>value_l_j = compute_inner_product(<span class="kw-2">&amp;</span>p_prime[half..], <span class="kw-2">&amp;</span>b[<span class="number">0</span>..half]);
         <span class="kw">let </span>value_r_j = compute_inner_product(<span class="kw-2">&amp;</span>p_prime[<span class="number">0</span>..half], <span class="kw-2">&amp;</span>b[half..]);
         <span class="kw">let </span>l_j_randomness = C::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
         <span class="kw">let </span>r_j_randomness = C::Scalar::random(<span class="kw-2">&amp;mut </span>rng);
-        <span class="kw">let </span>l_j = l_j + best_multiexp(<span class="kw-2">&amp;</span>[value_l_j * z, l_j_randomness], <span class="kw-2">&amp;</span>[params.u, params.w]);
-        <span class="kw">let </span>r_j = r_j + best_multiexp(<span class="kw-2">&amp;</span>[value_r_j * z, r_j_randomness], <span class="kw-2">&amp;</span>[params.u, params.w]);
+        <span class="kw">let </span>l_j = l_j + engine.msm(<span class="kw-2">&amp;</span>[value_l_j * z, l_j_randomness], <span class="kw-2">&amp;</span>[params.u, params.w]);
+        <span class="kw">let </span>r_j = r_j + engine.msm(<span class="kw-2">&amp;</span>[value_r_j * z, r_j_randomness], <span class="kw-2">&amp;</span>[params.u, params.w]);
         <span class="kw">let </span>l_j = l_j.to_affine();
         <span class="kw">let </span>r_j = r_j.to_affine();
 

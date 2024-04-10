@@ -136,6 +136,19 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{construct_intermediate_sets, ChallengeX1, ChallengeX2, ChallengeX3, ChallengeX4};
 <span class="kw">use </span><span class="kw">crate</span>::arithmetic::{eval_polynomial, kate_division, CurveAffine};
 <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::ParamsProver;
@@ -147,6 +160,7 @@
 
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::Field;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>rand_core::RngCore;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::marker::PhantomData;
@@ -165,8 +179,9 @@
     }
 
     <span class="doccomment">/// Create a multi-opening proof
-    </span><span class="kw">fn </span>create_proof&lt;<span class="lifetime">&#39;com</span>, Z: EncodedChallenge&lt;C&gt;, T: TranscriptWrite&lt;C, Z&gt;, R, I&gt;(
+    </span><span class="kw">fn </span>create_proof_with_engine&lt;<span class="lifetime">&#39;com</span>, Z: EncodedChallenge&lt;C&gt;, T: TranscriptWrite&lt;C, Z&gt;, R, I&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;,
         <span class="kw-2">mut </span>rng: R,
         transcript: <span class="kw-2">&amp;mut </span>T,
         queries: I,
@@ -231,7 +246,10 @@
             .unwrap();
 
         <span class="kw">let </span>q_prime_blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
-        <span class="kw">let </span>q_prime_commitment = <span class="self">self</span>.params.commit(<span class="kw-2">&amp;</span>q_prime_poly, q_prime_blind).to_affine();
+        <span class="kw">let </span>q_prime_commitment = <span class="self">self
+            </span>.params
+            .commit(engine, <span class="kw-2">&amp;</span>q_prime_poly, q_prime_blind)
+            .to_affine();
 
         transcript.write_point(q_prime_commitment)<span class="question-mark">?</span>;
 
@@ -255,7 +273,15 @@
             },
         );
 
-        commitment::create_proof(<span class="self">self</span>.params, rng, transcript, <span class="kw-2">&amp;</span>p_poly, p_poly_blind, <span class="kw-2">*</span>x_3)
+        commitment::create_proof_with_engine(
+            engine,
+            <span class="self">self</span>.params,
+            rng,
+            transcript,
+            <span class="kw-2">&amp;</span>p_poly,
+            p_poly_blind,
+            <span class="kw-2">*</span>x_3,
+        )
     }
 }
 </code></pre></div></section></main></body></html>

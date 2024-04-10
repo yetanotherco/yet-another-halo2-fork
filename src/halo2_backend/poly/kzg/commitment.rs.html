@@ -431,6 +431,21 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::arithmetic::{g_to_lagrange, parallelize};
 <span class="kw">use </span><span class="kw">crate</span>::helpers::{SerdeCurveAffine, SerdeFormat};
 <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{Blind, CommitmentScheme, Params, ParamsProver, ParamsVerifier};
@@ -438,7 +453,7 @@
 
 <span class="kw">use </span>group::{prime::PrimeCurveAffine, Curve, Group};
 <span class="kw">use </span>halo2_middleware::ff::{Field, PrimeField};
-<span class="kw">use </span>halo2curves::msm::best_multiexp;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>halo2curves::pairing::Engine;
 <span class="kw">use </span>halo2curves::CurveExt;
 <span class="kw">use </span>rand_core::{OsRng, RngCore};
@@ -735,13 +750,18 @@
         MSMKZG::new()
     }
 
-    <span class="kw">fn </span>commit_lagrange(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, LagrangeCoeff&gt;, <span class="kw">_</span>: Blind&lt;E::Fr&gt;) -&gt; E::G1 {
+    <span class="kw">fn </span>commit_lagrange(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;E::G1Affine&gt;,
+        poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, LagrangeCoeff&gt;,
+        <span class="kw">_</span>: Blind&lt;E::Fr&gt;,
+    ) -&gt; E::G1 {
         <span class="kw">let </span><span class="kw-2">mut </span>scalars = Vec::with_capacity(poly.len());
         scalars.extend(poly.iter());
         <span class="kw">let </span>bases = <span class="kw-2">&amp;</span><span class="self">self</span>.g_lagrange;
         <span class="kw">let </span>size = scalars.len();
         <span class="macro">assert!</span>(bases.len() &gt;= size);
-        best_multiexp(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases[<span class="number">0</span>..size])
+        engine.msm(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases[<span class="number">0</span>..size])
     }
 
     <span class="doccomment">/// Writes params to a buffer.
@@ -779,13 +799,18 @@
         <span class="self">Self</span>::setup(k, OsRng)
     }
 
-    <span class="kw">fn </span>commit(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, Coeff&gt;, <span class="kw">_</span>: Blind&lt;E::Fr&gt;) -&gt; E::G1 {
+    <span class="kw">fn </span>commit(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;E::G1Affine&gt;,
+        poly: <span class="kw-2">&amp;</span>Polynomial&lt;E::Fr, Coeff&gt;,
+        <span class="kw">_</span>: Blind&lt;E::Fr&gt;,
+    ) -&gt; E::G1 {
         <span class="kw">let </span><span class="kw-2">mut </span>scalars = Vec::with_capacity(poly.len());
         scalars.extend(poly.iter());
         <span class="kw">let </span>bases = <span class="kw-2">&amp;</span><span class="self">self</span>.g;
         <span class="kw">let </span>size = scalars.len();
         <span class="macro">assert!</span>(bases.len() &gt;= size);
-        best_multiexp(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases[<span class="number">0</span>..size])
+        engine.msm(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases[<span class="number">0</span>..size])
     }
 
     <span class="kw">fn </span>get_g(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[E::G1Affine] {
@@ -799,6 +824,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{Blind, Params};
     <span class="kw">use </span><span class="kw">crate</span>::poly::kzg::commitment::ParamsKZG;
     <span class="kw">use </span>halo2_middleware::ff::Field;
+    <span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_commit_lagrange() {
@@ -809,6 +835,7 @@
         <span class="kw">use </span><span class="kw">crate</span>::poly::EvaluationDomain;
         <span class="kw">use </span>halo2curves::bn256::{Bn256, Fr};
 
+        <span class="kw">let </span>engine = H2cEngine::new();
         <span class="kw">let </span>params = ParamsKZG::&lt;Bn256&gt;::new(K);
         <span class="kw">let </span>domain = EvaluationDomain::new(<span class="number">1</span>, K);
 
@@ -822,7 +849,10 @@
 
         <span class="kw">let </span>alpha = Blind(Fr::random(OsRng));
 
-        <span class="macro">assert_eq!</span>(params.commit(<span class="kw-2">&amp;</span>b, alpha), params.commit_lagrange(<span class="kw-2">&amp;</span>a, alpha));
+        <span class="macro">assert_eq!</span>(
+            params.commit(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>b, alpha),
+            params.commit_lagrange(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>a, alpha)
+        );
     }
 
     <span class="attr">#[test]

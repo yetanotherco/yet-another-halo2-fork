@@ -214,11 +214,18 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, iter};
 
 <span class="kw">use </span><span class="kw">crate</span>::plonk::Error;
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::Field;
+<span class="kw">use </span>halo2_middleware::zal::{impls::PlonkEngine, traits::MsmAccel};
 <span class="kw">use </span>rand_chacha::ChaCha20Rng;
 <span class="kw">use </span>rand_core::{RngCore, SeedableRng};
 
@@ -259,6 +266,7 @@
         R: RngCore,
         T: TranscriptWrite&lt;C, E&gt;,
     &gt;(
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;,
         params: <span class="kw-2">&amp;</span>P,
         domain: <span class="kw-2">&amp;</span>EvaluationDomain&lt;C::Scalar&gt;,
         <span class="kw-2">mut </span>rng: R,
@@ -300,7 +308,9 @@
         </span><span class="kw">let </span>random_blind = Blind(C::Scalar::random(rng));
 
         <span class="comment">// Commit
-        </span><span class="kw">let </span>c = params.commit(<span class="kw-2">&amp;</span>random_poly, random_blind).to_affine();
+        </span><span class="kw">let </span>c = params
+            .commit(engine, <span class="kw-2">&amp;</span>random_poly, random_blind)
+            .to_affine();
         transcript.write_point(c)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(Committed {
@@ -317,8 +327,10 @@
         E: EncodedChallenge&lt;C&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;C, E&gt;,
+        M: MsmAccel&lt;C&gt;,
     &gt;(
         <span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span>PlonkEngine&lt;C, M&gt;,
         params: <span class="kw-2">&amp;</span>P,
         domain: <span class="kw-2">&amp;</span>EvaluationDomain&lt;C::Scalar&gt;,
         h_poly: Polynomial&lt;C::Scalar, ExtendedLagrangeCoeff&gt;,
@@ -346,7 +358,7 @@
         </span><span class="kw">let </span>h_commitments_projective: Vec&lt;<span class="kw">_</span>&gt; = h_pieces
             .iter()
             .zip(h_blinds.iter())
-            .map(|(h_piece, blind)| params.commit(h_piece, <span class="kw-2">*</span>blind))
+            .map(|(h_piece, blind)| params.commit(<span class="kw-2">&amp;</span>engine.msm_backend, h_piece, <span class="kw-2">*</span>blind))
             .collect();
         <span class="kw">let </span><span class="kw-2">mut </span>h_commitments = <span class="macro">vec!</span>[C::identity(); h_commitments_projective.len()];
         C::Curve::batch_normalize(<span class="kw-2">&amp;</span>h_commitments_projective, <span class="kw-2">&amp;mut </span>h_commitments);

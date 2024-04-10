@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["circuit","expression","lookup","multicore","permutation","poly","shuffle"]};
+window.SIDEBAR_ITEMS = {"mod":["circuit","expression","lookup","multicore","permutation","poly","shuffle","zal"]};

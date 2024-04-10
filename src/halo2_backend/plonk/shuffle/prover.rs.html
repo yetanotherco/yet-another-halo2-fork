@@ -264,6 +264,11 @@
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::ProvingKey;
 <span class="kw">use </span><span class="kw">super</span>::Argument;
 <span class="kw">use </span><span class="kw">crate</span>::plonk::evaluation::evaluate;
@@ -279,6 +284,7 @@
 };
 <span class="kw">use </span>group::{ff::BatchInvert, ff::WithSmallOrderMulGroup, Curve};
 <span class="kw">use </span>halo2_middleware::poly::Rotation;
+<span class="kw">use </span>halo2_middleware::zal::{impls::PlonkEngine, traits::MsmAccel};
 <span class="kw">use </span>rand_core::RngCore;
 <span class="kw">use </span>std::{
     iter,
@@ -368,7 +374,9 @@
     E: EncodedChallenge&lt;C&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;C, E&gt;,
+    M: MsmAccel&lt;C&gt;,
 &gt;(
+    engine: <span class="kw-2">&amp;</span>PlonkEngine&lt;C, M&gt;,
     arg: <span class="kw-2">&amp;</span>Argument&lt;F&gt;,
     pk: <span class="kw-2">&amp;</span>ProvingKey&lt;C&gt;,
     params: <span class="kw-2">&amp;</span>P,
@@ -454,7 +462,9 @@
     }
 
     <span class="kw">let </span>product_blind = Blind(C::Scalar::random(rng));
-    <span class="kw">let </span>product_commitment = params.commit_lagrange(<span class="kw-2">&amp;</span>z, product_blind).to_affine();
+    <span class="kw">let </span>product_commitment = params
+        .commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, <span class="kw-2">&amp;</span>z, product_blind)
+        .to_affine();
     <span class="kw">let </span>z = pk.vk.domain.lagrange_to_coeff(z);
 
     <span class="comment">// Hash product commitment

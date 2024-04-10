@@ -312,6 +312,14 @@
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
 </pre></div><pre class="rust"><code><span class="kw">use super</span>::{
     construct_intermediate_sets, ChallengeU, ChallengeV, ChallengeY, Commitment, RotationSet,
 };
@@ -329,6 +337,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::multicore::{IntoParallelIterator, ParallelIterator};
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::Field;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>halo2curves::pairing::Engine;
 <span class="kw">use </span>halo2curves::CurveExt;
 <span class="kw">use </span>rand_core::RngCore;
@@ -431,7 +440,7 @@
     }
 
     <span class="doccomment">/// Create a multi-opening proof
-    </span><span class="kw">fn </span>create_proof&lt;
+    </span><span class="kw">fn </span>create_proof_with_engine&lt;
         <span class="lifetime">&#39;com</span>,
         Ch: EncodedChallenge&lt;E::G1Affine&gt;,
         T: TranscriptWrite&lt;E::G1Affine, Ch&gt;,
@@ -439,6 +448,7 @@
         I,
     &gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;E::G1Affine&gt;,
         <span class="kw">_</span>: R,
         transcript: <span class="kw-2">&amp;mut </span>T,
         queries: I,
@@ -522,7 +532,10 @@
             .reduce(|acc, poly| acc + <span class="kw-2">&amp;</span>poly)
             .unwrap();
 
-        <span class="kw">let </span>h = <span class="self">self</span>.params.commit(<span class="kw-2">&amp;</span>h_x, Blind::default()).to_affine();
+        <span class="kw">let </span>h = <span class="self">self
+            </span>.params
+            .commit(engine, <span class="kw-2">&amp;</span>h_x, Blind::default())
+            .to_affine();
         transcript.write_point(h)<span class="question-mark">?</span>;
         <span class="kw">let </span>u: ChallengeU&lt;<span class="kw">_</span>&gt; = transcript.squeeze_challenge_scalar();
 
@@ -604,7 +617,10 @@
             _marker: PhantomData,
         };
 
-        <span class="kw">let </span>h = <span class="self">self</span>.params.commit(<span class="kw-2">&amp;</span>h_x, Blind::default()).to_affine();
+        <span class="kw">let </span>h = <span class="self">self
+            </span>.params
+            .commit(engine, <span class="kw-2">&amp;</span>h_x, Blind::default())
+            .to_affine();
         transcript.write_point(h)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())

@@ -286,11 +286,12 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::arithmetic::CurveAffine;
 <span class="kw">use </span><span class="kw">crate</span>::poly::{commitment::MSM, ipa::commitment::ParamsVerifierIPA};
 <span class="kw">use </span>group::Group;
 <span class="kw">use </span>halo2_middleware::ff::Field;
-<span class="kw">use </span>halo2curves::msm::best_multiexp;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="doccomment">/// A multiscalar multiplication in the polynomial commitment scheme
@@ -419,11 +420,11 @@
         <span class="self">self</span>.u_scalar = <span class="self">self</span>.u_scalar.map(|a| a * factor);
     }
 
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        bool::from(<span class="self">self</span>.eval().is_identity())
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;) -&gt; bool {
+        bool::from(<span class="self">self</span>.eval(engine).is_identity())
     }
 
-    <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; C::Curve {
+    <span class="kw">fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>, engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;) -&gt; C::Curve {
         <span class="kw">let </span>len = <span class="self">self</span>.g_scalars.as_ref().map(|v| v.len()).unwrap_or(<span class="number">0</span>)
             + <span class="self">self</span>.w_scalar.map(|<span class="kw">_</span>| <span class="number">1</span>).unwrap_or(<span class="number">0</span>)
             + <span class="self">self</span>.u_scalar.map(|<span class="kw">_</span>| <span class="number">1</span>).unwrap_or(<span class="number">0</span>)
@@ -454,8 +455,7 @@
         }
 
         <span class="macro">assert_eq!</span>(scalars.len(), len);
-
-        best_multiexp(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases)
+        engine.msm(<span class="kw-2">&amp;</span>scalars, <span class="kw-2">&amp;</span>bases)
     }
 
     <span class="kw">fn </span>bases(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;C::CurveExt&gt; {
@@ -511,6 +511,7 @@
         commitment::{ParamsProver, MSM},
         ipa::{commitment::ParamsIPA, msm::MSMIPA},
     };
+    <span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
     <span class="kw">use </span>halo2curves::{
         pasta::{Ep, EpAffine, Fp, Fq},
         CurveAffine,
@@ -521,41 +522,42 @@
         <span class="kw">let </span>base: Ep = EpAffine::from_xy(-Fp::one(), Fp::from(<span class="number">2</span>)).unwrap().into();
         <span class="kw">let </span>base_viol = base + base;
 
+        <span class="kw">let </span>engine = H2cEngine::new();
         <span class="kw">let </span>params = ParamsIPA::new(<span class="number">4</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>a: MSMIPA&lt;EpAffine&gt; = MSMIPA::new(<span class="kw-2">&amp;</span>params);
         a.append_term(Fq::one(), base);
         <span class="comment">// a = [1] P
-        </span><span class="macro">assert!</span>(!a.clone().check());
+        </span><span class="macro">assert!</span>(!a.clone().check(<span class="kw-2">&amp;</span>engine));
         a.append_term(Fq::one(), base);
         <span class="comment">// a = [1+1] P
-        </span><span class="macro">assert!</span>(!a.clone().check());
+        </span><span class="macro">assert!</span>(!a.clone().check(<span class="kw-2">&amp;</span>engine));
         a.append_term(-Fq::one(), base_viol);
         <span class="comment">// a = [1+1] P + [-1] 2P
-        </span><span class="macro">assert!</span>(a.clone().check());
+        </span><span class="macro">assert!</span>(a.clone().check(<span class="kw-2">&amp;</span>engine));
         <span class="kw">let </span>b = a.clone();
 
         <span class="comment">// Append a point that is the negation of an existing one.
         </span>a.append_term(Fq::from(<span class="number">4</span>), -base);
         <span class="comment">// a = [1+1-4] P + [-1] 2P
-        </span><span class="macro">assert!</span>(!a.clone().check());
+        </span><span class="macro">assert!</span>(!a.clone().check(<span class="kw-2">&amp;</span>engine));
         a.append_term(Fq::from(<span class="number">2</span>), base_viol);
         <span class="comment">// a = [1+1-4] P + [-1+2] 2P
-        </span><span class="macro">assert!</span>(a.clone().check());
+        </span><span class="macro">assert!</span>(a.clone().check(<span class="kw-2">&amp;</span>engine));
 
         <span class="comment">// Add two MSMs with common bases.
         </span>a.scale(Fq::from(<span class="number">3</span>));
         a.add_msm(<span class="kw-2">&amp;</span>b);
         <span class="comment">// a = [3*(1+1)+(1+1-4)] P + [3*(-1)+(-1+2)] 2P
-        </span><span class="macro">assert!</span>(a.clone().check());
+        </span><span class="macro">assert!</span>(a.clone().check(<span class="kw-2">&amp;</span>engine));
 
         <span class="kw">let </span><span class="kw-2">mut </span>c: MSMIPA&lt;EpAffine&gt; = MSMIPA::new(<span class="kw-2">&amp;</span>params);
         c.append_term(Fq::from(<span class="number">2</span>), base);
         c.append_term(Fq::one(), -base_viol);
         <span class="comment">// c = [2] P + [1] (-2P)
-        </span><span class="macro">assert!</span>(c.clone().check());
+        </span><span class="macro">assert!</span>(c.clone().check(<span class="kw-2">&amp;</span>engine));
         <span class="comment">// Add two MSMs with bases that differ only in sign.
         </span>a.add_msm(<span class="kw-2">&amp;</span>c);
-        <span class="macro">assert!</span>(a.check());
+        <span class="macro">assert!</span>(a.check(<span class="kw-2">&amp;</span>engine));
     }
 }
 </code></pre></div></section></main></body></html>

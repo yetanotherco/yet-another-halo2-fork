@@ -446,6 +446,8 @@
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
 <a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module
 //! - creates the proving and verifying keys for a circuit
 //! - crates a domain, constraint system, and configuration for a circuit
@@ -454,6 +456,7 @@
 
 </span><span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::{Field, FromUniformBytes};
+<span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 
 <span class="kw">use super</span>::{evaluation::Evaluator, permutation, Polynomial, ProvingKey, VerifyingKey};
 <span class="kw">use crate</span>::{
@@ -518,6 +521,7 @@
         .map(|poly| {
             params
                 .commit_lagrange(
+                    <span class="kw-2">&amp;</span>H2cEngine::new(),
                     <span class="kw-2">&amp;</span>Polynomial::new_lagrange_from_vec(poly.clone()),
                     Blind::default(),
                 )

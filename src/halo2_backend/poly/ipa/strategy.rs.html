@@ -185,6 +185,7 @@
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
 <a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::commitment::{IPACommitmentScheme, ParamsIPA};
 <span class="kw">use </span><span class="kw">super</span>::msm::MSMIPA;
 <span class="kw">use </span><span class="kw">super</span>::multiopen::VerifierIPA;
@@ -197,7 +198,7 @@
 };
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::Field;
-<span class="kw">use </span>halo2curves::msm::best_multiexp;
+<span class="kw">use </span>halo2_middleware::zal::{impls::H2cEngine, traits::MsmAccel};
 <span class="kw">use </span>halo2curves::CurveAffine;
 <span class="kw">use </span>rand_core::OsRng;
 
@@ -251,10 +252,9 @@
     }
 
     <span class="doccomment">/// Computes G = ⟨s, params.g⟩
-    </span><span class="kw">pub fn </span>compute_g(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; C {
+    </span><span class="kw">pub fn </span>compute_g(<span class="kw-2">&amp;</span><span class="self">self</span>, engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;) -&gt; C {
         <span class="kw">let </span>s = compute_s(<span class="kw-2">&amp;</span><span class="self">self</span>.u, C::Scalar::ONE);
-
-        best_multiexp(<span class="kw-2">&amp;</span>s, <span class="kw-2">&amp;</span><span class="self">self</span>.msm.params.g).to_affine()
+        engine.msm(<span class="kw-2">&amp;</span>s, <span class="kw-2">&amp;</span><span class="self">self</span>.msm.params.g).to_affine()
     }
 }
 
@@ -294,7 +294,8 @@
     /// specific failing proofs, it must re-process the proofs separately.
     </span><span class="attr">#[must_use]
     </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.msm.check()
+        <span class="comment">// TODO: Verification is cheap, ZkAccel on verifier is not a priority.
+        </span><span class="self">self</span>.msm.check(<span class="kw-2">&amp;</span>H2cEngine::new())
     }
 }
 
@@ -322,7 +323,8 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output, Error&gt; {
         <span class="kw">let </span>guard = f(<span class="self">self</span>.msm)<span class="question-mark">?</span>;
         <span class="kw">let </span>msm = guard.use_challenges();
-        <span class="kw">if </span>msm.check() {
+        <span class="comment">// ZAL: Verification is (supposedly) cheap, hence we don&#39;t use an accelerator engine
+        </span><span class="kw">if </span>msm.check(<span class="kw-2">&amp;</span>H2cEngine::new()) {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::ConstraintSystemFailure)

@@ -488,6 +488,16 @@
 <a href="#472" id="472">472</a>
 <a href="#473" id="473">473</a>
 <a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::ProvingKey;
 <span class="kw">use </span><span class="kw">super</span>::Argument;
 <span class="kw">use </span><span class="kw">crate</span>::plonk::evaluation::evaluate;
@@ -507,6 +517,7 @@
 };
 <span class="kw">use </span>halo2_middleware::ff::WithSmallOrderMulGroup;
 <span class="kw">use </span>halo2_middleware::poly::Rotation;
+<span class="kw">use </span>halo2_middleware::zal::{impls::PlonkEngine, traits::MsmAccel};
 <span class="kw">use </span>rand_core::RngCore;
 <span class="kw">use </span>std::{
     collections::BTreeMap,
@@ -559,7 +570,9 @@
     E: EncodedChallenge&lt;C&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;C, E&gt;,
+    M: MsmAccel&lt;C&gt;,
 &gt;(
+    engine: <span class="kw-2">&amp;</span>PlonkEngine&lt;C, M&gt;,
     arg: <span class="kw-2">&amp;</span>Argument&lt;F&gt;,
     pk: <span class="kw-2">&amp;</span>ProvingKey&lt;C&gt;,
     params: <span class="kw-2">&amp;</span>P,
@@ -617,7 +630,9 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>commit_values = |values: <span class="kw-2">&amp;</span>Polynomial&lt;C::Scalar, LagrangeCoeff&gt;| {
         <span class="kw">let </span>poly = pk.vk.domain.lagrange_to_coeff(values.clone());
         <span class="kw">let </span>blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
-        <span class="kw">let </span>commitment = params.commit_lagrange(values, blind).to_affine();
+        <span class="kw">let </span>commitment = params
+            .commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, values, blind)
+            .to_affine();
         (poly, blind, commitment)
     };
 
@@ -653,14 +668,17 @@
     /// grand product polynomial over the lookup. The grand product polynomial
     /// is used to populate the [`Committed&lt;C&gt;`] struct. The [`Committed&lt;C&gt;`] struct is
     /// added to the Lookup and finally returned by the method.
+    </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">fn </span>commit_product&lt;
         <span class="lifetime">&#39;params</span>,
         P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
         E: EncodedChallenge&lt;C&gt;,
         R: RngCore,
         T: TranscriptWrite&lt;C, E&gt;,
+        M: MsmAccel&lt;C&gt;,
     &gt;(
         <span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span>PlonkEngine&lt;C, M&gt;,
         pk: <span class="kw-2">&amp;</span>ProvingKey&lt;C&gt;,
         params: <span class="kw-2">&amp;</span>P,
         beta: ChallengeBeta&lt;C&gt;,
@@ -777,7 +795,9 @@
         }
 
         <span class="kw">let </span>product_blind = Blind(C::Scalar::random(rng));
-        <span class="kw">let </span>product_commitment = params.commit_lagrange(<span class="kw-2">&amp;</span>z, product_blind).to_affine();
+        <span class="kw">let </span>product_commitment = params
+            .commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, <span class="kw-2">&amp;</span>z, product_blind)
+            .to_affine();
         <span class="kw">let </span>z = pk.vk.domain.lagrange_to_coeff(z);
 
         <span class="comment">// Hash product commitment

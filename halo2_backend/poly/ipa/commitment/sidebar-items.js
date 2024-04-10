@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["create_proof","verify_proof"],"struct":["IPACommitmentScheme","ParamsIPA"],"type":["ParamsVerifierIPA"]};
+window.SIDEBAR_ITEMS = {"fn":["create_proof_with_engine","verify_proof"],"struct":["IPACommitmentScheme","ParamsIPA"],"type":["ParamsVerifierIPA"]};

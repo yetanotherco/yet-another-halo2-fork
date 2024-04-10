@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This module provides “ZK Acceleration Layer” traits to abstract away the execution engine for performance-critical primitives."><title>halo2_middleware::zal - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="halo2_middleware" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (2bbb61989 2023-10-04)" data-channel="nightly" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"                  integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"    integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "\\(", right: "\\)", display: false},
+                {left: "$", right: "$", display: false},
+                {left: "\\[", right: "\\]", display: true}
+            ]
+        });
+    });
+</script>
+
+</head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../halo2_middleware/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a></nav><nav class="sidebar"><a class="logo-container" href="../../halo2_middleware/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module zal</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">halo2_middleware</a>::<wbr><a class="mod" href="#">zal</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/halo2_middleware/zal.rs.html#1-350">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This module provides “ZK Acceleration Layer” traits
+to abstract away the execution engine for performance-critical primitives.</p>
+<h3 id="terminology"><a href="#terminology">Terminology</a></h3>
+<p>We use the name Backend+Engine for concrete implementations of ZalEngine.
+For example H2cEngine for pure Halo2curves implementation.</p>
+<p>Alternative names considered were Executor or Driver however</p>
+<ul>
+<li>executor is already used in Rust (and the name is long)</li>
+<li>driver will be confusing as we work quite low-level with GPUs and FPGAs.</li>
+</ul>
+<p>Unfortunately the “Engine” name is used in bn256 for pairings.
+Fortunately a ZalEngine is only used in the prover (at least for now)
+while “pairing engine” is only used in the verifier</p>
+<h3 id="initialization-design-space"><a href="#initialization-design-space">Initialization design space</a></h3>
+<p>It is recommended that ZAL backends provide:</p>
+<ul>
+<li>an initialization function:
+<ul>
+<li>either “fn new() -&gt; ZalEngine” for simple libraries</li>
+<li>or a builder pattern for complex initializations</li>
+</ul>
+</li>
+<li>a shutdown function or document when it is not needed (when it’s a global threadpool like Rayon for example).</li>
+</ul>
+<p>Backends might want to add as an option:</p>
+<ul>
+<li>The number of threads (CPU)</li>
+<li>The device(s) to run on (multi-sockets machines, multi-GPUs machines, …)</li>
+<li>The curve (JIT-compiled backend)</li>
+</ul>
+<h3 id="descriptors"><a href="#descriptors">Descriptors</a></h3>
+<p>Descriptors enable providers to configure opaque details on data
+when doing repeated computations with the same input(s).
+For example:</p>
+<ul>
+<li>Pointer(s) caching to limit data movement between CPU and GPU, FPGAs</li>
+<li>Length of data</li>
+<li>data in layout:
+<ul>
+<li>canonical or Montgomery fields, unsaturated representation, endianness</li>
+<li>jacobian or projective coordinates or maybe even Twisted Edwards for faster elliptic curve additions,</li>
+<li>FFT: canonical or bit-reversed permuted</li>
+</ul>
+</li>
+<li>data out layout</li>
+<li>Device(s) ID</li>
+</ul>
+<p>For resources that need special cleanup like GPU memory, a custom <code>Drop</code> is required.</p>
+<p>Note that resources can also be stored in the engine in a hashmap
+and an integer ID or a pointer can be opaquely given as a descriptor.</p>
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="impls/index.html" title="mod halo2_middleware::zal::impls">impls</a></div></li><li><div class="item-name"><a class="mod" href="traits/index.html" title="mod halo2_middleware::zal::traits">traits</a></div></li></ul></section></div></main></body></html>

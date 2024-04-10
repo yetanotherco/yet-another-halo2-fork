@@ -385,6 +385,23 @@
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module contains an implementation of the polynomial commitment scheme
 //! described in the [Halo][halo] paper.
 //!
@@ -397,13 +414,13 @@
 <span class="kw">use </span><span class="kw">crate</span>::poly::{Coeff, LagrangeCoeff, Polynomial};
 
 <span class="kw">use </span>group::{Curve, Group};
-<span class="kw">use </span>halo2curves::msm::best_multiexp;
+<span class="kw">use </span>halo2_middleware::zal::traits::MsmAccel;
 <span class="kw">use </span>std::marker::PhantomData;
 
 <span class="kw">mod </span>prover;
 <span class="kw">mod </span>verifier;
 
-<span class="kw">pub use </span>prover::create_proof;
+<span class="kw">pub use </span>prover::create_proof_with_engine;
 <span class="kw">pub use </span>verifier::verify_proof;
 
 <span class="kw">use </span>std::io;
@@ -475,6 +492,7 @@
     /// `r`.
     </span><span class="kw">fn </span>commit_lagrange(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;,
         poly: <span class="kw-2">&amp;</span>Polynomial&lt;C::Scalar, LagrangeCoeff&gt;,
         r: Blind&lt;C::Scalar&gt;,
     ) -&gt; C::Curve {
@@ -487,7 +505,7 @@
         tmp_bases.extend(<span class="self">self</span>.g_lagrange.iter());
         tmp_bases.push(<span class="self">self</span>.w);
 
-        best_multiexp::&lt;C&gt;(<span class="kw-2">&amp;</span>tmp_scalars, <span class="kw-2">&amp;</span>tmp_bases)
+        engine.msm(<span class="kw-2">&amp;</span>tmp_scalars, <span class="kw-2">&amp;</span>tmp_bases)
     }
 
     <span class="doccomment">/// Writes params to a buffer.
@@ -597,7 +615,12 @@
     <span class="doccomment">/// This computes a commitment to a polynomial described by the provided
     /// slice of coefficients. The commitment will be blinded by the blinding
     /// factor `r`.
-    </span><span class="kw">fn </span>commit(<span class="kw-2">&amp;</span><span class="self">self</span>, poly: <span class="kw-2">&amp;</span>Polynomial&lt;C::Scalar, Coeff&gt;, r: Blind&lt;C::Scalar&gt;) -&gt; C::Curve {
+    </span><span class="kw">fn </span>commit(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        engine: <span class="kw-2">&amp;</span><span class="kw">impl </span>MsmAccel&lt;C&gt;,
+        poly: <span class="kw-2">&amp;</span>Polynomial&lt;C::Scalar, Coeff&gt;,
+        r: Blind&lt;C::Scalar&gt;,
+    ) -&gt; C::Curve {
         <span class="kw">let </span><span class="kw-2">mut </span>tmp_scalars = Vec::with_capacity(poly.len() + <span class="number">1</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>tmp_bases = Vec::with_capacity(poly.len() + <span class="number">1</span>);
 
@@ -607,7 +630,7 @@
         tmp_bases.extend(<span class="self">self</span>.g.iter());
         tmp_bases.push(<span class="self">self</span>.w);
 
-        best_multiexp::&lt;C&gt;(<span class="kw-2">&amp;</span>tmp_scalars, <span class="kw-2">&amp;</span>tmp_bases)
+        engine.msm(<span class="kw-2">&amp;</span>tmp_scalars, <span class="kw-2">&amp;</span>tmp_bases)
     }
 
     <span class="kw">fn </span>get_g(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[C] {
@@ -619,11 +642,12 @@
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::ParamsProver;
     <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{Blind, Params, MSM};
-    <span class="kw">use </span><span class="kw">crate</span>::poly::ipa::commitment::{create_proof, verify_proof, ParamsIPA};
+    <span class="kw">use </span><span class="kw">crate</span>::poly::ipa::commitment::{create_proof_with_engine, verify_proof, ParamsIPA};
     <span class="kw">use </span><span class="kw">crate</span>::poly::ipa::msm::MSMIPA;
 
     <span class="kw">use </span>group::Curve;
     <span class="kw">use </span>halo2_middleware::ff::Field;
+    <span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_commit_lagrange_epaffine() {
@@ -634,6 +658,7 @@
         <span class="kw">use </span><span class="kw">crate</span>::poly::EvaluationDomain;
         <span class="kw">use </span>halo2curves::pasta::{EpAffine, Fq};
 
+        <span class="kw">let </span>engine = H2cEngine::new();
         <span class="kw">let </span>params = ParamsIPA::&lt;EpAffine&gt;::new(K);
         <span class="kw">let </span>domain = EvaluationDomain::new(<span class="number">1</span>, K);
 
@@ -647,7 +672,10 @@
 
         <span class="kw">let </span>alpha = Blind(Fq::random(OsRng));
 
-        <span class="macro">assert_eq!</span>(params.commit(<span class="kw-2">&amp;</span>b, alpha), params.commit_lagrange(<span class="kw-2">&amp;</span>a, alpha));
+        <span class="macro">assert_eq!</span>(
+            params.commit(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>b, alpha),
+            params.commit_lagrange(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>a, alpha)
+        );
     }
 
     <span class="attr">#[test]
@@ -659,6 +687,7 @@
         <span class="kw">use </span><span class="kw">crate</span>::poly::EvaluationDomain;
         <span class="kw">use </span>halo2curves::pasta::{EqAffine, Fp};
 
+        <span class="kw">let </span>engine = H2cEngine::new();
         <span class="kw">let </span>params: ParamsIPA&lt;EqAffine&gt; = ParamsIPA::&lt;EqAffine&gt;::new(K);
         <span class="kw">let </span>domain = EvaluationDomain::new(<span class="number">1</span>, K);
 
@@ -672,7 +701,10 @@
 
         <span class="kw">let </span>alpha = Blind(Fp::random(OsRng));
 
-        <span class="macro">assert_eq!</span>(params.commit(<span class="kw-2">&amp;</span>b, alpha), params.commit_lagrange(<span class="kw-2">&amp;</span>a, alpha));
+        <span class="macro">assert_eq!</span>(
+            params.commit(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>b, alpha),
+            params.commit_lagrange(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>a, alpha)
+        );
     }
 
     <span class="attr">#[test]
@@ -695,6 +727,7 @@
 
         <span class="kw">let </span>rng = OsRng;
 
+        <span class="kw">let </span>engine = H2cEngine::new();
         <span class="kw">let </span>params = ParamsIPA::&lt;EpAffine&gt;::new(K);
         <span class="kw">let </span><span class="kw-2">mut </span>params_buffer = <span class="macro">vec!</span>[];
         &lt;ParamsIPA&lt;<span class="kw">_</span>&gt; <span class="kw">as </span>Params&lt;<span class="kw">_</span>&gt;&gt;::write(<span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;mut </span>params_buffer).unwrap();
@@ -710,7 +743,7 @@
 
         <span class="kw">let </span>blind = Blind(Fq::random(rng));
 
-        <span class="kw">let </span>p = params.commit(<span class="kw-2">&amp;</span>px, blind).to_affine();
+        <span class="kw">let </span>p = params.commit(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>px, blind).to_affine();
 
         <span class="kw">let </span><span class="kw-2">mut </span>transcript =
             Blake2bWrite::&lt;Vec&lt;u8&gt;, EpAffine, Challenge255&lt;EpAffine&gt;&gt;::init(<span class="macro">vec!</span>[]);
@@ -721,7 +754,8 @@
         transcript.write_scalar(v).unwrap();
 
         <span class="kw">let </span>(proof, ch_prover) = {
-            create_proof(<span class="kw-2">&amp;</span>params, rng, <span class="kw-2">&amp;mut </span>transcript, <span class="kw-2">&amp;</span>px, blind, <span class="kw-2">*</span>x).unwrap();
+            create_proof_with_engine(<span class="kw-2">&amp;</span>engine, <span class="kw-2">&amp;</span>params, rng, <span class="kw-2">&amp;mut </span>transcript, <span class="kw-2">&amp;</span>px, blind, <span class="kw-2">*</span>x)
+                .unwrap();
             <span class="kw">let </span>ch_prover = transcript.squeeze_challenge();
             (transcript.finalize(), ch_prover)
         };
@@ -747,12 +781,12 @@
         </span>{
             <span class="comment">// Test use_challenges()
             </span><span class="kw">let </span>msm_challenges = guard.clone().use_challenges();
-            <span class="macro">assert!</span>(msm_challenges.check());
+            <span class="macro">assert!</span>(msm_challenges.check(<span class="kw-2">&amp;</span>engine));
 
             <span class="comment">// Test use_g()
-            </span><span class="kw">let </span>g = guard.compute_g();
+            </span><span class="kw">let </span>g = guard.compute_g(<span class="kw-2">&amp;</span>engine);
             <span class="kw">let </span>(msm_g, _accumulator) = guard.clone().use_g(g);
-            <span class="macro">assert!</span>(msm_g.check());
+            <span class="macro">assert!</span>(msm_g.check(<span class="kw-2">&amp;</span>engine));
         }
     }
 }
