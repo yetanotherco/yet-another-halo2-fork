@@ -39,7 +39,7 @@ where
 }
 
 /// Generate a `VerifyingKey` from an instance of `CompiledCircuit`.
-pub fn keygen_vk_v2<'params, C, P>(
+pub fn keygen_vk<'params, C, P>(
     params: &P,
     circuit: &CompiledCircuit<C::Scalar>,
 ) -> Result<VerifyingKey<C>, Error>
@@ -86,7 +86,7 @@ where
 }
 
 /// Generate a `ProvingKey` from a `VerifyingKey` and an instance of `CompiledCircuit`.
-pub fn keygen_pk_v2<'params, C, P>(
+pub fn keygen_pk<'params, C, P>(
     params: &P,
     vk: VerifyingKey<C>,
     circuit: &CompiledCircuit<C::Scalar>,
