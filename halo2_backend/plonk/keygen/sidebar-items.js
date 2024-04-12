@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["keygen_pk_v2","keygen_vk_v2"],"struct":["Queries"]};
+window.SIDEBAR_ITEMS = {"fn":["keygen_pk","keygen_vk"],"struct":["Queries"]};

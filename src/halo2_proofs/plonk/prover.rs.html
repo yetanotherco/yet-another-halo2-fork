@@ -180,9 +180,9 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::plonk::{Error, ErrorBack};
-<span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{CommitmentScheme, Params, Prover};
+<span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{<span class="self">self</span>, CommitmentScheme, Params};
 <span class="kw">use </span><span class="kw">crate</span>::transcript::{EncodedChallenge, TranscriptWrite};
-<span class="kw">use </span>halo2_backend::plonk::{prover::ProverV2, ProvingKey};
+<span class="kw">use </span>halo2_backend::plonk::{prover::Prover, ProvingKey};
 <span class="kw">use </span>halo2_frontend::circuit::{compile_circuit_cs, WitnessCalculator};
 <span class="kw">use </span>halo2_frontend::plonk::Circuit;
 <span class="kw">use </span>halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
@@ -200,7 +200,7 @@
 </span><span class="kw">pub fn </span>create_proof_with_engine&lt;
     <span class="lifetime">&#39;params</span>,
     Scheme: CommitmentScheme,
-    P: Prover&lt;<span class="lifetime">&#39;params</span>, Scheme&gt;,
+    P: commitment::Prover&lt;<span class="lifetime">&#39;params</span>, Scheme&gt;,
     E: EncodedChallenge&lt;Scheme::Curve&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
@@ -231,7 +231,7 @@
         .enumerate()
         .map(|(i, circuit)| WitnessCalculator::new(params.k(), circuit, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>cs, instances[i]))
         .collect();
-    <span class="kw">let </span><span class="kw-2">mut </span>prover = ProverV2::&lt;Scheme, P, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;::new_with_engine(
+    <span class="kw">let </span><span class="kw-2">mut </span>prover = Prover::&lt;Scheme, P, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;::new_with_engine(
         engine, params, pk, instances, rng, transcript,
     )<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>challenges = HashMap::new();
@@ -253,7 +253,7 @@
 </span><span class="kw">pub fn </span>create_proof&lt;
     <span class="lifetime">&#39;params</span>,
     Scheme: CommitmentScheme,
-    P: Prover&lt;<span class="lifetime">&#39;params</span>, Scheme&gt;,
+    P: commitment::Prover&lt;<span class="lifetime">&#39;params</span>, Scheme&gt;,
     E: EncodedChallenge&lt;Scheme::Curve&gt;,
     R: RngCore,
     T: TranscriptWrite&lt;Scheme::Curve, E&gt;,

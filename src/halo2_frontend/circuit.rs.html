@@ -1024,7 +1024,7 @@
     Advice, Assignment, Circuit, ConstraintSystem, FirstPhase, Fixed, FloorPlanner, Instance,
     SecondPhase, SelectorsToFixed, ThirdPhase,
 };
-<span class="kw">use </span>halo2_middleware::circuit::{Any, CompiledCircuitV2, PreprocessingV2};
+<span class="kw">use </span>halo2_middleware::circuit::{Any, CompiledCircuit, Preprocessing};
 <span class="kw">use </span>halo2_middleware::ff::{BatchInvert, Field};
 <span class="kw">use </span>std::collections::BTreeSet;
 <span class="kw">use </span>std::collections::HashMap;
@@ -1090,7 +1090,7 @@
     compress_selectors: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
     (
-        CompiledCircuitV2&lt;F&gt;,
+        CompiledCircuit&lt;F&gt;,
         ConcreteCircuit::Config,
         ConstraintSystem&lt;F&gt;,
     ),
@@ -1133,7 +1133,7 @@
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;thread-safe-region&quot;</span>)]
     </span>assembly.permutation.copies.sort();
 
-    <span class="kw">let </span>preprocessing = PreprocessingV2 {
+    <span class="kw">let </span>preprocessing = Preprocessing {
         permutation: halo2_middleware::permutation::AssemblyMid {
             copies: assembly.permutation.copies,
         },
@@ -1141,7 +1141,7 @@
     };
 
     <span class="prelude-val">Ok</span>((
-        CompiledCircuitV2 {
+        CompiledCircuit {
             cs: cs.clone().into(),
             preprocessing,
         },

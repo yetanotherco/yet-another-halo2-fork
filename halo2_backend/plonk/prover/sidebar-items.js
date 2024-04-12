@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["ProverV2","ProverV2Single"]};
+window.SIDEBAR_ITEMS = {"struct":["Prover","ProverSingle"]};

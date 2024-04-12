@@ -472,7 +472,7 @@
     },
 };
 <span class="kw">use </span>halo2_middleware::circuit::{
-    Any, ColumnMid, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, VarMid,
+    Any, ColumnMid, CompiledCircuit, ConstraintSystemMid, ExpressionMid, VarMid,
 };
 <span class="kw">use </span>halo2_middleware::{lookup, poly::Rotation, shuffle};
 <span class="kw">use </span>std::collections::HashMap;
@@ -490,9 +490,9 @@
 }
 
 <span class="doccomment">/// Generate a `VerifyingKey` from an instance of `CompiledCircuit`.
-</span><span class="kw">pub fn </span>keygen_vk_v2&lt;<span class="lifetime">&#39;params</span>, C, P&gt;(
+</span><span class="kw">pub fn </span>keygen_vk&lt;<span class="lifetime">&#39;params</span>, C, P&gt;(
     params: <span class="kw-2">&amp;</span>P,
-    circuit: <span class="kw-2">&amp;</span>CompiledCircuitV2&lt;C::Scalar&gt;,
+    circuit: <span class="kw-2">&amp;</span>CompiledCircuit&lt;C::Scalar&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;VerifyingKey&lt;C&gt;, Error&gt;
 <span class="kw">where
     </span>C: CurveAffine,
@@ -538,10 +538,10 @@
 }
 
 <span class="doccomment">/// Generate a `ProvingKey` from a `VerifyingKey` and an instance of `CompiledCircuit`.
-</span><span class="kw">pub fn </span>keygen_pk_v2&lt;<span class="lifetime">&#39;params</span>, C, P&gt;(
+</span><span class="kw">pub fn </span>keygen_pk&lt;<span class="lifetime">&#39;params</span>, C, P&gt;(
     params: <span class="kw-2">&amp;</span>P,
     vk: VerifyingKey&lt;C&gt;,
-    circuit: <span class="kw-2">&amp;</span>CompiledCircuitV2&lt;C::Scalar&gt;,
+    circuit: <span class="kw-2">&amp;</span>CompiledCircuit&lt;C::Scalar&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ProvingKey&lt;C&gt;, Error&gt;
 <span class="kw">where
     </span>C: CurveAffine,

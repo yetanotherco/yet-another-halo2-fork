@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Any","VarMid"],"struct":["Cell","ChallengeMid","ColumnMid","CompiledCircuitV2","ConstraintSystemMid","Gate","PreprocessingV2","QueryMid"],"type":["ExpressionMid","GateMid"]};
+window.SIDEBAR_ITEMS = {"enum":["Any","VarMid"],"struct":["Cell","ChallengeMid","ColumnMid","CompiledCircuit","ConstraintSystemMid","Gate","Preprocessing","QueryMid"],"type":["ExpressionMid","GateMid"]};

@@ -79,7 +79,7 @@
 <a href="#63" id="63">63</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::plonk::Error;
 <span class="kw">use </span>halo2_backend::plonk::{
-    keygen::{keygen_pk_v2, keygen_vk_v2},
+    keygen::{keygen_pk <span class="kw">as </span>backend_keygen_pk, keygen_vk <span class="kw">as </span>backend_keygen_vk},
     ProvingKey, VerifyingKey,
 };
 <span class="kw">use </span>halo2_backend::{arithmetic::CurveAffine, poly::commitment::Params};
@@ -117,7 +117,7 @@
     C::Scalar: FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
     <span class="kw">let </span>(compiled_circuit, <span class="kw">_</span>, <span class="kw">_</span>) = compile_circuit(params.k(), circuit, compress_selectors)<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>vk = keygen_vk_v2(params, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>vk = backend_keygen_vk(params, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>;
     vk.compress_selectors = <span class="prelude-val">Some</span>(compress_selectors);
     <span class="prelude-val">Ok</span>(vk)
 }
@@ -138,6 +138,6 @@
         circuit,
         vk.compress_selectors.unwrap_or_default(),
     )<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(keygen_pk_v2(params, vk, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>)
+    <span class="prelude-val">Ok</span>(backend_keygen_pk(params, vk, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>)
 }
 </code></pre></div></section></main></body></html>
