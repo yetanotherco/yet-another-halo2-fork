@@ -77,6 +77,36 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::plonk::Error;
 <span class="kw">use </span>halo2_backend::plonk::{
     keygen::{keygen_pk <span class="kw">as </span>backend_keygen_pk, keygen_vk <span class="kw">as </span>backend_keygen_vk},
@@ -88,7 +118,11 @@
 <span class="kw">use </span>halo2_middleware::ff::FromUniformBytes;
 
 <span class="doccomment">/// Generate a `VerifyingKey` from an instance of `Circuit`.
-/// By default, selector compression is turned **off**.
+/// By default, selector compression is turned **ON**.
+///
+/// **NOTE**: This `keygen_vk` is legacy one, assuming that `compress_selector: true`.  
+/// Hence, it is HIGHLY recommended to pair this util with `keygen_pk`.  
+/// In addition, when using this for key generation, user MUST use `compress_selectors: true`.
 </span><span class="kw">pub fn </span>keygen_vk&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
     params: <span class="kw-2">&amp;</span>P,
     circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
@@ -105,6 +139,11 @@
 <span class="doccomment">/// Generate a `VerifyingKey` from an instance of `Circuit`.
 ///
 /// The selector compression optimization is turned on only if `compress_selectors` is `true`.
+///
+/// **NOTE**: This `keygen_vk_custom` MUST share the same `compress_selectors` with
+/// `ProvingKey` generation process.
+/// Otherwise, the user could get unmatching pk/vk pair.  
+/// Hence, it is HIGHLY recommended to pair this util with `keygen_pk_custom`.
 </span><span class="kw">pub fn </span>keygen_vk_custom&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
     params: <span class="kw-2">&amp;</span>P,
     circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
@@ -117,12 +156,15 @@
     C::Scalar: FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
     <span class="kw">let </span>(compiled_circuit, <span class="kw">_</span>, <span class="kw">_</span>) = compile_circuit(params.k(), circuit, compress_selectors)<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>vk = backend_keygen_vk(params, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>;
-    vk.compress_selectors = <span class="prelude-val">Some</span>(compress_selectors);
-    <span class="prelude-val">Ok</span>(vk)
+    <span class="prelude-val">Ok</span>(backend_keygen_vk(params, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>)
 }
 
 <span class="doccomment">/// Generate a `ProvingKey` from a `VerifyingKey` and an instance of `Circuit`.
+/// By default, selector compression is turned **ON**.
+///
+/// **NOTE**: This `keygen_pk` is legacy one, assuming that `compress_selector: true`.  
+/// Hence, it is HIGHLY recommended to pair this util with `keygen_vk`.  
+/// In addition, when using this for key generation, user MUST use `compress_selectors: true`.
 </span><span class="kw">pub fn </span>keygen_pk&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
     params: <span class="kw-2">&amp;</span>P,
     vk: VerifyingKey&lt;C&gt;,
@@ -133,11 +175,29 @@
     P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
     ConcreteCircuit: Circuit&lt;C::Scalar&gt;,
 {
-    <span class="kw">let </span>(compiled_circuit, <span class="kw">_</span>, <span class="kw">_</span>) = compile_circuit(
-        params.k(),
-        circuit,
-        vk.compress_selectors.unwrap_or_default(),
-    )<span class="question-mark">?</span>;
+    keygen_pk_custom(params, vk, circuit, <span class="bool-val">true</span>)
+}
+
+<span class="doccomment">/// Generate a `ProvingKey` from an instance of `Circuit`.
+///
+/// The selector compression optimization is turned on only if `compress_selectors` is `true`.
+///
+/// **NOTE**: This `keygen_pk_custom` MUST share the same `compress_selectors` with
+/// `VerifyingKey` generation process.
+/// Otherwise, the user could get unmatching pk/vk pair.  
+/// Hence, it is HIGHLY recommended to pair this util with `keygen_vk_custom`.
+</span><span class="kw">pub fn </span>keygen_pk_custom&lt;<span class="lifetime">&#39;params</span>, C, P, ConcreteCircuit&gt;(
+    params: <span class="kw-2">&amp;</span>P,
+    vk: VerifyingKey&lt;C&gt;,
+    circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
+    compress_selectors: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ProvingKey&lt;C&gt;, Error&gt;
+<span class="kw">where
+    </span>C: CurveAffine,
+    P: Params&lt;<span class="lifetime">&#39;params</span>, C&gt;,
+    ConcreteCircuit: Circuit&lt;C::Scalar&gt;,
+{
+    <span class="kw">let </span>(compiled_circuit, <span class="kw">_</span>, <span class="kw">_</span>) = compile_circuit(params.k(), circuit, compress_selectors)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(backend_keygen_pk(params, vk, <span class="kw-2">&amp;</span>compiled_circuit)<span class="question-mark">?</span>)
 }
 </code></pre></div></section></main></body></html>

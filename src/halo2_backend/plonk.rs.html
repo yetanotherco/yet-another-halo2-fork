@@ -422,10 +422,6 @@
 <a href="#406" id="406">406</a>
 <a href="#407" id="407">407</a>
 <a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an implementation of a variant of (Turbo)[PLONK][plonk]
 //! that is designed specifically for the polynomial commitment scheme described
 //! in the [Halo][halo] paper.
@@ -480,9 +476,6 @@
     </span>cs_degree: usize,
     <span class="doccomment">/// The representative of this `VerifyingKey` in transcripts.
     </span>transcript_repr: C::Scalar,
-    <span class="doccomment">/// Legacy field that indicates wether the circuit was compiled with compressed selectors or
-    /// not using the legacy API.
-    </span><span class="kw">pub </span>compress_selectors: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
 <span class="comment">// Current version of the VK
@@ -615,7 +608,6 @@
             cs_degree,
             <span class="comment">// Temporary, this is not pinned.
             </span>transcript_repr: C::Scalar::ZERO,
-            compress_selectors: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>hasher = Blake2bParams::new()
