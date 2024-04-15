@@ -74,6 +74,7 @@
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Legacy halo2 API that wraps the frontend-backend split API.  This crate doesn&#39;t implement any
 //! core functionality, it just imports from the other crates and offers the legacy API in the same
 //! module structure so that projects depending on halo2 can update their dependency towards it
@@ -93,7 +94,8 @@
 </span><span class="kw">pub mod </span>circuit {
     <span class="kw">pub use </span>halo2_frontend::circuit::floor_planner;
     <span class="kw">pub use </span>halo2_frontend::circuit::{
-        AssignedCell, Cell, Chip, Layouter, Region, SimpleFloorPlanner, Value,
+        AssignedCell, Cell, Chip, Layouter, NamespacedLayouter, Region, RegionIndex,
+        SimpleFloorPlanner, Table, Value,
     };
 }
 <span class="doccomment">/// This module provides common utilities, traits and structures for group,
@@ -116,14 +118,14 @@
 /// the committed polynomials at arbitrary points.
 </span><span class="kw">pub mod </span>poly {
     <span class="kw">pub use </span>halo2_backend::poly::VerificationStrategy;
-    <span class="kw">pub use </span>halo2_backend::poly::{commitment, ipa, kzg};
+    <span class="kw">pub use </span>halo2_backend::poly::{commitment, ipa, kzg, EvaluationDomain};
     <span class="kw">pub use </span>halo2_middleware::poly::Rotation;
 }
 <span class="doccomment">/// This module contains utilities and traits for dealing with Fiat-Shamir
 /// transcripts.
 </span><span class="kw">pub mod </span>transcript {
     <span class="kw">pub use </span>halo2_backend::transcript::{
-        Blake2bRead, Blake2bWrite, Challenge255, EncodedChallenge, TranscriptRead,
+        Blake2bRead, Blake2bWrite, Challenge255, EncodedChallenge, Transcript, TranscriptRead,
         TranscriptReadBuffer, TranscriptWrite, TranscriptWriterBuffer,
     };
 }

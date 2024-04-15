@@ -103,6 +103,7 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an implementation of a variant of (Turbo)[PLONK][plonk]
 //! that is designed specifically for the polynomial commitment scheme described
 //! in the [Halo][halo] paper.
@@ -125,8 +126,9 @@
 <span class="kw">pub use </span>error::Error;
 <span class="kw">pub use </span>halo2_backend::plonk::{Error <span class="kw">as </span>ErrorBack, ProvingKey, VerifyingKey};
 <span class="kw">pub use </span>halo2_frontend::plonk::{
-    Advice, Assigned, Challenge, Circuit, Column, ConstraintSystem, Error <span class="kw">as </span>ErrorFront,
-    Expression, FirstPhase, Fixed, Instance, SecondPhase, Selector, TableColumn, ThirdPhase,
+    Advice, Assigned, Assignment, Challenge, Circuit, Column, ColumnType, ConstraintSystem,
+    Constraints, Error <span class="kw">as </span>ErrorFront, Expression, FirstPhase, Fixed, FixedQuery, FloorPlanner,
+    Instance, Phase, SecondPhase, Selector, TableColumn, ThirdPhase, VirtualCells,
 };
 <span class="kw">pub use </span>halo2_middleware::circuit::{Any, ConstraintSystemMid};
 
