@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["keygen","prover","verifier"],"struct":["Beta","Gamma","PinnedVerificationKey","ProvingKey","Theta","VerifyingKey","X","Y"],"type":["ChallengeBeta","ChallengeGamma","ChallengeTheta","ChallengeX","ChallengeY"]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["keygen","prover","verifier"],"struct":["PinnedVerificationKey","ProvingKey","VerifyingKey"]};

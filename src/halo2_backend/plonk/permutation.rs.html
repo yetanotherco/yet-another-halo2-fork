@@ -115,11 +115,6 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Verifying/Proving key of a permutation argument, with its serialization.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::helpers::{SerdeCurveAffine, SerdeFormat, SerdePrimeField};
@@ -133,22 +128,17 @@
 
 <span class="kw">use </span>std::io;
 
-<span class="kw">pub mod </span>keygen;
-<span class="kw">pub mod </span>prover;
-<span class="kw">pub mod </span>verifier;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>keygen;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>prover;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>verifier;
 
 <span class="doccomment">/// The verifying key for a single permutation argument.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>VerifyingKey&lt;C: CurveAffine&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>VerifyingKey&lt;C: CurveAffine&gt; {
     commitments: Vec&lt;C&gt;,
 }
 
 <span class="kw">impl</span>&lt;C: CurveAffine&gt; VerifyingKey&lt;C&gt; {
-    <span class="doccomment">/// Returns commitments of sigma polynomials
-    </span><span class="kw">pub fn </span>commitments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;C&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.commitments
-    }
-
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write&lt;W: io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W, format: SerdeFormat) -&gt; io::Result&lt;()&gt;
     <span class="kw">where
         </span>C: SerdeCurveAffine,

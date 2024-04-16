@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["process"],"struct":["SelectorAssignment","SelectorDescription"]};
+window.SIDEBAR_ITEMS = {};

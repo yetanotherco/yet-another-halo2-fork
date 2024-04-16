@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Assembly"]};
+window.SIDEBAR_ITEMS = {};

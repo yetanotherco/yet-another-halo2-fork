@@ -167,22 +167,22 @@
 
 <span class="kw">use </span><span class="kw">super</span>::Argument;
 
-<span class="kw">pub struct </span>Committed&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">struct </span>Committed&lt;C: CurveAffine&gt; {
     random_poly_commitment: C,
 }
 
-<span class="kw">pub struct </span>Constructed&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">struct </span>Constructed&lt;C: CurveAffine&gt; {
     h_commitments: Vec&lt;C&gt;,
     random_poly_commitment: C,
 }
 
-<span class="kw">pub struct </span>PartiallyEvaluated&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">struct </span>PartiallyEvaluated&lt;C: CurveAffine&gt; {
     h_commitments: Vec&lt;C&gt;,
     random_poly_commitment: C,
     random_eval: C::Scalar,
 }
 
-<span class="kw">pub struct </span>Evaluated&lt;C: CurveAffine, M: MSM&lt;C&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::plonk) <span class="kw">struct </span>Evaluated&lt;C: CurveAffine, M: MSM&lt;C&gt;&gt; {
     h_commitment: M,
     random_poly_commitment: C,
     expected_h_eval: C::Scalar,

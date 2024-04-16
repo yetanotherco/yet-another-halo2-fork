@@ -187,14 +187,14 @@
 }
 
 <span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>Assembly {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Assembly {
     <span class="kw">pub</span>(<span class="kw">crate</span>) n: usize,
     <span class="kw">pub</span>(<span class="kw">crate</span>) columns: Vec&lt;Column&lt;Any&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) copies: Vec&lt;(Cell, Cell)&gt;,
 }
 
 <span class="kw">impl </span>Assembly {
-    <span class="kw">pub fn </span>new(n: usize, p: <span class="kw-2">&amp;</span>Argument) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(n: usize, p: <span class="kw-2">&amp;</span>Argument) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             n,
             columns: p.columns.clone(),
@@ -202,7 +202,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>copy(
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>copy(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         left_column: Column&lt;Any&gt;,
         left_row: usize,

@@ -113,7 +113,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>required_degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>required_degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.input_expressions.len(), <span class="self">self</span>.shuffle_expressions.len());
 
         <span class="kw">let </span><span class="kw-2">mut </span>input_degree = <span class="number">1</span>;

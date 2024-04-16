@@ -473,9 +473,9 @@
 /// the set of columns it uses as well as the number of rows it uses.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>RegionShape {
-    <span class="kw">pub </span>region_index: RegionIndex,
-    <span class="kw">pub </span>columns: HashSet&lt;RegionColumn&gt;,
-    <span class="kw">pub </span>row_count: usize,
+    <span class="kw">pub</span>(<span class="kw">super</span>) region_index: RegionIndex,
+    <span class="kw">pub</span>(<span class="kw">super</span>) columns: HashSet&lt;RegionColumn&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) row_count: usize,
 }
 
 <span class="doccomment">/// The virtual column involved in a region. This includes concrete columns,

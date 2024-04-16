@@ -188,11 +188,6 @@
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::cmp::max;
 <span class="kw">use </span>core::ops::{Add, Mul, Neg, Sub};
 <span class="kw">use </span>ff::Field;
@@ -260,7 +255,7 @@
         }
     }
 
-    <span class="kw">fn </span>write_identifier&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
+    <span class="kw">pub fn </span>write_identifier&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Expression::Constant(scalar) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;{scalar:?}&quot;</span>),
             Expression::Var(v) =&gt; v.write_identifier(writer),
@@ -317,11 +312,6 @@
             Expression::Product(a, b) =&gt; a.complexity() + b.complexity() + <span class="number">30</span>,
         }
     }
-
-    <span class="doccomment">/// Square this expression.
-    </span><span class="kw">pub fn </span>square(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.clone() * <span class="self">self
-    </span>}
 }
 
 <span class="kw">impl</span>&lt;F: Field, V: Variable&gt; Neg <span class="kw">for </span>Expression&lt;F, V&gt; {

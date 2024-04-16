@@ -310,7 +310,7 @@
 <span class="doccomment">/// This represents an element of a group with basic operations that can be
 /// performed. This allows an FFT implementation (for example) to operate
 /// generically over either a field or elliptic curve group.
-</span><span class="kw">pub trait </span>FftGroup&lt;Scalar: Field&gt;:
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>FftGroup&lt;Scalar: Field&gt;:
     Copy + Send + Sync + <span class="lifetime">&#39;static </span>+ GroupOpsOwned + ScalarMulOwned&lt;Scalar&gt;
 {
 }
@@ -323,7 +323,7 @@
 }
 
 <span class="doccomment">/// Convert coefficient bases group elements to lagrange basis by inverse FFT.
-</span><span class="kw">pub fn </span>g_to_lagrange&lt;C: CurveAffine&gt;(g_projective: Vec&lt;C::Curve&gt;, k: u32) -&gt; Vec&lt;C&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>g_to_lagrange&lt;C: CurveAffine&gt;(g_projective: Vec&lt;C::Curve&gt;, k: u32) -&gt; Vec&lt;C&gt; {
     <span class="kw">let </span>n_inv = C::Scalar::TWO_INV.pow_vartime([k <span class="kw">as </span>u64, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]);
     <span class="kw">let </span><span class="kw-2">mut </span>omega_inv = C::Scalar::ROOT_OF_UNITY_INV;
     <span class="kw">for _ in </span>k..C::Scalar::S {
@@ -350,7 +350,7 @@
 }
 
 <span class="doccomment">/// This evaluates a provided polynomial (in coefficient form) at `point`.
-</span><span class="kw">pub fn </span>eval_polynomial&lt;F: Field&gt;(poly: <span class="kw-2">&amp;</span>[F], point: F) -&gt; F {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>eval_polynomial&lt;F: Field&gt;(poly: <span class="kw-2">&amp;</span>[F], point: F) -&gt; F {
     <span class="kw">fn </span>evaluate&lt;F: Field&gt;(poly: <span class="kw-2">&amp;</span>[F], point: F) -&gt; F {
         poly.iter()
             .rev()
@@ -380,7 +380,7 @@
 <span class="doccomment">/// This computes the inner product of two vectors `a` and `b`.
 ///
 /// This function will panic if the two vectors are not the same size.
-</span><span class="kw">pub fn </span>compute_inner_product&lt;F: Field&gt;(a: <span class="kw-2">&amp;</span>[F], b: <span class="kw-2">&amp;</span>[F]) -&gt; F {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>compute_inner_product&lt;F: Field&gt;(a: <span class="kw-2">&amp;</span>[F], b: <span class="kw-2">&amp;</span>[F]) -&gt; F {
     <span class="comment">// TODO: parallelize?
     </span><span class="macro">assert_eq!</span>(a.len(), b.len());
 
@@ -394,7 +394,7 @@
 
 <span class="doccomment">/// Divides polynomial `a` in `X` by `X - b` with
 /// no remainder.
-</span><span class="kw">pub fn </span>kate_division&lt;<span class="lifetime">&#39;a</span>, F: Field, I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>F&gt;&gt;(a: I, <span class="kw-2">mut </span>b: F) -&gt; Vec&lt;F&gt;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>kate_division&lt;<span class="lifetime">&#39;a</span>, F: Field, I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>F&gt;&gt;(a: I, <span class="kw-2">mut </span>b: F) -&gt; Vec&lt;F&gt;
 <span class="kw">where
     </span>I::IntoIter: DoubleEndedIterator + ExactSizeIterator,
 {
@@ -470,7 +470,7 @@
 <span class="doccomment">/// Returns coefficients of an n - 1 degree polynomial given a set of n points
 /// and their evaluations. This function will panic if two values in `points`
 /// are the same.
-</span><span class="kw">pub fn </span>lagrange_interpolate&lt;F: Field&gt;(points: <span class="kw-2">&amp;</span>[F], evals: <span class="kw-2">&amp;</span>[F]) -&gt; Vec&lt;F&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lagrange_interpolate&lt;F: Field&gt;(points: <span class="kw-2">&amp;</span>[F], evals: <span class="kw-2">&amp;</span>[F]) -&gt; Vec&lt;F&gt; {
     <span class="macro">assert_eq!</span>(points.len(), evals.len());
     <span class="kw">if </span>points.len() == <span class="number">1 </span>{
         <span class="comment">// Constant polynomial
@@ -525,7 +525,7 @@
     }
 }
 
-<span class="kw">pub fn </span>evaluate_vanishing_polynomial&lt;F: Field&gt;(roots: <span class="kw-2">&amp;</span>[F], z: F) -&gt; F {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>evaluate_vanishing_polynomial&lt;F: Field&gt;(roots: <span class="kw-2">&amp;</span>[F], z: F) -&gt; F {
     <span class="kw">fn </span>evaluate&lt;F: Field&gt;(roots: <span class="kw-2">&amp;</span>[F], z: F) -&gt; F {
         roots.iter().fold(F::ONE, |acc, point| (z - point) * acc)
     }
@@ -545,7 +545,7 @@
     }
 }
 
-<span class="kw">pub fn </span>powers&lt;F: Field&gt;(base: F) -&gt; <span class="kw">impl </span>Iterator&lt;Item = F&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>powers&lt;F: Field&gt;(base: F) -&gt; <span class="kw">impl </span>Iterator&lt;Item = F&gt; {
     std::iter::successors(<span class="prelude-val">Some</span>(F::ONE), <span class="kw">move </span>|power| <span class="prelude-val">Some</span>(base * power))
 }
 

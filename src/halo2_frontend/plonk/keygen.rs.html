@@ -189,14 +189,14 @@
 
 <span class="doccomment">/// Assembly to be used in circuit synthesis.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Assembly&lt;F: Field&gt; {
-    <span class="kw">pub </span>k: u32,
-    <span class="kw">pub </span>fixed: Vec&lt;Vec&lt;Assigned&lt;F&gt;&gt;&gt;,
-    <span class="kw">pub </span>permutation: permutation::Assembly,
-    <span class="kw">pub </span>selectors: Vec&lt;Vec&lt;bool&gt;&gt;,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Assembly&lt;F: Field&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) k: u32,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fixed: Vec&lt;Vec&lt;Assigned&lt;F&gt;&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) permutation: permutation::Assembly,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) selectors: Vec&lt;Vec&lt;bool&gt;&gt;,
     <span class="comment">// A range of available rows for assignment and copies.
-    </span><span class="kw">pub </span>usable_rows: Range&lt;usize&gt;,
-    <span class="kw">pub </span>_marker: std::marker::PhantomData&lt;F&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) usable_rows: Range&lt;usize&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) _marker: std::marker::PhantomData&lt;F&gt;,
 }
 
 <span class="kw">impl</span>&lt;F: Field&gt; Assignment&lt;F&gt; <span class="kw">for </span>Assembly&lt;F&gt; {

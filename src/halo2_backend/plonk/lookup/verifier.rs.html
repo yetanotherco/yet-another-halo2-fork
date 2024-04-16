@@ -240,17 +240,17 @@
 <span class="kw">use </span>halo2_middleware::ff::Field;
 <span class="kw">use </span>halo2_middleware::poly::Rotation;
 
-<span class="kw">pub struct </span>PermutationCommitments&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PermutationCommitments&lt;C: CurveAffine&gt; {
     permuted_input_commitment: C,
     permuted_table_commitment: C,
 }
 
-<span class="kw">pub struct </span>Committed&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Committed&lt;C: CurveAffine&gt; {
     permuted: PermutationCommitments&lt;C&gt;,
     product_commitment: C,
 }
 
-<span class="kw">pub struct </span>Evaluated&lt;C: CurveAffine&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Evaluated&lt;C: CurveAffine&gt; {
     committed: Committed&lt;C&gt;,
     product_eval: C::Scalar,
     product_next_eval: C::Scalar,

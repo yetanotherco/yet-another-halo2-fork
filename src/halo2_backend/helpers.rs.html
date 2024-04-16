@@ -150,25 +150,6 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>halo2_middleware::ff::PrimeField;
 <span class="kw">use </span>halo2curves::{serde::SerdeObject, CurveAffine};
 <span class="kw">use </span>std::io;
@@ -272,25 +253,6 @@
     }
 }
 <span class="kw">impl</span>&lt;F: PrimeField + SerdeObject&gt; SerdePrimeField <span class="kw">for </span>F {}
-
-<span class="doccomment">/// Convert a slice of `bool` into a `u8`.
-///
-/// Panics if the slice has length greater than 8.
-</span><span class="kw">pub fn </span>pack(bits: <span class="kw-2">&amp;</span>[bool]) -&gt; u8 {
-    <span class="kw">let </span><span class="kw-2">mut </span>value = <span class="number">0u8</span>;
-    <span class="macro">assert!</span>(bits.len() &lt;= <span class="number">8</span>);
-    <span class="kw">for </span>(bit_index, bit) <span class="kw">in </span>bits.iter().enumerate() {
-        value |= (<span class="kw-2">*</span>bit <span class="kw">as </span>u8) &lt;&lt; bit_index;
-    }
-    value
-}
-
-<span class="doccomment">/// Writes the first `bits.len()` bits of a `u8` into `bits`.
-</span><span class="kw">pub fn </span>unpack(byte: u8, bits: <span class="kw-2">&amp;mut </span>[bool]) {
-    <span class="kw">for </span>(bit_index, bit) <span class="kw">in </span>bits.iter_mut().enumerate() {
-        <span class="kw-2">*</span>bit = (byte &gt;&gt; bit_index) &amp; <span class="number">1 </span>== <span class="number">1</span>;
-    }
-}
 
 <span class="doccomment">/// Reads a vector of polynomials from buffer
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>read_polynomial_vec&lt;R: io::Read, F: SerdePrimeField, B&gt;(

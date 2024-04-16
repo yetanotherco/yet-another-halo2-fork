@@ -349,7 +349,7 @@
 ///
 /// This is a set of [a_start, a_end) pairs representing disjoint allocated intervals.
 </span><span class="attr">#[derive(Clone, Default, Debug)]
-</span><span class="kw">pub struct </span>Allocations(BTreeSet&lt;AllocatedRegion&gt;);
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Allocations(BTreeSet&lt;AllocatedRegion&gt;);
 
 <span class="kw">impl </span>Allocations {
     <span class="doccomment">/// Returns the row that forms the unbounded unallocated interval [row, None).
@@ -402,7 +402,7 @@
 }
 
 <span class="doccomment">/// Allocated rows within a circuit.
-</span><span class="kw">pub type </span>CircuitAllocations = HashMap&lt;RegionColumn, Allocations&gt;;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>CircuitAllocations = HashMap&lt;RegionColumn, Allocations&gt;;
 
 <span class="doccomment">/// - `start` is the current start row of the region (not of this column).
 /// - `slack` is the maximum number of rows the start could be moved down, taking into
@@ -465,7 +465,7 @@
 
 <span class="doccomment">/// Positions the regions starting at the earliest row for which none of the columns are
 /// in use, taking into account gaps between earlier regions.
-</span><span class="kw">pub fn </span>slot_in(
+</span><span class="kw">fn </span>slot_in(
     region_shapes: Vec&lt;RegionShape&gt;,
 ) -&gt; (Vec&lt;(RegionStart, RegionShape)&gt;, CircuitAllocations) {
     <span class="comment">// Tracks the empty regions for each column.
@@ -498,7 +498,7 @@
 }
 
 <span class="doccomment">/// Sorts the regions by advice area and then lays them out with the [`slot_in`] strategy.
-</span><span class="kw">pub fn </span>slot_in_biggest_advice_first(
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>slot_in_biggest_advice_first(
     region_shapes: Vec&lt;RegionShape&gt;,
 ) -&gt; (Vec&lt;RegionStart&gt;, CircuitAllocations) {
     <span class="kw">let </span><span class="kw-2">mut </span>sorted_regions: Vec&lt;<span class="kw">_</span>&gt; = region_shapes.into_iter().collect();

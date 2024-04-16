@@ -372,7 +372,7 @@
 
 <span class="doccomment">/// This describes a selector and where it is activated.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>SelectorDescription {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SelectorDescription {
     <span class="doccomment">/// The selector that this description references, by index.
     </span><span class="kw">pub </span>selector: usize,
 
@@ -389,7 +389,7 @@
 <span class="doccomment">/// This describes the assigned combination of a particular selector as well as
 /// the expression it should be substituted with.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>SelectorAssignment&lt;F&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SelectorAssignment&lt;F&gt; {
     <span class="doccomment">/// The selector that this structure references, by index.
     </span><span class="kw">pub </span>selector: usize,
 
@@ -417,7 +417,7 @@
 /// substitutions to the constraint system.
 ///
 /// This function is completely deterministic.
-</span><span class="kw">pub fn </span>process&lt;F: Field, E&gt;(
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>process&lt;F: Field, E&gt;(
     <span class="kw-2">mut </span>selectors: Vec&lt;SelectorDescription&gt;,
     max_degree: usize,
     <span class="kw-2">mut </span>allocate_fixed_column: E,

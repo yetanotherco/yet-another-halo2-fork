@@ -1231,7 +1231,7 @@
 
 <span class="doccomment">/// Evaluator
 </span><span class="attr">#[derive(Clone, Default, Debug)]
-</span><span class="kw">pub struct </span>Evaluator&lt;C: CurveAffine&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Evaluator&lt;C: CurveAffine&gt; {
     <span class="doccomment">///  Custom gates evalution
     </span>custom_gates: GraphEvaluator&lt;C&gt;,
     <span class="doccomment">///  Lookups evalution
@@ -1893,7 +1893,7 @@
 }
 
 <span class="doccomment">/// Simple evaluation of an [`ExpressionBack`] over the provided lagrange polynomials
-</span><span class="kw">pub fn </span>evaluate&lt;F: Field, B: LagrangeBasis&gt;(
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>evaluate&lt;F: Field, B: LagrangeBasis&gt;(
     expression: <span class="kw-2">&amp;</span>ExpressionBack&lt;F&gt;,
     size: usize,
     rot_scale: i32,

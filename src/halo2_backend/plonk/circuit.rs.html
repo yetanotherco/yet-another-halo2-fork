@@ -502,7 +502,7 @@
 <span class="kw">impl</span>&lt;F: Field&gt; ConstraintSystemBack&lt;F&gt; {
     <span class="doccomment">/// Compute the degree of the constraint system (the maximum degree of all
     /// constraints).
-    </span><span class="kw">pub fn </span>degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="comment">// The permutation argument will serve alongside the gates, so must be
         // accounted for.
         </span><span class="kw">let </span><span class="kw-2">mut </span>degree = permutation_argument_required_degree();
@@ -545,7 +545,7 @@
 
     <span class="doccomment">/// Compute the number of blinding factors necessary to perfectly blind
     /// each of the prover&#39;s witness polynomials.
-    </span><span class="kw">pub fn </span>blinding_factors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>blinding_factors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="comment">// All of the prover&#39;s advice columns are evaluated at no more than
         </span><span class="kw">let </span>factors = <span class="kw-2">*</span><span class="self">self</span>.num_advice_queries.iter().max().unwrap_or(<span class="kw-2">&amp;</span><span class="number">1</span>);
         <span class="comment">// distinct points during gate checks.
@@ -574,7 +574,7 @@
 
     <span class="doccomment">/// Returns the minimum necessary rows that need to exist in order to
     /// account for e.g. blinding factors.
-    </span><span class="kw">pub fn </span>minimum_rows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>minimum_rows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.blinding_factors() <span class="comment">// m blinding factors
             </span>+ <span class="number">1 </span><span class="comment">// for l_{-(m + 1)} (l_last)
             </span>+ <span class="number">1 </span><span class="comment">// for l_0 (just for extra breathing room for the permutation
@@ -584,7 +584,7 @@
             </span>+ <span class="number">1 </span><span class="comment">// for at least one row
     </span>}
 
-    <span class="kw">pub fn </span>get_any_query_index(<span class="kw-2">&amp;</span><span class="self">self</span>, column: ColumnMid, at: Rotation) -&gt; usize {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_any_query_index(<span class="kw-2">&amp;</span><span class="self">self</span>, column: ColumnMid, at: Rotation) -&gt; usize {
         <span class="kw">let </span>queries = <span class="kw">match </span>column.column_type {
             Any::Advice =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.advice_queries,
             Any::Fixed =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.fixed_queries,
@@ -599,7 +599,7 @@
     }
 
     <span class="doccomment">/// Returns the list of phases
-    </span><span class="kw">pub fn </span>phases(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = u8&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>phases(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = u8&gt; {
         <span class="kw">let </span>max_phase = <span class="self">self
             </span>.advice_column_phase
             .iter()
@@ -612,7 +612,7 @@
     <span class="doccomment">/// Obtain a pinned version of this constraint system; a structure with the
     /// minimal parameters needed to determine the rest of the constraint
     /// system.
-    </span><span class="kw">pub fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedConstraintSystem&lt;<span class="lifetime">&#39;_</span>, F&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pinned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PinnedConstraintSystem&lt;<span class="lifetime">&#39;_</span>, F&gt; {
         PinnedConstraintSystem {
             num_fixed_columns: <span class="kw-2">&amp;</span><span class="self">self</span>.num_fixed_columns,
             num_advice_columns: <span class="kw-2">&amp;</span><span class="self">self</span>.num_advice_columns,
@@ -643,7 +643,7 @@
 }
 
 <span class="doccomment">/// Represents the minimal parameters that determine a `ConstraintSystem`.
-</span><span class="kw">pub struct </span>PinnedConstraintSystem&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PinnedConstraintSystem&lt;<span class="lifetime">&#39;a</span>, F: Field&gt; {
     num_fixed_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
     num_advice_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,
     num_instance_columns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>usize,

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["SerdeFormat"],"fn":["pack","unpack"],"trait":["CurveRead","SerdeCurveAffine","SerdePrimeField"]};
+window.SIDEBAR_ITEMS = {"enum":["SerdeFormat"],"trait":["CurveRead","SerdeCurveAffine","SerdePrimeField"]};

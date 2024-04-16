@@ -1805,46 +1805,6 @@
 <a href="#1789" id="1789">1789</a>
 <a href="#1790" id="1790">1790</a>
 <a href="#1791" id="1791">1791</a>
-<a href="#1792" id="1792">1792</a>
-<a href="#1793" id="1793">1793</a>
-<a href="#1794" id="1794">1794</a>
-<a href="#1795" id="1795">1795</a>
-<a href="#1796" id="1796">1796</a>
-<a href="#1797" id="1797">1797</a>
-<a href="#1798" id="1798">1798</a>
-<a href="#1799" id="1799">1799</a>
-<a href="#1800" id="1800">1800</a>
-<a href="#1801" id="1801">1801</a>
-<a href="#1802" id="1802">1802</a>
-<a href="#1803" id="1803">1803</a>
-<a href="#1804" id="1804">1804</a>
-<a href="#1805" id="1805">1805</a>
-<a href="#1806" id="1806">1806</a>
-<a href="#1807" id="1807">1807</a>
-<a href="#1808" id="1808">1808</a>
-<a href="#1809" id="1809">1809</a>
-<a href="#1810" id="1810">1810</a>
-<a href="#1811" id="1811">1811</a>
-<a href="#1812" id="1812">1812</a>
-<a href="#1813" id="1813">1813</a>
-<a href="#1814" id="1814">1814</a>
-<a href="#1815" id="1815">1815</a>
-<a href="#1816" id="1816">1816</a>
-<a href="#1817" id="1817">1817</a>
-<a href="#1818" id="1818">1818</a>
-<a href="#1819" id="1819">1819</a>
-<a href="#1820" id="1820">1820</a>
-<a href="#1821" id="1821">1821</a>
-<a href="#1822" id="1822">1822</a>
-<a href="#1823" id="1823">1823</a>
-<a href="#1824" id="1824">1824</a>
-<a href="#1825" id="1825">1825</a>
-<a href="#1826" id="1826">1826</a>
-<a href="#1827" id="1827">1827</a>
-<a href="#1828" id="1828">1828</a>
-<a href="#1829" id="1829">1829</a>
-<a href="#1830" id="1830">1830</a>
-<a href="#1831" id="1831">1831</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Tools for developing circuits.
 
 </span><span class="kw">use </span>std::collections::HashMap;
@@ -1897,7 +1857,7 @@
 
 <span class="doccomment">/// Region of assignments that are done during synthesis.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Region {
+</span><span class="kw">struct </span>Region {
     <span class="doccomment">/// The name of the region. Not required to be unique.
     </span>name: String,
     <span class="doccomment">/// The columns involved in this region.
@@ -1929,36 +1889,6 @@
             end = row;
         }
         <span class="self">self</span>.rows = <span class="prelude-val">Some</span>((start, end));
-    }
-
-    <span class="doccomment">/// Returns the name of the region.
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>String {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.name
-    }
-
-    <span class="doccomment">/// Returns the columns involved in this region.
-    </span><span class="kw">pub fn </span>columns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashSet&lt;Column&lt;Any&gt;&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.columns
-    }
-
-    <span class="doccomment">/// Returns the rows that this region starts and ends on, if known.
-    </span><span class="kw">pub fn </span>rows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt; {
-        <span class="self">self</span>.rows
-    }
-
-    <span class="doccomment">/// Returns the selectors that have been enabled in this region.
-    </span><span class="kw">pub fn </span>enabled_selectors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;Selector, Vec&lt;usize&gt;&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.enabled_selectors
-    }
-
-    <span class="doccomment">/// Returns the annotations given to Advice, Fixed or Instance columns within a region context.
-    </span><span class="kw">pub fn </span>annotations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;ColumnMetadata, String&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.annotations
-    }
-
-    <span class="doccomment">/// Returns the cells assigned in this region.
-    </span><span class="kw">pub fn </span>cells(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HashMap&lt;(Column&lt;Any&gt;, usize), usize&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.cells
     }
 }
 
@@ -3115,16 +3045,6 @@
     <span class="doccomment">/// Returns the list of Instance Columns used within a MockProver instance and the associated values contained on each Cell.
     </span><span class="kw">pub fn </span>instance(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Vec&lt;InstanceValue&lt;F&gt;&gt;&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.instance
-    }
-
-    <span class="doccomment">/// Returns the permutation argument (`Assembly`) used within a MockProver instance.
-    </span><span class="kw">pub fn </span>permutation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>permutation::Assembly {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.permutation
-    }
-
-    <span class="doccomment">/// Returns the Regions used during synthesis.
-    </span><span class="kw">pub fn </span>regions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Region] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.regions
     }
 }
 
