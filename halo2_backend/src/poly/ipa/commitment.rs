@@ -57,30 +57,20 @@ impl<C: CurveAffine> CommitmentScheme for IPACommitmentScheme<C> {
 /// Verifier parameters
 pub type ParamsVerifierIPA<C> = ParamsIPA<C>;
 
-impl<'params, C: CurveAffine> ParamsVerifier<'params, C> for ParamsIPA<C> {}
-
-impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
+impl<'params, C: CurveAffine> ParamsVerifier<'params, C> for ParamsIPA<C> {
     type MSM = MSMIPA<'params, C>;
+    fn empty_msm(&self) -> MSMIPA<C> {
+        MSMIPA::new(self)
+    }
+}
 
+impl<C: CurveAffine> Params<C> for ParamsIPA<C> {
     fn k(&self) -> u32 {
         self.k
     }
 
     fn n(&self) -> u64 {
         self.n
-    }
-
-    fn downsize(&mut self, k: u32) {
-        assert!(k <= self.k);
-
-        self.k = k;
-        self.n = 1 << k;
-        self.g.truncate(self.n as usize);
-        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
-    }
-
-    fn empty_msm(&'params self) -> MSMIPA<C> {
-        MSMIPA::new(self)
     }
 
     /// This commits to a polynomial using its evaluations over the $2^k$ size
@@ -144,13 +134,7 @@ impl<'params, C: CurveAffine> Params<'params, C> for ParamsIPA<C> {
     }
 }
 
-impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
-    type ParamsVerifier = ParamsVerifierIPA<C>;
-
-    fn verifier_params(&'params self) -> &'params Self::ParamsVerifier {
-        self
-    }
-
+impl<C: CurveAffine> ParamsProver<C> for ParamsIPA<C> {
     /// Initializes parameters for the curve, given a random oracle to draw
     /// points from.
     fn new(k: u32) -> Self {
@@ -208,6 +192,14 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
         }
     }
 
+    fn downsize(&mut self, k: u32) {
+        assert!(k <= self.k);
+
+        self.k = k;
+        self.n = 1 << k;
+        self.g.truncate(self.n as usize);
+        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
+    }
     /// This computes a commitment to a polynomial described by the provided
     /// slice of coefficients. The commitment will be blinded by the blinding
     /// factor `r`.
@@ -227,10 +219,6 @@ impl<'params, C: CurveAffine> ParamsProver<'params, C> for ParamsIPA<C> {
         tmp_bases.push(self.w);
 
         engine.msm(&tmp_scalars, &tmp_bases)
-    }
-
-    fn get_g(&self) -> &[C] {
-        &self.g
     }
 }
 
@@ -369,7 +357,7 @@ mod test {
         let mut commitment_msm = MSMIPA::new(&params);
         commitment_msm.append_term(Fq::one(), p.into());
 
-        let guard = verify_proof(&params, commitment_msm, &mut transcript, *x, v).unwrap();
+        let guard = verify_proof(commitment_msm, &mut transcript, *x, v).unwrap();
         let ch_verifier = transcript.squeeze_challenge();
         assert_eq!(*ch_prover, *ch_verifier);
 

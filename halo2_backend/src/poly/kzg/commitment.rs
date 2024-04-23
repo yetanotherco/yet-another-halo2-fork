@@ -7,7 +7,7 @@ use group::{prime::PrimeCurveAffine, Curve, Group};
 use halo2_middleware::ff::{Field, PrimeField};
 use halo2_middleware::zal::traits::MsmAccel;
 use halo2curves::pairing::Engine;
-use halo2curves::CurveExt;
+use halo2curves::{CurveAffine, CurveExt};
 use rand_core::{OsRng, RngCore};
 use std::fmt::Debug;
 use std::marker::PhantomData;
@@ -27,13 +27,154 @@ pub struct ParamsKZG<E: Engine> {
     pub(crate) s_g2: E::G2Affine,
 }
 
+/// Parameters KZG-based proof verification:
+///  - g_lagrange is needed to commit to the public inputs.
+#[derive(Debug, Clone)]
+pub struct ParamsVerifierKZG<E: Engine> {
+    pub(crate) k: u32,
+    pub(crate) g_lagrange: Vec<E::G1Affine>,
+    pub(crate) s_g2: E::G2Affine,
+}
+
+impl<E: Engine> Params<E::G1Affine> for ParamsVerifierKZG<E>
+where
+    E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
+    E::G1: CurveExt<AffineExt = E::G1Affine>,
+    E::G2Affine: SerdeCurveAffine,
+{
+    fn k(&self) -> u32 {
+        self.k
+    }
+
+    fn n(&self) -> u64 {
+        1 << self.k
+    }
+
+    fn commit_lagrange(
+        &self,
+        engine: &impl MsmAccel<E::G1Affine>,
+        poly: &Polynomial<E::Fr, LagrangeCoeff>,
+        _: Blind<E::Fr>,
+    ) -> E::G1 {
+        let mut scalars = Vec::with_capacity(poly.len());
+        scalars.extend(poly.iter());
+        let bases = &self.g_lagrange;
+        let size = scalars.len();
+        assert!(bases.len() >= size);
+        engine.msm(&scalars, &bases[0..size])
+    }
+
+    /// Writes params to a buffer.
+    fn write<W: io::Write>(&self, writer: &mut W) -> io::Result<()> {
+        Self::write_custom(&self, writer, SerdeFormat::RawBytes)
+    }
+
+    /// Reads params from a buffer.
+    fn read<R: io::Read>(reader: &mut R) -> io::Result<Self> {
+        Self::read_custom(reader, SerdeFormat::RawBytes)
+    }
+}
+
+impl<'params, E: Engine> ParamsVerifier<'params, E::G1Affine> for ParamsVerifierKZG<E>
+where
+    E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
+    E::G1: CurveExt<AffineExt = E::G1Affine>,
+    E::G2Affine: SerdeCurveAffine,
+{
+    type MSM = MSMKZG<E>;
+    fn empty_msm(&'params self) -> MSMKZG<E> {
+        MSMKZG::new()
+    }
+}
+
+impl<E: Engine> ParamsVerifierKZG<E>
+where
+    E::G1Affine: CurveAffine,
+    E::G1: CurveExt<AffineExt = E::G1Affine>,
+{
+    pub fn write_custom<W: io::Write>(&self, writer: &mut W, format: SerdeFormat) -> io::Result<()>
+    where
+        E::G1Affine: SerdeCurveAffine,
+        E::G2Affine: SerdeCurveAffine,
+    {
+        writer.write_all(&self.k.to_le_bytes())?;
+        for point in self.g_lagrange.iter() {
+            point.write(writer, format)?;
+        }
+        self.s_g2.write(writer, format)?;
+        Ok(())
+    }
+
+    pub fn read_custom<R: io::Read>(reader: &mut R, format: SerdeFormat) -> io::Result<Self>
+    where
+        E::G1Affine: SerdeCurveAffine,
+        E::G2Affine: SerdeCurveAffine,
+    {
+        let mut k = [0u8; 4];
+        reader.read_exact(&mut k[..])?;
+        let k = u32::from_le_bytes(k);
+        let n = 1 << k;
+        // This is a generous bound on the size of the domain.
+        debug_assert!(k < 32);
+
+        let g_lagrange = match format {
+            SerdeFormat::Processed => {
+                use group::GroupEncoding;
+                let load_points_from_file_parallelly =
+                    |reader: &mut R| -> io::Result<Vec<Option<E::G1Affine>>> {
+                        let mut points_compressed = vec![
+                                <<E as Engine>::G1Affine as GroupEncoding>::Repr::default();
+                                n as usize
+                            ];
+                        for points_compressed in points_compressed.iter_mut() {
+                            reader.read_exact((*points_compressed).as_mut())?;
+                        }
+
+                        let mut points = vec![Option::<E::G1Affine>::None; n as usize];
+                        parallelize(&mut points, |points, chunks| {
+                            for (i, point) in points.iter_mut().enumerate() {
+                                *point = Option::from(E::G1Affine::from_bytes(
+                                    &points_compressed[chunks + i],
+                                ));
+                            }
+                        });
+                        Ok(points)
+                    };
+
+                let g_lagrange = load_points_from_file_parallelly(reader)?;
+                g_lagrange
+                    .iter()
+                    .map(|point| {
+                        point.ok_or_else(|| {
+                            io::Error::new(io::ErrorKind::Other, "invalid point encoding")
+                        })
+                    })
+                    .collect::<Result<_, _>>()?
+            }
+            SerdeFormat::RawBytes => (0..n)
+                .map(|_| <E::G1Affine as SerdeCurveAffine>::read(reader, format))
+                .collect::<Result<Vec<_>, _>>()?,
+            SerdeFormat::RawBytesUnchecked => (0..n)
+                .map(|_| <E::G1Affine as SerdeCurveAffine>::read(reader, format).unwrap())
+                .collect::<Vec<_>>(),
+        };
+        let s_g2 = E::G2Affine::read(reader, format)?;
+
+        Ok(Self {
+            k,
+            g_lagrange,
+            s_g2,
+        })
+    }
+}
+
 /// Umbrella commitment scheme construction for all KZG variants
 #[derive(Debug)]
 pub struct KZGCommitmentScheme<E: Engine> {
     _marker: PhantomData<E>,
 }
 
-impl<E: Engine + Debug> CommitmentScheme for KZGCommitmentScheme<E>
+impl<E: Engine> CommitmentScheme for KZGCommitmentScheme<E>
 where
     E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
@@ -54,9 +195,9 @@ where
     }
 }
 
-impl<E: Engine + Debug> ParamsKZG<E>
+impl<E: Engine> ParamsKZG<E>
 where
-    E::G1Affine: SerdeCurveAffine,
+    E::G1Affine: CurveAffine,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
     /// Initializes parameters for the curve, draws toxic secret from given rng.
@@ -153,19 +294,18 @@ where
         }
     }
 
-    /// Returns gernerator on G2
-    pub fn g2(&self) -> E::G2Affine {
-        self.g2
-    }
-
-    /// Returns first power of secret on G2
-    pub fn s_g2(&self) -> E::G2Affine {
-        self.s_g2
+    pub fn into_verifier_params(self) -> ParamsVerifierKZG<E> {
+        ParamsVerifierKZG {
+            k: self.k,
+            g_lagrange: self.g_lagrange,
+            s_g2: self.s_g2,
+        }
     }
 
     /// Writes parameters to buffer
     pub fn write_custom<W: io::Write>(&self, writer: &mut W, format: SerdeFormat) -> io::Result<()>
     where
+        E::G1Affine: SerdeCurveAffine,
         E::G2Affine: SerdeCurveAffine,
     {
         writer.write_all(&self.k.to_le_bytes())?;
@@ -183,6 +323,7 @@ where
     /// Reads params from a buffer.
     pub fn read_custom<R: io::Read>(reader: &mut R, format: SerdeFormat) -> io::Result<Self>
     where
+        E::G1Affine: SerdeCurveAffine,
         E::G2Affine: SerdeCurveAffine,
     {
         let mut k = [0u8; 4];
@@ -267,39 +408,18 @@ where
     }
 }
 
-// TODO: see the issue at https://github.com/appliedzkp/halo2/issues/45
-// So we probably need much smaller verifier key. However for new bases in g1 should be in verifier keys.
-/// KZG multi-open verification parameters
-pub type ParamsVerifierKZG<C> = ParamsKZG<C>;
-
-impl<'params, E: Engine + Debug> Params<'params, E::G1Affine> for ParamsKZG<E>
+impl<E: Engine> Params<E::G1Affine> for ParamsKZG<E>
 where
     E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
     E::G2Affine: SerdeCurveAffine,
 {
-    type MSM = MSMKZG<E>;
-
     fn k(&self) -> u32 {
         self.k
     }
 
     fn n(&self) -> u64 {
         self.n
-    }
-
-    fn downsize(&mut self, k: u32) {
-        assert!(k <= self.k);
-
-        self.k = k;
-        self.n = 1 << k;
-
-        self.g.truncate(self.n as usize);
-        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
-    }
-
-    fn empty_msm(&'params self) -> MSMKZG<E> {
-        MSMKZG::new()
     }
 
     fn commit_lagrange(
@@ -327,28 +447,36 @@ where
     }
 }
 
-impl<'params, E: Engine + Debug> ParamsVerifier<'params, E::G1Affine> for ParamsKZG<E>
+impl<'params, E: Engine> ParamsVerifier<'params, E::G1Affine> for ParamsKZG<E>
 where
     E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
     E::G2Affine: SerdeCurveAffine,
 {
+    type MSM = MSMKZG<E>;
+    fn empty_msm(&self) -> MSMKZG<E> {
+        MSMKZG::new()
+    }
 }
 
-impl<'params, E: Engine + Debug> ParamsProver<'params, E::G1Affine> for ParamsKZG<E>
+impl<E: Engine> ParamsProver<E::G1Affine> for ParamsKZG<E>
 where
     E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
     E::G1: CurveExt<AffineExt = E::G1Affine>,
     E::G2Affine: SerdeCurveAffine,
 {
-    type ParamsVerifier = ParamsVerifierKZG<E>;
-
-    fn verifier_params(&'params self) -> &'params Self::ParamsVerifier {
-        self
-    }
-
     fn new(k: u32) -> Self {
         Self::setup(k, OsRng)
+    }
+
+    fn downsize(&mut self, k: u32) {
+        assert!(k <= self.k);
+
+        self.k = k;
+        self.n = 1 << k;
+
+        self.g.truncate(self.n as usize);
+        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
     }
 
     fn commit(
@@ -363,10 +491,6 @@ where
         let size = scalars.len();
         assert!(bases.len() >= size);
         engine.msm(&scalars, &bases[0..size])
-    }
-
-    fn get_g(&self) -> &[E::G1Affine] {
-        &self.g
     }
 }
 
