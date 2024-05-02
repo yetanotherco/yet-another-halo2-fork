@@ -30,7 +30,7 @@ where
 }
 
 /// Define accumulator type as `DualMSM`
-impl<'params, E> Guard<KZGCommitmentScheme<E>> for GuardKZG<E>
+impl<E> Guard<KZGCommitmentScheme<E>> for GuardKZG<E>
 where
     E: MultiMillerLoop + Debug,
     E::G1Affine: SerdeCurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
@@ -41,7 +41,7 @@ where
 }
 
 /// KZG specific operations
-impl<'params, E> GuardKZG<E>
+impl<E> GuardKZG<E>
 where
     E: MultiMillerLoop,
     E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
@@ -64,7 +64,7 @@ where
     params: ParamsVerifierKZG<E>,
 }
 
-impl<'params, E> AccumulatorStrategy<E>
+impl<E> AccumulatorStrategy<E>
 where
     E: MultiMillerLoop,
     E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,

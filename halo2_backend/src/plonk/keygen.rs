@@ -40,7 +40,7 @@ where
 }
 
 /// Generate a `VerifyingKey` from an instance of `CompiledCircuit`.
-pub fn keygen_vk<'params, C, P>(
+pub fn keygen_vk<C, P>(
     params: &P,
     circuit: &CompiledCircuit<C::Scalar>,
 ) -> Result<VerifyingKey<C>, Error>

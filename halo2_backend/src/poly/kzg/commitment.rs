@@ -32,7 +32,7 @@ pub struct ParamsKZG<E: Engine> {
 #[derive(Debug, Clone)]
 pub struct ParamsVerifierKZG<E: Engine> {
     pub(crate) k: u32,
-    pub(crate) g_lagrange: Vec<E::G1Affine>,
+    // pub(crate) g_lagrange: Vec<E::G1Affine>,
     pub(crate) s_g2: E::G2Affine,
 }
 
@@ -50,23 +50,23 @@ where
         1 << self.k
     }
 
+    fn downsize(&mut self, k: u32) {
+        assert!(k <= self.k);
+        self.k = k;
+    }
+
     fn commit_lagrange(
         &self,
-        engine: &impl MsmAccel<E::G1Affine>,
-        poly: &Polynomial<E::Fr, LagrangeCoeff>,
+        _engine: &impl MsmAccel<E::G1Affine>,
+        _poly: &Polynomial<E::Fr, LagrangeCoeff>,
         _: Blind<E::Fr>,
     ) -> E::G1 {
-        let mut scalars = Vec::with_capacity(poly.len());
-        scalars.extend(poly.iter());
-        let bases = &self.g_lagrange;
-        let size = scalars.len();
-        assert!(bases.len() >= size);
-        engine.msm(&scalars, &bases[0..size])
+        panic!("Commitment is not supported for ParamsVerifierKZG, use ParamsKZG instead.");
     }
 
     /// Writes params to a buffer.
     fn write<W: io::Write>(&self, writer: &mut W) -> io::Result<()> {
-        Self::write_custom(&self, writer, SerdeFormat::RawBytes)
+        Self::write_custom(self, writer, SerdeFormat::RawBytes)
     }
 
     /// Reads params from a buffer.
@@ -82,6 +82,10 @@ where
     E::G2Affine: SerdeCurveAffine,
 {
     type MSM = MSMKZG<E>;
+
+    //  Do not support commitment.
+    const COMMIT_INSTANCE: bool = false;
+
     fn empty_msm(&'params self) -> MSMKZG<E> {
         MSMKZG::new()
     }
@@ -98,9 +102,6 @@ where
         E::G2Affine: SerdeCurveAffine,
     {
         writer.write_all(&self.k.to_le_bytes())?;
-        for point in self.g_lagrange.iter() {
-            point.write(writer, format)?;
-        }
         self.s_g2.write(writer, format)?;
         Ok(())
     }
@@ -113,58 +114,12 @@ where
         let mut k = [0u8; 4];
         reader.read_exact(&mut k[..])?;
         let k = u32::from_le_bytes(k);
-        let n = 1 << k;
         // This is a generous bound on the size of the domain.
         debug_assert!(k < 32);
 
-        let g_lagrange = match format {
-            SerdeFormat::Processed => {
-                use group::GroupEncoding;
-                let load_points_from_file_parallelly =
-                    |reader: &mut R| -> io::Result<Vec<Option<E::G1Affine>>> {
-                        let mut points_compressed = vec![
-                                <<E as Engine>::G1Affine as GroupEncoding>::Repr::default();
-                                n as usize
-                            ];
-                        for points_compressed in points_compressed.iter_mut() {
-                            reader.read_exact((*points_compressed).as_mut())?;
-                        }
-
-                        let mut points = vec![Option::<E::G1Affine>::None; n as usize];
-                        parallelize(&mut points, |points, chunks| {
-                            for (i, point) in points.iter_mut().enumerate() {
-                                *point = Option::from(E::G1Affine::from_bytes(
-                                    &points_compressed[chunks + i],
-                                ));
-                            }
-                        });
-                        Ok(points)
-                    };
-
-                let g_lagrange = load_points_from_file_parallelly(reader)?;
-                g_lagrange
-                    .iter()
-                    .map(|point| {
-                        point.ok_or_else(|| {
-                            io::Error::new(io::ErrorKind::Other, "invalid point encoding")
-                        })
-                    })
-                    .collect::<Result<_, _>>()?
-            }
-            SerdeFormat::RawBytes => (0..n)
-                .map(|_| <E::G1Affine as SerdeCurveAffine>::read(reader, format))
-                .collect::<Result<Vec<_>, _>>()?,
-            SerdeFormat::RawBytesUnchecked => (0..n)
-                .map(|_| <E::G1Affine as SerdeCurveAffine>::read(reader, format).unwrap())
-                .collect::<Vec<_>>(),
-        };
         let s_g2 = E::G2Affine::read(reader, format)?;
 
-        Ok(Self {
-            k,
-            g_lagrange,
-            s_g2,
-        })
+        Ok(Self { k, s_g2 })
     }
 }
 
@@ -297,7 +252,6 @@ where
     pub fn into_verifier_params(self) -> ParamsVerifierKZG<E> {
         ParamsVerifierKZG {
             k: self.k,
-            g_lagrange: self.g_lagrange,
             s_g2: self.s_g2,
         }
     }
@@ -436,6 +390,16 @@ where
         engine.msm(&scalars, &bases[0..size])
     }
 
+    fn downsize(&mut self, k: u32) {
+        assert!(k <= self.k);
+
+        self.k = k;
+        self.n = 1 << k;
+
+        self.g.truncate(self.n as usize);
+        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
+    }
+
     /// Writes params to a buffer.
     fn write<W: io::Write>(&self, writer: &mut W) -> io::Result<()> {
         self.write_custom(writer, SerdeFormat::RawBytes)
@@ -454,6 +418,8 @@ where
     E::G2Affine: SerdeCurveAffine,
 {
     type MSM = MSMKZG<E>;
+    // KZG params with support for commitment.
+    const COMMIT_INSTANCE: bool = true;
     fn empty_msm(&self) -> MSMKZG<E> {
         MSMKZG::new()
     }
@@ -467,16 +433,6 @@ where
 {
     fn new(k: u32) -> Self {
         Self::setup(k, OsRng)
-    }
-
-    fn downsize(&mut self, k: u32) {
-        assert!(k <= self.k);
-
-        self.k = k;
-        self.n = 1 << k;
-
-        self.g.truncate(self.n as usize);
-        self.g_lagrange = g_to_lagrange(self.g.iter().map(|g| g.to_curve()).collect(), k);
     }
 
     fn commit(

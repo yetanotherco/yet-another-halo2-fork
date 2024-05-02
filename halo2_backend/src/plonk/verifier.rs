@@ -14,6 +14,7 @@ use crate::plonk::{
     shuffle::verifier::shuffle_read_product_commitment, ChallengeBeta, ChallengeGamma,
     ChallengeTheta, ChallengeX, ChallengeY, Error,
 };
+use crate::poly::commitment::ParamsVerifier;
 use crate::poly::{
     commitment::{Blind, CommitmentScheme, Params, Verifier},
     VerificationStrategy, VerifierQuery,
@@ -27,14 +28,7 @@ pub use batch::BatchVerifier;
 
 /// Returns a boolean indicating whether or not the proof is valid.  Verifies a single proof (not
 /// batched).
-pub fn verify_proof_single<
-    'params,
-    Scheme: CommitmentScheme,
-    V: Verifier<'params, Scheme>,
-    E: EncodedChallenge<Scheme::Curve>,
-    T: TranscriptRead<Scheme::Curve, E>,
-    Strategy: VerificationStrategy<'params, Scheme, V>,
->(
+pub fn verify_proof_single<'params, Scheme, V, E, T, Strategy>(
     params: &'params Scheme::ParamsVerifier,
     vk: &VerifyingKey<Scheme::Curve>,
     strategy: Strategy,
@@ -43,6 +37,11 @@ pub fn verify_proof_single<
 ) -> Result<Strategy::Output, Error>
 where
     Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
+    Scheme: CommitmentScheme,
+    V: Verifier<'params, Scheme>,
+    E: EncodedChallenge<Scheme::Curve>,
+    T: TranscriptRead<Scheme::Curve, E>,
+    Strategy: VerificationStrategy<'params, Scheme, V>,
 {
     verify_proof(params, vk, strategy, &[instance], transcript)
 }
@@ -74,6 +73,13 @@ where
             return Err(Error::InvalidInstances);
         }
     }
+
+    // Check that the Scheme parameters support commitment to instance
+    // if it is required by the verifier.
+    assert!(
+        !V::QUERY_INSTANCE
+            || <Scheme::ParamsVerifier as ParamsVerifier<Scheme::Curve>>::COMMIT_INSTANCE
+    );
 
     // 1. Get the commitments of the instance polynomials. ----------------------------------------
 

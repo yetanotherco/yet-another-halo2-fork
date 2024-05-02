@@ -147,7 +147,7 @@ where
 }
 
 /// Two channel MSM accumulator
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct DualMSM<E: Engine>
 where
     E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
