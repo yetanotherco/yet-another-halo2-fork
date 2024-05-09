@@ -547,7 +547,7 @@ fn test_mycircuit_full_legacy() {
     let start = Instant::now();
     let mut verifier_transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
-    let verifier_params = params.into_verifier_params();
+    let verifier_params = params.verifier_params();
     let strategy = SingleStrategy::new(&verifier_params);
 
     verify_proof::<KZGCommitmentScheme<Bn256>, VerifierSHPLONK<Bn256>, _, _, _>(
@@ -627,7 +627,7 @@ fn test_mycircuit_full_split() {
     println!("Verifying...");
     let mut verifier_transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof.as_slice());
-    let verifier_params = params.into_verifier_params();
+    let verifier_params = params.verifier_params();
     let strategy = SingleStrategy::new(&verifier_params);
 
     verify_proof_single::<KZGCommitmentScheme<Bn256>, VerifierSHPLONK<Bn256>, _, _, _>(

@@ -588,7 +588,7 @@ fn plonk_api() {
             rng, &params, &pk,
         );
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify_proof::<
             _,
@@ -617,7 +617,7 @@ fn plonk_api() {
             rng, &params, &pk,
         );
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify_proof::<
             _,

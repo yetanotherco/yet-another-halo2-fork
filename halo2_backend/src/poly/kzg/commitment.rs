@@ -249,7 +249,7 @@ where
         }
     }
 
-    pub fn into_verifier_params(self) -> ParamsVerifierKZG<E> {
+    pub fn verifier_params(&self) -> ParamsVerifierKZG<E> {
         ParamsVerifierKZG {
             k: self.k,
             s_g2: self.s_g2,

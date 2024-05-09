@@ -111,7 +111,7 @@ mod test {
             &engine, &params,
         );
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<_, VerifierGWC<_>, _, Blake2bRead<_, _, Challenge255<_>>, AccumulatorStrategy<_>>(
             &verifier_params,
@@ -147,7 +147,7 @@ mod test {
             Blake2bWrite<_, _, Challenge255<_>>,
         >(&engine, &params);
 
-        let verifier_params = params.into_verifier_params();
+        let verifier_params = params.verifier_params();
 
         verify::<
             KZGCommitmentScheme<Bn256>,
