@@ -242,43 +242,12 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::plonk::{Error, ErrorBack};
 <span class="kw">use </span><span class="kw">crate</span>::poly::commitment::{<span class="self">self</span>, CommitmentScheme, Params};
 <span class="kw">use </span><span class="kw">crate</span>::transcript::{EncodedChallenge, TranscriptWrite};
 <span class="kw">use </span>halo2_backend::plonk::{prover::Prover, ProvingKey};
-<span class="kw">use </span>halo2_frontend::circuit::{compile_circuit_cs, WitnessCalculator};
-<span class="kw">use </span>halo2_frontend::plonk::Circuit;
+<span class="kw">use </span>halo2_frontend::circuit::WitnessCalculator;
+<span class="kw">use </span>halo2_frontend::plonk::{Circuit, ConstraintSystem};
 <span class="kw">use </span>halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
 <span class="kw">use </span>halo2_middleware::zal::{
     impls::{PlonkEngine, PlonkEngineConfig},
@@ -312,9 +281,35 @@
 <span class="kw">where
     </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
-    create_proof_custom_with_engine::&lt;Scheme, P, E, R, T, ConcreteCircuit, M&gt;(
-        engine, params, pk, <span class="bool-val">true</span>, circuits, instances, rng, transcript,
-    )
+    <span class="kw">if </span>circuits.len() != instances.len() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Backend(ErrorBack::InvalidInstances));
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>cs = ConstraintSystem::default();
+    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+    </span><span class="kw">let </span>config = ConcreteCircuit::configure_with_params(<span class="kw-2">&amp;mut </span>cs, circuits[<span class="number">0</span>].params());
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;circuit-params&quot;</span>))]
+    </span><span class="kw">let </span>config = ConcreteCircuit::configure(<span class="kw-2">&amp;mut </span>cs);
+    <span class="kw">let </span>cs = cs;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>witness_calcs: Vec&lt;<span class="kw">_</span>&gt; = circuits
+        .iter()
+        .enumerate()
+        .map(|(i, circuit)| WitnessCalculator::new(params.k(), circuit, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>cs, instances[i]))
+        .collect();
+    <span class="kw">let </span><span class="kw-2">mut </span>prover = Prover::&lt;Scheme, P, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;::new_with_engine(
+        engine, params, pk, instances, rng, transcript,
+    )<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>challenges = HashMap::new();
+    <span class="kw">let </span>phases = prover.phases().to_vec();
+    <span class="kw">for </span>phase <span class="kw">in </span>phases.iter() {
+        <span class="kw">let </span><span class="kw-2">mut </span>witnesses = Vec::with_capacity(circuits.len());
+        <span class="kw">for </span>witness_calc <span class="kw">in </span>witness_calcs.iter_mut() {
+            witnesses.push(witness_calc.calc(<span class="kw-2">*</span>phase, <span class="kw-2">&amp;</span>challenges)<span class="question-mark">?</span>);
+        }
+        challenges = prover.commit_phase(<span class="kw-2">*</span>phase, witnesses).unwrap();
+    }
+    <span class="prelude-val">Ok</span>(prover.create_proof()<span class="question-mark">?</span>)
 }
 
 <span class="doccomment">/// This creates a proof for the provided `circuit` when given the public
@@ -344,62 +339,6 @@
     create_proof_with_engine::&lt;Scheme, P, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
         engine, params, pk, circuits, instances, rng, transcript,
     )
-}
-
-<span class="doccomment">/// This creates a proof for the provided `circuit` when given the public
-/// parameters `params` and the proving key [`ProvingKey`] that was
-/// generated previously for the same circuit. The provided `instances`
-/// are zero-padded internally.
-/// In addition, this needs the `compress_selectors` field.
-</span><span class="attr">#[allow(clippy::too_many_arguments)]
-</span><span class="kw">pub fn </span>create_proof_custom_with_engine&lt;
-    <span class="lifetime">&#39;params</span>,
-    Scheme: CommitmentScheme,
-    P: commitment::Prover&lt;<span class="lifetime">&#39;params</span>, Scheme&gt;,
-    E: EncodedChallenge&lt;Scheme::Curve&gt;,
-    R: RngCore,
-    T: TranscriptWrite&lt;Scheme::Curve, E&gt;,
-    ConcreteCircuit: Circuit&lt;Scheme::Scalar&gt;,
-    M: MsmAccel&lt;Scheme::Curve&gt;,
-&gt;(
-    engine: PlonkEngine&lt;Scheme::Curve, M&gt;,
-    params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;params </span>Scheme::ParamsProver,
-    pk: <span class="kw-2">&amp;</span>ProvingKey&lt;Scheme::Curve&gt;,
-    compress_selectors: bool,
-    circuits: <span class="kw-2">&amp;</span>[ConcreteCircuit],
-    instances: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[Scheme::Scalar]]],
-    rng: R,
-    transcript: <span class="kw-2">&amp;mut </span>T,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
-<span class="kw">where
-    </span>Scheme::Scalar: WithSmallOrderMulGroup&lt;<span class="number">3</span>&gt; + FromUniformBytes&lt;<span class="number">64</span>&gt;,
-{
-    <span class="kw">if </span>circuits.len() != instances.len() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Backend(ErrorBack::InvalidInstances));
-    }
-    <span class="kw">let </span>(config, cs, <span class="kw">_</span>) = compile_circuit_cs::&lt;<span class="kw">_</span>, ConcreteCircuit&gt;(
-        compress_selectors,
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
-        </span>circuits[<span class="number">0</span>].params(),
-    );
-    <span class="kw">let </span><span class="kw-2">mut </span>witness_calcs: Vec&lt;<span class="kw">_</span>&gt; = circuits
-        .iter()
-        .enumerate()
-        .map(|(i, circuit)| WitnessCalculator::new(params.k(), circuit, <span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>cs, instances[i]))
-        .collect();
-    <span class="kw">let </span><span class="kw-2">mut </span>prover = Prover::&lt;Scheme, P, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;::new_with_engine(
-        engine, params, pk, instances, rng, transcript,
-    )<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>challenges = HashMap::new();
-    <span class="kw">let </span>phases = prover.phases().to_vec();
-    <span class="kw">for </span>phase <span class="kw">in </span>phases.iter() {
-        <span class="kw">let </span><span class="kw-2">mut </span>witnesses = Vec::with_capacity(circuits.len());
-        <span class="kw">for </span>witness_calc <span class="kw">in </span>witness_calcs.iter_mut() {
-            witnesses.push(witness_calc.calc(<span class="kw-2">*</span>phase, <span class="kw-2">&amp;</span>challenges)<span class="question-mark">?</span>);
-        }
-        challenges = prover.commit_phase(<span class="kw-2">*</span>phase, witnesses).unwrap();
-    }
-    <span class="prelude-val">Ok</span>(prover.create_proof()<span class="question-mark">?</span>)
 }
 
 <span class="attr">#[test]
@@ -520,11 +459,10 @@
     <span class="kw">let </span><span class="kw-2">mut </span>transcript = Blake2bWrite::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Challenge255&lt;<span class="kw">_</span>&gt;&gt;::init(<span class="macro">vec!</span>[]);
     <span class="kw">let </span>engine = PlonkEngineConfig::build_default();
 
-    create_proof_custom_with_engine::&lt;KZGCommitmentScheme&lt;<span class="kw">_</span>&gt;, ProverSHPLONK&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+    create_proof_with_engine::&lt;KZGCommitmentScheme&lt;<span class="kw">_</span>&gt;, ProverSHPLONK&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
         engine,
         <span class="kw-2">&amp;</span>params,
         <span class="kw-2">&amp;</span>pk,
-        compress_selectors,
         <span class="kw-2">&amp;</span>[MyCircuit, MyCircuit],
         <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]],
         OsRng,

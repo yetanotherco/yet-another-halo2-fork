@@ -335,7 +335,6 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>halo2_middleware::ff::Field;
 <span class="kw">use </span>plotters::{
     coord::Shift,
@@ -442,8 +441,7 @@
             cs.constants.clone(),
         )
         .unwrap();
-        <span class="kw">let </span>(cs, selectors_to_fixed) = cs.selectors_to_fixed_compressed();
-        <span class="kw">let </span>selector_polys = selectors_to_fixed.convert::&lt;F&gt;(layout.selectors);
+        <span class="kw">let </span>(cs, selector_polys) = cs.compress_selectors(layout.selectors);
         <span class="kw">let </span>non_selector_fixed_columns = cs.num_fixed_columns - selector_polys.len();
 
         <span class="comment">// Figure out what order to render the columns in.

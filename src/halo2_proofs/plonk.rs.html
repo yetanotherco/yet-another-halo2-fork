@@ -100,10 +100,6 @@
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an implementation of a variant of (Turbo)[PLONK][plonk]
 //! that is designed specifically for the polynomial commitment scheme described
 //! in the [Halo][halo] paper.
@@ -118,9 +114,10 @@
     <span class="kw">pub use </span>halo2_backend::plonk::verifier::verify_proof;
 }
 
+<span class="kw">use </span>halo2_frontend::circuit::compile_circuit;
 <span class="kw">pub use </span>keygen::{keygen_pk, keygen_pk_custom, keygen_vk, keygen_vk_custom};
 
-<span class="kw">pub use </span>prover::{create_proof, create_proof_custom_with_engine, create_proof_with_engine};
+<span class="kw">pub use </span>prover::{create_proof, create_proof_with_engine};
 <span class="kw">pub use </span>verifier::verify_proof;
 
 <span class="kw">pub use </span>error::Error;
@@ -134,7 +131,6 @@
 
 <span class="kw">use </span>group::ff::FromUniformBytes;
 <span class="kw">use </span>halo2_backend::helpers::{SerdeCurveAffine, SerdeFormat, SerdePrimeField};
-<span class="kw">use </span>halo2_frontend::circuit::compile_circuit_cs;
 <span class="kw">use </span>std::io;
 
 <span class="doccomment">/// Reads a verification key from a buffer.
@@ -150,17 +146,15 @@
 </span><span class="kw">pub fn </span>vk_read&lt;C: SerdeCurveAffine, R: io::Read, ConcreteCircuit: Circuit&lt;C::Scalar&gt;&gt;(
     reader: <span class="kw-2">&amp;mut </span>R,
     format: SerdeFormat,
+    k: u32,
+    circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
     compress_selectors: bool,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)] </span>params: ConcreteCircuit::Params,
 ) -&gt; io::Result&lt;VerifyingKey&lt;C&gt;&gt;
 <span class="kw">where
     </span>C::Scalar: SerdePrimeField + FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
-    <span class="kw">let </span>(<span class="kw">_</span>, cs, <span class="kw">_</span>) = compile_circuit_cs::&lt;<span class="kw">_</span>, ConcreteCircuit&gt;(
-        compress_selectors,
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
-        </span>params,
-    );
+    <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw">_</span>, cs) = compile_circuit(k, circuit, compress_selectors)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>cs_mid: ConstraintSystemMid&lt;<span class="kw">_</span>&gt; = cs.into();
     VerifyingKey::read(reader, format, cs_mid.into())
 }
@@ -180,17 +174,15 @@
 </span><span class="kw">pub fn </span>pk_read&lt;C: SerdeCurveAffine, R: io::Read, ConcreteCircuit: Circuit&lt;C::Scalar&gt;&gt;(
     reader: <span class="kw-2">&amp;mut </span>R,
     format: SerdeFormat,
+    k: u32,
+    circuit: <span class="kw-2">&amp;</span>ConcreteCircuit,
     compress_selectors: bool,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)] </span>params: ConcreteCircuit::Params,
 ) -&gt; io::Result&lt;ProvingKey&lt;C&gt;&gt;
 <span class="kw">where
     </span>C::Scalar: SerdePrimeField + FromUniformBytes&lt;<span class="number">64</span>&gt;,
 {
-    <span class="kw">let </span>(<span class="kw">_</span>, cs, <span class="kw">_</span>) = compile_circuit_cs::&lt;<span class="kw">_</span>, ConcreteCircuit&gt;(
-        compress_selectors,
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
-        </span>params,
-    );
+    <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw">_</span>, cs) = compile_circuit(k, circuit, compress_selectors)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))<span class="question-mark">?</span>;
     <span class="kw">let </span>cs_mid: ConstraintSystemMid&lt;<span class="kw">_</span>&gt; = cs.into();
     ProvingKey::read(reader, format, cs_mid.into())
 }

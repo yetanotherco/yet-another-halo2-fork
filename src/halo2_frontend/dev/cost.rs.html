@@ -858,7 +858,7 @@
             cs.constants.clone(),
         )
         .unwrap();
-        <span class="kw">let </span>(cs, <span class="kw">_</span>) = cs.selectors_to_fixed_compressed();
+        <span class="kw">let </span>(cs, <span class="kw">_</span>) = cs.compress_selectors(layout.selectors);
 
         <span class="macro">assert!</span>((<span class="number">1 </span>&lt;&lt; k) &gt;= cs.minimum_rows());
 

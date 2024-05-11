@@ -993,28 +993,6 @@
 <a href="#977" id="977">977</a>
 <a href="#978" id="978">978</a>
 <a href="#979" id="979">979</a>
-<a href="#980" id="980">980</a>
-<a href="#981" id="981">981</a>
-<a href="#982" id="982">982</a>
-<a href="#983" id="983">983</a>
-<a href="#984" id="984">984</a>
-<a href="#985" id="985">985</a>
-<a href="#986" id="986">986</a>
-<a href="#987" id="987">987</a>
-<a href="#988" id="988">988</a>
-<a href="#989" id="989">989</a>
-<a href="#990" id="990">990</a>
-<a href="#991" id="991">991</a>
-<a href="#992" id="992">992</a>
-<a href="#993" id="993">993</a>
-<a href="#994" id="994">994</a>
-<a href="#995" id="995">995</a>
-<a href="#996" id="996">996</a>
-<a href="#997" id="997">997</a>
-<a href="#998" id="998">998</a>
-<a href="#999" id="999">999</a>
-<a href="#1000" id="1000">1000</a>
-<a href="#1001" id="1001">1001</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Traits and structs for implementing circuit components.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::plonk;
@@ -1022,7 +1000,7 @@
     permutation,
     sealed::{<span class="self">self</span>, SealedPhase},
     Advice, Assignment, Circuit, ConstraintSystem, FirstPhase, Fixed, FloorPlanner, Instance,
-    SecondPhase, SelectorsToFixed, ThirdPhase,
+    SecondPhase, ThirdPhase,
 };
 <span class="kw">use </span>halo2_middleware::circuit::{Any, CompiledCircuit, Preprocessing};
 <span class="kw">use </span>halo2_middleware::ff::{BatchInvert, Field};
@@ -1048,36 +1026,6 @@
 
 <span class="kw">pub use </span>table_layouter::{SimpleTableLayouter, TableLayouter};
 
-<span class="doccomment">/// Compile a circuit, only generating the `Config` and the `ConstraintSystem` related information,
-/// skipping all preprocessing data.
-/// The `ConcreteCircuit::Config`, `ConstraintSystem&lt;F&gt;` and `SelectorsToFixed` are outputs for the
-/// frontend itself, which will be used for witness generation and fixed column assignment.
-/// The `ConstraintSystem&lt;F&gt;` can be converted to `ConstraintSystemMid&lt;F&gt;` to be used to interface
-/// with the backend.
-</span><span class="kw">pub fn </span>compile_circuit_cs&lt;F: Field, ConcreteCircuit: Circuit&lt;F&gt;&gt;(
-    compress_selectors: bool,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)] </span>params: ConcreteCircuit::Params,
-) -&gt; (
-    ConcreteCircuit::Config,
-    ConstraintSystem&lt;F&gt;,
-    SelectorsToFixed,
-) {
-    <span class="kw">let </span><span class="kw-2">mut </span>cs = ConstraintSystem::default();
-    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
-    </span><span class="kw">let </span>config = ConcreteCircuit::configure_with_params(<span class="kw-2">&amp;mut </span>cs, params);
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;circuit-params&quot;</span>))]
-    </span><span class="kw">let </span>config = ConcreteCircuit::configure(<span class="kw-2">&amp;mut </span>cs);
-    <span class="kw">let </span>cs = cs;
-
-    <span class="kw">let </span>(cs, selectors_to_fixed) = <span class="kw">if </span>compress_selectors {
-        cs.selectors_to_fixed_compressed()
-    } <span class="kw">else </span>{
-        cs.selectors_to_fixed_direct()
-    };
-
-    (config, cs, selectors_to_fixed)
-}
-
 <span class="doccomment">/// Compile a circuit.  Runs configure and synthesize on the circuit in order to materialize the
 /// circuit into its columns and the column configuration; as well as doing the fixed column and
 /// copy constraints assignments.  The output of this function can then be used for the key
@@ -1098,16 +1046,17 @@
 &gt; {
     <span class="kw">let </span>n = <span class="number">2usize</span>.pow(k);
 
-    <span class="comment">// After this, the ConstraintSystem should not have any selectors: `verify` does not need them, and `keygen_pk` regenerates `cs` from scratch anyways.
-    </span><span class="kw">let </span>(config, cs, selectors_to_fixed) = compile_circuit_cs::&lt;<span class="kw">_</span>, ConcreteCircuit&gt;(
-        compress_selectors,
-        <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
-        </span>circuit.params(),
-    );
+    <span class="kw">let </span><span class="kw-2">mut </span>cs = ConstraintSystem::default();
+    <span class="attr">#[cfg(feature = <span class="string">&quot;circuit-params&quot;</span>)]
+    </span><span class="kw">let </span>config = ConcreteCircuit::configure_with_params(<span class="kw-2">&amp;mut </span>cs, circuit.params());
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;circuit-params&quot;</span>))]
+    </span><span class="kw">let </span>config = ConcreteCircuit::configure(<span class="kw-2">&amp;mut </span>cs);
+    <span class="kw">let </span>cs = cs;
 
     <span class="kw">if </span>n &lt; cs.minimum_rows() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::not_enough_rows_available(k));
     }
+
     <span class="kw">let </span><span class="kw-2">mut </span>assembly = plonk::keygen::Assembly {
         k,
         fixed: <span class="macro">vec!</span>[<span class="macro">vec!</span>[F::ZERO.into(); n]; cs.num_fixed_columns],
@@ -1126,7 +1075,14 @@
     )<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>fixed = batch_invert_assigned(assembly.fixed);
-    <span class="kw">let </span>selector_polys = selectors_to_fixed.convert(assembly.selectors);
+    <span class="kw">let </span>(cs, selector_polys) = <span class="kw">if </span>compress_selectors {
+        cs.compress_selectors(assembly.selectors)
+    } <span class="kw">else </span>{
+        <span class="comment">// After this, the ConstraintSystem should not have any selectors: `verify` does not need them, and `keygen_pk` regenerates `cs` from scratch anyways.
+        </span><span class="kw">let </span>selectors = std::mem::take(<span class="kw-2">&amp;mut </span>assembly.selectors);
+        cs.directly_convert_selectors_to_fixed(selectors)
+    };
+
     fixed.extend(selector_polys);
 
     <span class="comment">// sort the &quot;copies&quot; for deterministic ordering
