@@ -28,11 +28,9 @@ pub struct ParamsKZG<E: Engine> {
 }
 
 /// Parameters KZG-based proof verification:
-///  - g_lagrange is needed to commit to the public inputs.
 #[derive(Debug, Clone)]
 pub struct ParamsVerifierKZG<E: Engine> {
     pub(crate) k: u32,
-    // pub(crate) g_lagrange: Vec<E::G1Affine>,
     pub(crate) s_g2: E::G2Affine,
 }
 
