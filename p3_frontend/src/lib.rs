@@ -98,11 +98,16 @@ where
     let num_fixed_columns = LOCATION_COLUMNS;
     let mut fixed = vec![vec![F::ZERO; n]; num_fixed_columns];
 
+    // From the ethSTARK paper section 3.3:
+    // > An execution trace is valid if (1) certain boundary constraints hold and (2) each pair
+    // > of consecutive states satisfies the constraints dictated by the computation.
+    // We enable the constraints with fixed columns used as selectors:
+    // For (1) we have "first" and "last".
+    // For (2) we have "trans(ition)".
+
     fixed[COL_FIRST][0] = F::ONE;
     fixed[COL_LAST][size - 1] = F::ONE;
-    // TODO: Figure out if transition is supposed to be enabled when transitioning from Last to
-    // First or not.  The current implementation assumes it's not enabled, but maybe Air assumes
-    // it's enabled?
+
     for i in 0..size - 1 {
         fixed[COL_TRANS][i] = F::ONE;
     }
