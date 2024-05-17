@@ -697,3 +697,18 @@ impl<F: Field> Value<Assigned<F>> {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    type V = Value<u64>;
+    fn assert_eq(a: V, b: V) {
+        assert_eq!(a.inner, b.inner);
+    }
+
+    #[test]
+    fn test_check_inits() {
+        assert_eq!(V::unknown().inner, None);
+        assert_eq(V::default(),V::unknown());
+    }
+}
