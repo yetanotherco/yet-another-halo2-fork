@@ -52,9 +52,6 @@ pub struct VerifyingKey<C: CurveAffine> {
     cs_degree: usize,
     /// The representative of this `VerifyingKey` in transcripts.
     transcript_repr: C::Scalar,
-    /// Legacy field that indicates wether the circuit was compiled with compressed selectors or
-    /// not using the legacy API.
-    pub compress_selectors: Option<bool>,
 }
 
 // Current version of the VK
@@ -162,8 +159,9 @@ impl<C: CurveAffine> VerifyingKey<C> {
     where
         C: SerdeCurveAffine,
     {
-        10 + (self.fixed_commitments.len() * C::byte_length(format))
-            + self.permutation.bytes_length(format)
+        6 // bytes used for encoding VERSION(u8), "domain.k"(u8) & num_fixed_columns(u32)
+        + (self.fixed_commitments.len() * C::byte_length(format))
+        + self.permutation.bytes_length(format)
     }
 
     fn from_parts(
@@ -186,7 +184,6 @@ impl<C: CurveAffine> VerifyingKey<C> {
             cs_degree,
             // Temporary, this is not pinned.
             transcript_repr: C::Scalar::ZERO,
-            compress_selectors: None,
         };
 
         let mut hasher = Blake2bParams::new()
@@ -233,13 +230,8 @@ impl<C: CurveAffine> VerifyingKey<C> {
         &self.fixed_commitments
     }
 
-    /// Returns `VerifyingKey` of permutation
-    pub fn permutation(&self) -> &permutation::VerifyingKey<C> {
-        &self.permutation
-    }
-
     /// Returns `ConstraintSystem`
-    pub fn cs(&self) -> &ConstraintSystemBack<C::Scalar> {
+    pub(crate) fn cs(&self) -> &ConstraintSystemBack<C::Scalar> {
         &self.cs
     }
 
@@ -293,7 +285,7 @@ where
     {
         let scalar_len = C::Scalar::default().to_repr().as_ref().len();
         self.vk.bytes_length(format)
-            + 12
+            + 12 // bytes used for encoding the length(u32) of "l0", "l_last" & "l_active_row" polys
             + scalar_len * (self.l0.len() + self.l_last.len() + self.l_active_row.len())
             + polynomial_slice_byte_length(&self.fixed_values)
             + polynomial_slice_byte_length(&self.fixed_polys)
@@ -391,21 +383,21 @@ impl<C: CurveAffine> VerifyingKey<C> {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Theta;
-pub type ChallengeTheta<F> = ChallengeScalar<F, Theta>;
+pub(crate) struct Theta;
+pub(crate) type ChallengeTheta<F> = ChallengeScalar<F, Theta>;
 
 #[derive(Clone, Copy, Debug)]
-pub struct Beta;
-pub type ChallengeBeta<F> = ChallengeScalar<F, Beta>;
+pub(crate) struct Beta;
+pub(crate) type ChallengeBeta<F> = ChallengeScalar<F, Beta>;
 
 #[derive(Clone, Copy, Debug)]
-pub struct Gamma;
-pub type ChallengeGamma<F> = ChallengeScalar<F, Gamma>;
+pub(crate) struct Gamma;
+pub(crate) type ChallengeGamma<F> = ChallengeScalar<F, Gamma>;
 
 #[derive(Clone, Copy, Debug)]
-pub struct Y;
-pub type ChallengeY<F> = ChallengeScalar<F, Y>;
+pub(crate) struct Y;
+pub(crate) type ChallengeY<F> = ChallengeScalar<F, Y>;
 
 #[derive(Clone, Copy, Debug)]
-pub struct X;
-pub type ChallengeX<F> = ChallengeScalar<F, X>;
+pub(crate) struct X;
+pub(crate) type ChallengeX<F> = ChallengeScalar<F, X>;

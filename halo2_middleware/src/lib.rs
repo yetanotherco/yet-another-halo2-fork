@@ -5,5 +5,7 @@ pub mod multicore;
 pub mod permutation;
 pub mod poly;
 pub mod shuffle;
+pub mod zal;
 
 pub use ff;
+pub use halo2curves;
