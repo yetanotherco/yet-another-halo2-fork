@@ -4,15 +4,16 @@ use halo2_backend::poly::kzg::multiopen::{ProverSHPLONK, VerifierSHPLONK};
 use halo2_backend::poly::kzg::strategy::SingleStrategy;
 use halo2_backend::{
     plonk::{
-        keygen::{keygen_pk_v2, keygen_vk_v2},
-        prover::ProverV2Single,
+        keygen::{keygen_pk, keygen_vk},
+        prover::ProverSingle,
         verifier::verify_proof_single,
     },
     transcript::{
         Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
     },
 };
-use halo2_middleware::circuit::CompiledCircuitV2;
+use halo2_middleware::circuit::CompiledCircuit;
+use halo2_middleware::zal::impls::H2cEngine;
 use halo2curves::bn256::{Bn256, Fr, G1Affine};
 use p3_air::Air;
 use p3_frontend::{
@@ -46,7 +47,7 @@ pub(crate) fn compile_witgen<A>(
     size: usize,
     num_public_values: usize,
     trace: RowMajorMatrix<FWrap<Fr>>,
-) -> (CompiledCircuitV2<Fr>, Vec<Option<Vec<Fr>>>, Vec<Vec<Fr>>)
+) -> (CompiledCircuit<Fr>, Vec<Option<Vec<Fr>>>, Vec<Vec<Fr>>)
 where
     A: Air<SymbolicAirBuilder<FWrap<Fr>>>,
 {
@@ -61,7 +62,7 @@ where
         cs.gates.iter().map(|g| g.poly.degree()).max().unwrap()
     );
     let preprocessing = compile_preprocessing::<Fr, _>(k, size, &preprocessing_info, &air);
-    let compiled_circuit = CompiledCircuitV2 { cs, preprocessing };
+    let compiled_circuit = CompiledCircuit { cs, preprocessing };
     let witness = trace_to_wit(k, trace);
     let pis = get_public_inputs(&preprocessing_info, size, &witness);
 
@@ -70,7 +71,7 @@ where
 }
 
 pub(crate) fn setup_prove_verify(
-    compiled_circuit: &CompiledCircuitV2<Fr>,
+    compiled_circuit: &CompiledCircuit<Fr>,
     k: u32,
     pis: &[Vec<Fr>],
     witness: Vec<Option<Vec<Fr>>>,
@@ -80,9 +81,8 @@ pub(crate) fn setup_prove_verify(
     let params = ParamsKZG::<Bn256>::setup(k, &mut rng);
     let verifier_params = params.verifier_params();
     let start = Instant::now();
-    let vk = keygen_vk_v2(&params, compiled_circuit).expect("keygen_vk should not fail");
-    let pk =
-        keygen_pk_v2(&params, vk.clone(), compiled_circuit).expect("keygen_pk should not fail");
+    let vk = keygen_vk(&params, compiled_circuit).expect("keygen_vk should not fail");
+    let pk = keygen_pk(&params, vk.clone(), compiled_circuit).expect("keygen_pk should not fail");
     println!("Keygen: {:?}", start.elapsed());
 
     // Proving
@@ -90,15 +90,15 @@ pub(crate) fn setup_prove_verify(
     let start = Instant::now();
     let vec_slices: Vec<&[Fr]> = pis.iter().map(|pi| &pi[..]).collect();
     let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
-    let mut prover =
-        ProverV2Single::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<'_, Bn256>, _, _, _>::new(
-            &params,
-            &pk,
-            &vec_slices,
-            &mut rng,
-            &mut transcript,
-        )
-        .unwrap();
+    let mut prover = ProverSingle::<
+        KZGCommitmentScheme<Bn256>,
+        ProverSHPLONK<'_, Bn256>,
+        _,
+        _,
+        _,
+        H2cEngine,
+    >::new(&params, &pk, &vec_slices, &mut rng, &mut transcript)
+    .unwrap();
     println!("phase 0");
     prover.commit_phase(0, witness).unwrap();
     prover.create_proof().unwrap();

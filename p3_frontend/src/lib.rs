@@ -5,8 +5,8 @@
 extern crate alloc;
 
 use halo2_middleware::circuit::{
-    Any, Cell, ColumnMid, CompiledCircuitV2, ConstraintSystemMid, ExpressionMid, GateMid,
-    PreprocessingV2, QueryMid, VarMid,
+    Any, Cell, ColumnMid, CompiledCircuit, ConstraintSystemMid, ExpressionMid, GateMid,
+    Preprocessing, QueryMid, VarMid,
 };
 use halo2_middleware::ff::{Field, PrimeField};
 use halo2_middleware::permutation;
@@ -89,7 +89,7 @@ pub fn compile_preprocessing<F, A>(
     size: usize,
     pre: &PreprocessingInfo,
     _air: &A,
-) -> PreprocessingV2<F>
+) -> Preprocessing<F>
 where
     F: PrimeField + Hash,
     A: Air<SymbolicAirBuilder<FWrap<F>>>,
@@ -137,7 +137,7 @@ where
         ));
     }
 
-    PreprocessingV2 {
+    Preprocessing {
         permutation: permutation::AssemblyMid { copies },
         fixed,
     }
@@ -307,7 +307,7 @@ pub fn trace_to_wit<F: Field>(k: u32, trace: RowMajorMatrix<FWrap<F>>) -> Vec<Op
 
 // TODO: Move to middleware
 pub fn check_witness<F: Field>(
-    circuit: &CompiledCircuitV2<F>,
+    circuit: &CompiledCircuit<F>,
     k: u32,
     witness: &[Option<Vec<F>>],
     public: &[Vec<F>],
