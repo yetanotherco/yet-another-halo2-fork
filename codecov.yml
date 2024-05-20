@@ -1,3 +1,4 @@
 ignore:
     - halo2_proofs/benches
     - halo2_proofs/examples
+    - halo2_proofs/tests 
