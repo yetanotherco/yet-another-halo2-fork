@@ -136,16 +136,6 @@ where
     }
 }
 
-impl<E: MultiMillerLoop> From<&ParamsKZG<E>> for DualMSM<E>
-where
-    E::G1Affine: CurveAffine<ScalarExt = <E as Engine>::Fr, CurveExt = <E as Engine>::G1>,
-    E::G1: CurveExt<AffineExt = E::G1Affine>,
-{
-    fn from(_params: &ParamsKZG<E>) -> Self {
-        DualMSM::new()
-    }
-}
-
 /// Two channel MSM accumulator
 #[derive(Debug, Default, Clone)]
 pub struct DualMSM<E: Engine>
