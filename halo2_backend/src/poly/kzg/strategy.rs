@@ -60,7 +60,6 @@ where
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
     pub(crate) msm_accumulator: DualMSM<E>,
-    // TODO: Substitute with the real (small) KZG verifier params: just s_g2
     params: ParamsVerifierKZG<E>,
 }
 
@@ -95,7 +94,6 @@ where
     E::G1: CurveExt<AffineExt = E::G1Affine>,
 {
     pub(crate) msm: DualMSM<E>,
-    // TODO: Substitute with the real (small) KZG verifier params: just s_g2
     params: ParamsVerifierKZG<E>,
 }
 
