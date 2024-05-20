@@ -769,13 +769,12 @@ mod test {
         }
     }
 
-
     #[test]
     fn test_value_as_mut() {
         let mut v_some = V::known(1);
         let mut v_none = V::default();
-        v_some.as_mut().map(|v| *v=3);
-        v_none.as_mut().map(|v| *v=3);
+        v_some.as_mut().map(|v| *v = 3);
+        v_none.as_mut().map(|v| *v = 3);
         assert_eq!(v_some, V::known(3));
         assert_eq!(v_none, V::unknown());
     }
@@ -801,8 +800,8 @@ mod test {
 
     #[test]
     fn test_map() {
-        assert_eq!(V::known(1).map(|v| v+1), V::known(2));
-        assert_eq!(V::unknown().map(|v| v+1), V::unknown());
+        assert_eq!(V::known(1).map(|v| v + 1), V::known(2));
+        assert_eq!(V::unknown().map(|v| v + 1), V::unknown());
     }
 
     #[test]
@@ -815,10 +814,22 @@ mod test {
 
     #[test]
     fn test_value_zip() {
-        assert_eq!(V::known(1).zip(V::known(2)).unzip(), (V::known(1), V::known(2)));
-        assert_eq!(V::known(1).zip(V::unknown()).unzip(), (V::unknown(), V::unknown()));
-        assert_eq!(V::unknown().zip(V::known(2)).unzip(), (Value::unknown(), V::unknown()));
-        assert_eq!(V::unknown().zip(V::unknown()).unzip(), (Value::unknown(), V::unknown()));
+        assert_eq!(
+            V::known(1).zip(V::known(2)).unzip(),
+            (V::known(1), V::known(2))
+        );
+        assert_eq!(
+            V::known(1).zip(V::unknown()).unzip(),
+            (V::unknown(), V::unknown())
+        );
+        assert_eq!(
+            V::unknown().zip(V::known(2)).unzip(),
+            (Value::unknown(), V::unknown())
+        );
+        assert_eq!(
+            V::unknown().zip(V::unknown()).unzip(),
+            (Value::unknown(), V::unknown())
+        );
     }
 
     #[test]
@@ -831,35 +842,53 @@ mod test {
 
     #[test]
     fn test_value_transpose_array() {
-        assert_eq!(Value::<[_; 2]>::known([1, 2]).transpose_array(), [V::known(1), V::known(2)]);
+        assert_eq!(
+            Value::<[_; 2]>::known([1, 2]).transpose_array(),
+            [V::known(1), V::known(2)]
+        );
     }
 
     #[test]
     fn test_value_transpose_vec_ok() {
-        assert_eq!(Value::<[_; 2]>::known([1, 2]).transpose_vec(2), vec![V::known(1), V::known(2)]);
+        assert_eq!(
+            Value::<[_; 2]>::known([1, 2]).transpose_vec(2),
+            vec![V::known(1), V::known(2)]
+        );
     }
 
     #[test]
     #[should_panic]
     fn test_value_transpose_vec_ko_1() {
-        assert_eq!(Value::<[_; 2]>::known([1, 2]).transpose_vec(1), vec![V::known(1), V::known(2)]);
+        assert_eq!(
+            Value::<[_; 2]>::known([1, 2]).transpose_vec(1),
+            vec![V::known(1), V::known(2)]
+        );
     }
 
     #[test]
     #[should_panic]
     fn test_value_transpose_vec_ko_2() {
-        assert_eq!(Value::<[_; 2]>::known([1, 2]).transpose_vec(3), vec![V::known(1), V::known(2)]);
+        assert_eq!(
+            Value::<[_; 2]>::known([1, 2]).transpose_vec(3),
+            vec![V::known(1), V::known(2)]
+        );
     }
 
     #[test]
     fn test_value_from_iter() {
-        assert_eq!(Value::<Vec<_>>::from_iter([V::known(1), V::known(2)]).inner, Some(vec![1, 2]));
-        assert_eq!(Value::<Vec<_>>::from_iter([V::known(1), V::unknown()]).inner, None);
+        assert_eq!(
+            Value::<Vec<_>>::from_iter([V::known(1), V::known(2)]).inner,
+            Some(vec![1, 2])
+        );
+        assert_eq!(
+            Value::<Vec<_>>::from_iter([V::known(1), V::unknown()]).inner,
+            None
+        );
     }
 
     #[test]
     fn test_value_ops() {
-        assert_eq!(-V::known(5),  Value::known(-5));
+        assert_eq!(-V::known(5), Value::known(-5));
 
         assert_eq!(V::known(5) + V::known(2), V::known(7));
         assert_eq!(&V::known(5) + V::known(2), V::known(7));
@@ -879,42 +908,69 @@ mod test {
 
     #[test]
     fn test_value_assigned() {
-        
         let fr_two = || Fr::from(2);
         let fr_three = || Fr::from(3);
-        
+
         let one = Value::known(Assigned::Trivial(Fr::one()));
         let two = Value::known(Assigned::Trivial(Fr::from(2)));
         let six = Value::known(Assigned::Trivial(Fr::from(6)));
-        
-        let v : Value<Assigned<Fr>> = Value::known(Fr::one()).into();
-        assert_eq!(v, Value::known(Assigned::Trivial(Fr::one())));  
+
+        let v: Value<Assigned<Fr>> = Value::known(Fr::one()).into();
+        assert_eq!(v, Value::known(Assigned::Trivial(Fr::one())));
 
         assert_eq!(one + Fr::one(), two);
         assert_eq!(one + Value::known(Fr::one()), two);
-        assert_eq!(Value::known(&Assigned::Trivial(Fr::one())) + Value::known(Fr::one()), two);
+        assert_eq!(
+            Value::known(&Assigned::Trivial(Fr::one())) + Value::known(Fr::one()),
+            two
+        );
         assert_eq!(Value::known(&Assigned::Trivial(Fr::one())) + Fr::one(), two);
-            
+
         assert_eq!(two - Value::known(Fr::one()), one);
         assert_eq!(two - Fr::one(), one);
-        assert_eq!(Value::known(&Assigned::Trivial(fr_two())) - Value::known(Fr::one()), one);
+        assert_eq!(
+            Value::known(&Assigned::Trivial(fr_two())) - Value::known(Fr::one()),
+            one
+        );
         assert_eq!(Value::known(&Assigned::Trivial(fr_two())) - Fr::one(), one);
 
         assert_eq!(two * Value::known(fr_three()), six);
         assert_eq!(two * fr_three(), six);
-        assert_eq!(Value::known(&Assigned::Trivial(fr_two())) * Value::known(fr_three()), six);
+        assert_eq!(
+            Value::known(&Assigned::Trivial(fr_two())) * Value::known(fr_three()),
+            six
+        );
         assert_eq!(Value::known(&Assigned::Trivial(fr_two())) * fr_three(), six);
     }
 
     #[test]
     fn test_value_impl() {
-        assert_eq!(Value::known(Fr::one()).to_field(), Value::known(Assigned::Trivial(Fr::one())));
-        assert_eq!(Value::known(Fr::one()).into_field(), Value::known(Assigned::Trivial(Fr::one())));
+        assert_eq!(
+            Value::known(Fr::one()).to_field(),
+            Value::known(Assigned::Trivial(Fr::one()))
+        );
+        assert_eq!(
+            Value::known(Fr::one()).into_field(),
+            Value::known(Assigned::Trivial(Fr::one()))
+        );
 
-        assert_eq!(Value::known(Assigned::Trivial(Fr::from(3))).double(), Value::known(Assigned::Trivial(Fr::from(6))));
-        assert_eq!(Value::known(Assigned::Trivial(Fr::from(3))).square(), Value::known(Assigned::Trivial(Fr::from(9))));
-        assert_eq!(Value::known(Assigned::Trivial(Fr::from(3))).cube(), Value::known(Assigned::Trivial(Fr::from(27))));
-        assert_eq!(Value::known(Assigned::Trivial(Fr::from(3))).invert().invert(), Value::known(Assigned::Trivial(Fr::from(3))));
+        assert_eq!(
+            Value::known(Assigned::Trivial(Fr::from(3))).double(),
+            Value::known(Assigned::Trivial(Fr::from(6)))
+        );
+        assert_eq!(
+            Value::known(Assigned::Trivial(Fr::from(3))).square(),
+            Value::known(Assigned::Trivial(Fr::from(9)))
+        );
+        assert_eq!(
+            Value::known(Assigned::Trivial(Fr::from(3))).cube(),
+            Value::known(Assigned::Trivial(Fr::from(27)))
+        );
+        assert_eq!(
+            Value::known(Assigned::Trivial(Fr::from(3)))
+                .invert()
+                .invert(),
+            Value::known(Assigned::Trivial(Fr::from(3)))
+        );
     }
-
 }
