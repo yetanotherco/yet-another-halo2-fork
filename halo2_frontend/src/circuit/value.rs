@@ -47,13 +47,11 @@ impl<V> Value<V> {
     /// Obtains the inner value for assigning into the circuit.
     ///
     /// Returns `Error::Synthesis` if this is [`Value::unknown()`].
-    #[must_use]
     pub fn assign(self) -> Result<V, Error> {
         self.inner.ok_or(Error::Synthesis)
     }
 
     /// Converts from `&Value<V>` to `Value<&V>`.
-    #[must_use]
     pub fn as_ref(&self) -> Value<&V> {
         Value {
             inner: self.inner.as_ref(),
@@ -61,7 +59,6 @@ impl<V> Value<V> {
     }
 
     /// Converts from `&mut Value<V>` to `Value<&mut V>`.
-    #[must_use]
     pub fn as_mut(&mut self) -> Value<&mut V> {
         Value {
             inner: self.inner.as_mut(),
@@ -76,7 +73,6 @@ impl<V> Value<V> {
     /// # Panics
     ///
     /// Panics if `f` returns `false`.
-    #[must_use]
     pub fn assert_if_known<F: FnOnce(&V) -> bool>(&self, f: F) {
         if let Some(value) = self.inner.as_ref() {
             assert!(f(value));
@@ -87,7 +83,6 @@ impl<V> Value<V> {
     ///
     /// The error check is ignored if `self` is [`Value::unknown()`]. Do not try to
     /// enforce circuit constraints with this method!
-    #[must_use]
     pub fn error_if_known_and<F: FnOnce(&V) -> bool>(&self, f: F) -> Result<(), Error> {
         match self.inner.as_ref() {
             Some(value) if f(value) => Err(Error::Synthesis),
@@ -96,7 +91,6 @@ impl<V> Value<V> {
     }
 
     /// Maps a `Value<V>` to `Value<W>` by applying a function to the contained value.
-    #[must_use]
     pub fn map<W, F: FnOnce(V) -> W>(self, f: F) -> Value<W> {
         Value {
             inner: self.inner.map(f),
@@ -836,8 +830,8 @@ mod test {
     fn test_value_copies() {
         let copy = Value::<&mut i64>::known(&mut 1).copied();
         let clon = Value::<&mut i64>::known(&mut 1).cloned();
-        assert_eq!(copy, clon);
         assert_eq!(copy, Value::known(1));
+        assert_eq!(clon, Value::known(1));
     }
 
     #[test]
@@ -853,6 +847,16 @@ mod test {
         assert_eq!(
             Value::<[_; 2]>::known([1, 2]).transpose_vec(2),
             vec![V::known(1), V::known(2)]
+        );
+        assert_eq!(
+            Value::<[_; 2]>::unknown().transpose_vec(2),
+            vec![V::unknown(), V::unknown()]
+        );
+
+        // TODO: check if should be this allowed or not
+        assert_eq!(
+            Value::<[_; 6]>::unknown().transpose_vec(2),
+            vec![V::unknown(), V::unknown()]
         );
     }
 
