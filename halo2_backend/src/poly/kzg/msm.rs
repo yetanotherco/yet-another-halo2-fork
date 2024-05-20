@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use super::commitment::{ParamsKZG, ParamsVerifierKZG};
+use super::commitment::ParamsVerifierKZG;
 use crate::{arithmetic::parallelize, poly::commitment::MSM};
 use group::{Curve, Group};
 use halo2_middleware::zal::traits::MsmAccel;
