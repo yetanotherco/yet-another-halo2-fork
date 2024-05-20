@@ -1,0 +1,3 @@
+ignore:
+    - halo2_proofs/benches
+    - halo2_proofs/examples
