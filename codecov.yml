@@ -1,4 +1,8 @@
 ignore:
     - halo2_proofs/benches
     - halo2_proofs/examples
-    - halo2_proofs/tests 
+    - halo2_proofs/tests
+    - halo2_frontend/graph
+    - halo2_frontend/graph.rs
+    - halo2_frontend/costs.rs
+    - halo2_frontend/cost_model.rs
