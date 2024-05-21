@@ -37,14 +37,15 @@ impl<'de, F: PrimeField> de::Visitor<'de> for FWrapVisitor<F> {
         formatter.write_str("a field repr as bytes")
     }
 
-    fn visit_bytes<E>(self, _value: &[u8]) -> Result<Self::Value, E>
+    fn visit_bytes<E>(self, value: &[u8]) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
-        todo!()
-        // F::from_repr_vartime(value.into())
-        //     .map(|v| FWrap(v))
-        //     .ok_or(E::custom("invalid field repr: {:value?}"))
+        let mut repr = F::Repr::default();
+        repr.as_mut().copy_from_slice(value);
+        let v: Option<F> = F::from_repr(repr).into();
+        v.map(|v| FWrap(v))
+            .ok_or(E::custom("invalid field repr: {:value?}"))
     }
 }
 
@@ -141,7 +142,7 @@ impl<F: Field> AddAssign for FWrap<F> {
 
 impl<F: Field> Sum for FWrap<F> {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        iter.sum()
+        FWrap(iter.map(|x| x.0).sum::<F>())
     }
 }
 
@@ -223,6 +224,7 @@ impl<F: PrimeField + Hash> p3Field for FWrap<F> {
         let mut minus_one = if le {
             BigUint::from_bytes_le(minus_one_repr.as_ref())
         } else {
+            #[cfg(not(tarpaulin_include))]
             BigUint::from_bytes_be(minus_one_repr.as_ref())
         };
         minus_one += 1u64;
@@ -237,6 +239,7 @@ impl<F: PrimeField + Hash + Ord> p3PrimeField for FWrap<F> {
         if le {
             BigUint::from_bytes_le(self.0.to_repr().as_ref())
         } else {
+            #[cfg(not(tarpaulin_include))]
             BigUint::from_bytes_be(self.0.to_repr().as_ref())
         }
     }
@@ -254,5 +257,112 @@ impl<F: PrimeField + Hash + Ord> PrimeField64 for FWrap<F> {
         self.as_canonical_biguint()
             .try_into()
             .expect("field fits in u64")
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use halo2curves::bn256::Fr;
+    use serde_test::{assert_tokens, Token};
+
+    type F = FWrap<Fr>;
+
+    #[test]
+    fn test_fwrap() {
+        // Serialize & Deserialize
+
+        let v = F::two();
+        assert_tokens(
+            &v,
+            &[Token::Bytes(&[
+                2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0,
+            ])],
+        );
+
+        // AbstractField
+
+        assert_eq!(F::zero().as_canonical_u64(), 0);
+        assert_eq!(F::one().as_canonical_u64(), 1);
+        assert_eq!(F::two().as_canonical_u64(), 2);
+        assert_eq!(
+            format!("{}", F::neg_one()),
+            "0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000000"
+        );
+        assert_eq!(F::from_f(F::two()).as_canonical_u64(), 2);
+        assert_eq!(F::from_bool(true).as_canonical_u64(), 1);
+        assert_eq!(F::from_canonical_u8(0x12).as_canonical_u64(), 0x12);
+        assert_eq!(F::from_canonical_u16(0x1234).as_canonical_u64(), 0x1234);
+        assert_eq!(F::from_canonical_u32(0x123456).as_canonical_u64(), 0x123456);
+        assert_eq!(
+            F::from_canonical_u64(0xfffffff12).as_canonical_u64(),
+            0xfffffff12
+        );
+        assert_eq!(
+            F::from_canonical_usize(0xfffffff12).as_canonical_u64(),
+            0xfffffff12
+        );
+        assert_eq!(F::from_wrapped_u32(0x123456).as_canonical_u64(), 0x123456);
+        assert_eq!(
+            F::from_wrapped_u64(0xfffffff12).as_canonical_u64(),
+            0xfffffff12
+        );
+        assert_eq!(
+            format!("{}", F::generator()),
+            "0x0000000000000000000000000000000000000000000000000000000000000007"
+        );
+
+        // Arithmetic operators
+
+        assert_eq!(F::one() + F::one(), F::two());
+        let mut v = F::one();
+        v += F::one();
+        assert_eq!(v, F::two());
+        assert_eq!([F::one(), F::one()].into_iter().sum::<F>(), F::two());
+
+        assert_eq!(F::two() - F::one(), F::one());
+        let mut v = F::two();
+        v -= F::one();
+        assert_eq!(v, F::one());
+
+        assert_eq!(-F::one(), F::neg_one());
+
+        assert_eq!(F::two() + F::two(), F::from_canonical_u64(4));
+        let mut v = F::two();
+        v *= F::two();
+        assert_eq!(v, F::from_canonical_u64(4));
+        assert_eq!(
+            [F::two(), F::two()].into_iter().product::<F>(),
+            F::from_canonical_u64(4)
+        );
+
+        assert_eq!(
+            F::from_canonical_u64(10) / F::from_canonical_u64(5),
+            F::from_canonical_u64(2)
+        );
+
+        // p3Field
+        assert_eq!(F::zero().is_zero(), true);
+        assert_eq!(F::one().is_zero(), false);
+        assert_eq!(
+            format!("{}", F::two().try_inverse().unwrap()),
+            "0x183227397098d014dc2822db40c0ac2e9419f4243cdcb848a1f0fac9f8000001"
+        );
+        assert_eq!(
+            format!("{}", F::order()),
+            "21888242871839275222246405745257275088548364400416034343698204186575808495617"
+        );
+
+        // p3PrimeField
+
+        assert_eq!(
+            format!("{}", F::from_canonical_u64(1234).as_canonical_biguint()),
+            "1234"
+        );
+
+        // PrimeField64
+
+        assert_eq!(F::from_canonical_u64(1234).as_canonical_u64(), 1234);
     }
 }

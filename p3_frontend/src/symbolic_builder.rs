@@ -33,19 +33,6 @@ use crate::air::AirBuilderWithPublicValues;
 use crate::symbolic_expression::{Location, SymbolicExpression};
 use crate::symbolic_variable::SymbolicVariable;
 
-pub fn get_symbolic_constraints<F, A>(
-    air: &A,
-    num_public_values: usize,
-) -> Vec<SymbolicExpression<F>>
-where
-    F: Field,
-    A: Air<SymbolicAirBuilder<F>>,
-{
-    let mut builder = SymbolicAirBuilder::new(air.width(), num_public_values);
-    air.eval(&mut builder);
-    builder.constraints()
-}
-
 /// An `AirBuilder` for evaluating constraints symbolically, and recording them for later use.
 pub struct SymbolicAirBuilder<F: Field> {
     pub(crate) main: RowMajorMatrix<SymbolicVariable<F>>,
@@ -68,10 +55,6 @@ impl<F: Field> SymbolicAirBuilder<F> {
                 .collect(),
             constraints: vec![],
         }
-    }
-
-    pub(crate) fn constraints(self) -> Vec<SymbolicExpression<F>> {
-        self.constraints
     }
 }
 
@@ -98,6 +81,7 @@ impl<F: Field> AirBuilder for SymbolicAirBuilder<F> {
         if size == 2 {
             SymbolicExpression::Location(Location::Transition)
         } else {
+            #[cfg(not(tarpaulin_include))]
             panic!("uni-stark only supports a window size of 2")
         }
     }

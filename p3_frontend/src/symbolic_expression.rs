@@ -320,3 +320,112 @@ impl<F: Field> Product<F> for SymbolicExpression<F> {
         iter.map(|x| Self::from(x)).product()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::fwrap::FWrap;
+    use halo2curves::bn256::Fr;
+
+    type F = FWrap<Fr>;
+    type V = SymbolicVariable<F>;
+    type E = SymbolicExpression<F>;
+
+    #[test]
+    fn test_symbolic_expression() {
+        assert_eq!(E::from(F::zero()).is_zero(), true);
+        assert_eq!(E::from(F::one()).is_zero(), false);
+        assert_eq!(E::from(F::one()).is_one(), true);
+        assert_eq!(E::from(F::zero()).is_one(), false);
+
+        assert_eq!(format!("{}", E::default()), "0");
+
+        // AbstractField
+
+        assert_eq!(format!("{}", E::zero()), "0");
+        assert_eq!(format!("{}", E::one()), "1");
+        assert_eq!(format!("{}", E::two()), "2");
+        assert_eq!(
+            format!("{}", E::neg_one()),
+            "0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000000"
+        );
+        assert_eq!(format!("{}", E::from_f(F::two())), "2");
+        assert_eq!(format!("{}", E::from_bool(true)), "1");
+        assert_eq!(
+            format!("{}", E::from_canonical_u8(0x12)),
+            "0x0000000000000000000000000000000000000000000000000000000000000012"
+        );
+        assert_eq!(
+            format!("{}", E::from_canonical_u16(0x1234)),
+            "0x0000000000000000000000000000000000000000000000000000000000001234"
+        );
+        assert_eq!(
+            format!("{}", E::from_canonical_u32(0x123456)),
+            "0x0000000000000000000000000000000000000000000000000000000000123456"
+        );
+        assert_eq!(
+            format!("{}", E::from_canonical_u64(0xfffffff12)),
+            "0x0000000000000000000000000000000000000000000000000000000fffffff12"
+        );
+        assert_eq!(
+            format!("{}", E::from_canonical_usize(0xfffffff12)),
+            "0x0000000000000000000000000000000000000000000000000000000fffffff12"
+        );
+        assert_eq!(
+            format!("{}", E::from_wrapped_u32(0x123456)),
+            "0x0000000000000000000000000000000000000000000000000000000000123456"
+        );
+        assert_eq!(
+            format!("{}", E::from_wrapped_u64(0xfffffff12)),
+            "0x0000000000000000000000000000000000000000000000000000000fffffff12"
+        );
+        assert_eq!(
+            format!("{}", E::generator()),
+            "0x0000000000000000000000000000000000000000000000000000000000000007"
+        );
+        assert_eq!(format!("{}", E::two().double()), "2 * 2");
+
+        // Arithmetic operators
+
+        let w1 = E::from(V::new_query(false, 1));
+        let w2 = E::from(V::new_query(false, 2));
+        let f = F::two();
+        assert_eq!(format!("{}", w1.clone() + w2.clone()), "(w1 + w2)");
+        assert_eq!(format!("{}", w1.clone() + f.clone()), "(w1 + 2)");
+        let mut v = w1.clone();
+        v += w2.clone();
+        v += f.clone();
+        assert_eq!(format!("{}", v), "((w1 + w2) + 2)");
+        assert_eq!(
+            format!("{}", [w1.clone(), w2.clone()].into_iter().sum::<E>()),
+            "(w1 + w2)"
+        );
+        assert_eq!(
+            format!("{}", [f.clone(), f.clone()].into_iter().sum::<E>()),
+            "(2 + 2)"
+        );
+
+        assert_eq!(format!("{}", w1.clone() - w2.clone()), "(w1 - w2)");
+        assert_eq!(format!("{}", w1.clone() - f.clone()), "(w1 - 2)");
+        let mut v = w1.clone();
+        v -= w2.clone();
+        v -= f.clone();
+        assert_eq!(format!("{}", v), "((w1 - w2) - 2)");
+        assert_eq!(format!("{}", -w1.clone()), "-(w1)");
+
+        assert_eq!(format!("{}", w1.clone() * w2.clone()), "w1 * w2");
+        assert_eq!(format!("{}", w1.clone() * f.clone()), "w1 * 2");
+        let mut v = w1.clone();
+        v *= w2.clone();
+        v *= f.clone();
+        assert_eq!(format!("{}", v), "w1 * w2 * 2");
+        assert_eq!(
+            format!("{}", [w1.clone(), w2.clone()].into_iter().product::<E>()),
+            "w1 * w2"
+        );
+        assert_eq!(
+            format!("{}", [f.clone(), f.clone()].into_iter().product::<E>()),
+            "2 * 2"
+        );
+    }
+}

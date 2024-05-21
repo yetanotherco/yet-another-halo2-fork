@@ -170,3 +170,39 @@ impl<F: Field> Mul<SymbolicVariable<F>> for SymbolicExpression<F> {
         self * Self::from(rhs)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::fwrap::FWrap;
+    use halo2curves::bn256::Fr;
+
+    type F = FWrap<Fr>;
+    type V = SymbolicVariable<F>;
+    type E = SymbolicExpression<F>;
+
+    #[test]
+    fn test_symbolic_variable() {
+        assert_eq!(format!("{}", V::new_query(false, 1)), "w1");
+        assert_eq!(format!("{}", V::new_query(true, 1)), "w1'");
+        assert_eq!(format!("{}", V::new_public(1)), "p1");
+
+        let w1 = V::new_query(false, 1);
+        let w2 = V::new_query(false, 2);
+        assert_eq!(format!("{}", E::from(w1)), "w1");
+
+        // Arithmetic operators
+
+        assert_eq!(format!("{}", w1 + w2), "(w1 + w2)");
+        assert_eq!(format!("{}", w1 + E::from(w2)), "(w1 + w2)");
+        assert_eq!(format!("{}", E::from(w1) + w2), "(w1 + w2)");
+
+        assert_eq!(format!("{}", w1 - w2), "(w1 - w2)");
+        assert_eq!(format!("{}", w1 - E::from(w2)), "(w1 - w2)");
+        assert_eq!(format!("{}", E::from(w1) - w2), "(w1 - w2)");
+
+        assert_eq!(format!("{}", w1 * w2), "w1 * w2");
+        assert_eq!(format!("{}", w1 * E::from(w2)), "w1 * w2");
+        assert_eq!(format!("{}", E::from(w1) * w2), "w1 * w2");
+    }
+}
