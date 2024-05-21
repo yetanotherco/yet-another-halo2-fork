@@ -25,7 +25,7 @@
 use alloc::vec;
 use alloc::vec::Vec;
 
-use p3_air::{Air, AirBuilder};
+use p3_air::AirBuilder;
 use p3_field::Field;
 use p3_matrix::dense::RowMajorMatrix;
 

@@ -260,6 +260,7 @@ impl<F: PrimeField + Hash + Ord> PrimeField64 for FWrap<F> {
     }
 }
 
+#[allow(clippy::bool_assert_comparison)]
 #[cfg(test)]
 mod test {
     use super::*;

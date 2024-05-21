@@ -321,6 +321,7 @@ impl<F: Field> Product<F> for SymbolicExpression<F> {
     }
 }
 
+#[allow(clippy::bool_assert_comparison)]
 #[cfg(test)]
 mod test {
     use super::*;
@@ -391,41 +392,35 @@ mod test {
         let w2 = E::from(V::new_query(false, 2));
         let f = F::two();
         assert_eq!(format!("{}", w1.clone() + w2.clone()), "(w1 + w2)");
-        assert_eq!(format!("{}", w1.clone() + f.clone()), "(w1 + 2)");
+        assert_eq!(format!("{}", w1.clone() + f), "(w1 + 2)");
         let mut v = w1.clone();
         v += w2.clone();
-        v += f.clone();
+        v += f;
         assert_eq!(format!("{}", v), "((w1 + w2) + 2)");
         assert_eq!(
             format!("{}", [w1.clone(), w2.clone()].into_iter().sum::<E>()),
             "(w1 + w2)"
         );
-        assert_eq!(
-            format!("{}", [f.clone(), f.clone()].into_iter().sum::<E>()),
-            "(2 + 2)"
-        );
+        assert_eq!(format!("{}", [f, f].into_iter().sum::<E>()), "(2 + 2)");
 
         assert_eq!(format!("{}", w1.clone() - w2.clone()), "(w1 - w2)");
-        assert_eq!(format!("{}", w1.clone() - f.clone()), "(w1 - 2)");
+        assert_eq!(format!("{}", w1.clone() - f), "(w1 - 2)");
         let mut v = w1.clone();
         v -= w2.clone();
-        v -= f.clone();
+        v -= f;
         assert_eq!(format!("{}", v), "((w1 - w2) - 2)");
         assert_eq!(format!("{}", -w1.clone()), "-(w1)");
 
         assert_eq!(format!("{}", w1.clone() * w2.clone()), "w1 * w2");
-        assert_eq!(format!("{}", w1.clone() * f.clone()), "w1 * 2");
+        assert_eq!(format!("{}", w1.clone() * f), "w1 * 2");
         let mut v = w1.clone();
         v *= w2.clone();
-        v *= f.clone();
+        v *= f;
         assert_eq!(format!("{}", v), "w1 * w2 * 2");
         assert_eq!(
             format!("{}", [w1.clone(), w2.clone()].into_iter().product::<E>()),
             "w1 * w2"
         );
-        assert_eq!(
-            format!("{}", [f.clone(), f.clone()].into_iter().product::<E>()),
-            "2 * 2"
-        );
+        assert_eq!(format!("{}", [f, f].into_iter().product::<E>()), "2 * 2");
     }
 }
