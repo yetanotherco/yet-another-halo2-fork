@@ -176,6 +176,7 @@ mod test {
     use super::*;
     use crate::fwrap::FWrap;
     use halo2curves::bn256::Fr;
+    use p3_field::AbstractField;
 
     type F = FWrap<Fr>;
     type V = SymbolicVariable<F>;
@@ -189,6 +190,7 @@ mod test {
 
         let w1 = V::new_query(false, 1);
         let w2 = V::new_query(false, 2);
+        let f = F::two();
         assert_eq!(format!("{}", E::from(w1)), "w1");
 
         // Arithmetic operators
@@ -196,13 +198,16 @@ mod test {
         assert_eq!(format!("{}", w1 + w2), "(w1 + w2)");
         assert_eq!(format!("{}", w1 + E::from(w2)), "(w1 + w2)");
         assert_eq!(format!("{}", E::from(w1) + w2), "(w1 + w2)");
+        assert_eq!(format!("{}", w1 + f), "(w1 + 2)");
 
         assert_eq!(format!("{}", w1 - w2), "(w1 - w2)");
         assert_eq!(format!("{}", w1 - E::from(w2)), "(w1 - w2)");
         assert_eq!(format!("{}", E::from(w1) - w2), "(w1 - w2)");
+        assert_eq!(format!("{}", w1 - f), "(w1 - 2)");
 
         assert_eq!(format!("{}", w1 * w2), "w1 * w2");
         assert_eq!(format!("{}", w1 * E::from(w2)), "w1 * w2");
         assert_eq!(format!("{}", E::from(w1) * w2), "w1 * w2");
+        assert_eq!(format!("{}", w1 * f), "w1 * 2");
     }
 }
