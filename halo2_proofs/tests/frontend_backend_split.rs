@@ -505,8 +505,8 @@ const WIDTH_FACTOR: usize = 1;
 
 #[test]
 fn test_mycircuit_full_legacy() {
-    #[cfg(all(feature = "heap-profiling", not(tarpaulin)))]
-    let _profiler = dhat::Profiler::new_heap();
+//    #[cfg(all(feature = "heap-profiling", not(tarpaulin)))]
+//    let _profiler = dhat::Profiler::new_heap();
 
     use halo2_proofs::plonk::{
         create_proof, keygen_pk as keygen_pk_legacy, keygen_vk as keygen_vk_legacy,
@@ -566,8 +566,8 @@ fn test_mycircuit_full_legacy() {
 fn test_mycircuit_full_split() {
     use halo2_middleware::zal::impls::{H2cEngine, PlonkEngineConfig};
 
-    #[cfg(all(feature = "heap-profiling", not(tarpaulin)))]
-    let _profiler = dhat::Profiler::new_heap();
+ //   #[cfg(all(feature = "heap-profiling", not(tarpaulin)))]
+ //   let _profiler = dhat::Profiler::new_heap();
 
     let engine = PlonkEngineConfig::new()
         .set_curve::<G1Affine>()
