@@ -747,6 +747,8 @@ impl<F: Field> Value<Assigned<F>> {
 
 #[cfg(test)]
 mod test {
+    #![allow(clippy::op_ref)]
+
     use super::*;
     use halo2curves::bn256::Fr;
 
