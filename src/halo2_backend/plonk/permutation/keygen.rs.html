@@ -289,6 +289,11 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>group::Curve;
 <span class="kw">use </span>halo2_middleware::ff::{Field, PrimeField};
 <span class="kw">use </span>halo2_middleware::zal::impls::H2cEngine;
@@ -552,15 +557,20 @@
     }
 
     <span class="comment">// Pre-compute commitments for the URS.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>commitments = Vec::with_capacity(p.columns.len());
-    <span class="kw">for </span>permutation <span class="kw">in </span><span class="kw-2">&amp;</span>permutations {
-        <span class="comment">// Compute commitment to permutation polynomial
-        </span>commitments.push(
-            params
-                .commit_lagrange(<span class="kw-2">&amp;</span>H2cEngine::new(), permutation, Blind::default())
-                .to_affine(),
-        );
-    }
+    </span><span class="kw">let </span>commitments = {
+        <span class="kw">let </span><span class="kw-2">mut </span>commitments_projective = Vec::with_capacity(p.columns.len());
+        <span class="kw">for </span>permutation <span class="kw">in </span><span class="kw-2">&amp;</span>permutations {
+            <span class="comment">// Compute commitment to permutation polynomial
+            </span>commitments_projective.push(params.commit_lagrange(
+                <span class="kw-2">&amp;</span>H2cEngine::new(),
+                permutation,
+                Blind::default(),
+            ));
+        }
+        <span class="kw">let </span><span class="kw-2">mut </span>commitments = <span class="macro">vec!</span>[C::identity(); p.columns.len()];
+        C::CurveExt::batch_normalize(<span class="kw-2">&amp;</span>commitments_projective, <span class="kw-2">&amp;mut </span>commitments);
+        commitments
+    };
 
     VerifyingKey { commitments }
 }

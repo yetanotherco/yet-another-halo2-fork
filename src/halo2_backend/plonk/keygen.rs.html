@@ -405,6 +405,9 @@
 <a href="#389" id="389">389</a>
 <a href="#390" id="390">390</a>
 <a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This module
 //! - creates the proving and verifying keys for a circuit
 //! - crates a domain, constraint system, and configuration for a circuit
@@ -471,20 +474,23 @@
     )<span class="question-mark">?
     </span>.build_vk(params, <span class="kw-2">&amp;</span>domain, <span class="kw-2">&amp;</span>cs.permutation);
 
-    <span class="kw">let </span>fixed_commitments = circuit
-        .preprocessing
-        .fixed
-        .iter()
-        .map(|poly| {
-            params
-                .commit_lagrange(
+    <span class="kw">let </span>fixed_commitments = {
+        <span class="kw">let </span>fixed_commitments_projective: Vec&lt;C::CurveExt&gt; = circuit
+            .preprocessing
+            .fixed
+            .iter()
+            .map(|poly| {
+                params.commit_lagrange(
                     <span class="kw-2">&amp;</span>H2cEngine::new(),
                     <span class="kw-2">&amp;</span>Polynomial::new_lagrange_from_vec(poly.clone()),
                     Blind::default(),
                 )
-                .to_affine()
-        })
-        .collect();
+            })
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>fixed_commitments = <span class="macro">vec!</span>[C::identity(); fixed_commitments_projective.len()];
+        C::CurveExt::batch_normalize(<span class="kw-2">&amp;</span>fixed_commitments_projective, <span class="kw-2">&amp;mut </span>fixed_commitments);
+        fixed_commitments
+    };
 
     <span class="prelude-val">Ok</span>(VerifyingKey::from_parts(
         domain,

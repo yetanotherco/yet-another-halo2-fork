@@ -498,6 +498,16 @@
 <a href="#482" id="482">482</a>
 <a href="#483" id="483">483</a>
 <a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::ProvingKey;
 <span class="kw">use </span><span class="kw">super</span>::Argument;
 <span class="kw">use </span><span class="kw">crate</span>::plonk::evaluation::evaluate;
@@ -630,19 +640,29 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>commit_values = |values: <span class="kw-2">&amp;</span>Polynomial&lt;C::Scalar, LagrangeCoeff&gt;| {
         <span class="kw">let </span>poly = pk.vk.domain.lagrange_to_coeff(values.clone());
         <span class="kw">let </span>blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
-        <span class="kw">let </span>commitment = params
-            .commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, values, blind)
-            .to_affine();
+        <span class="kw">let </span>commitment = params.commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, values, blind);
         (poly, blind, commitment)
     };
 
     <span class="comment">// Commit to permuted input expression
-    </span><span class="kw">let </span>(permuted_input_poly, permuted_input_blind, permuted_input_commitment) =
+    </span><span class="kw">let </span>(permuted_input_poly, permuted_input_blind, permuted_input_commitment_projective) =
         commit_values(<span class="kw-2">&amp;</span>permuted_input_expression);
 
     <span class="comment">// Commit to permuted table expression
-    </span><span class="kw">let </span>(permuted_table_poly, permuted_table_blind, permuted_table_commitment) =
+    </span><span class="kw">let </span>(permuted_table_poly, permuted_table_blind, permuted_table_commitment_projective) =
         commit_values(<span class="kw-2">&amp;</span>permuted_table_expression);
+
+    <span class="kw">let </span>[permuted_input_commitment, permuted_table_commitment] = {
+        <span class="kw">let </span><span class="kw-2">mut </span>affines = [C::identity(); <span class="number">2</span>];
+        C::CurveExt::batch_normalize(
+            <span class="kw-2">&amp;</span>[
+                permuted_input_commitment_projective,
+                permuted_table_commitment_projective,
+            ],
+            <span class="kw-2">&amp;mut </span>affines,
+        );
+        affines
+    };
 
     <span class="comment">// Hash permuted input commitment
     </span>transcript.write_point(permuted_input_commitment)<span class="question-mark">?</span>;

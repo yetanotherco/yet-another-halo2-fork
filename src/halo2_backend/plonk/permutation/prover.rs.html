@@ -347,7 +347,6 @@
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>group::{
     ff::{BatchInvert, Field},
     Curve,
@@ -524,15 +523,14 @@
 
         <span class="kw">let </span>blind = Blind(C::Scalar::random(<span class="kw-2">&amp;mut </span>rng));
 
-        <span class="kw">let </span>permutation_product_commitment_projective =
-            params.commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, <span class="kw-2">&amp;</span>z, blind);
+        <span class="kw">let </span>permutation_product_commitment = params
+            .commit_lagrange(<span class="kw-2">&amp;</span>engine.msm_backend, <span class="kw-2">&amp;</span>z, blind)
+            .to_affine();
         <span class="kw">let </span>permutation_product_blind = blind;
         <span class="kw">let </span>z = domain.lagrange_to_coeff(z);
         <span class="kw">let </span>permutation_product_poly = z.clone();
 
-        <span class="kw">let </span>permutation_product_coset = domain.coeff_to_extended(z.clone());
-
-        <span class="kw">let </span>permutation_product_commitment = permutation_product_commitment_projective.to_affine();
+        <span class="kw">let </span>permutation_product_coset = domain.coeff_to_extended(z);
 
         <span class="comment">// Hash the permutation product commitment
         </span>transcript.write_point(permutation_product_commitment)<span class="question-mark">?</span>;
