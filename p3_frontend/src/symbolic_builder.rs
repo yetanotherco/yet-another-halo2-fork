@@ -81,7 +81,7 @@ impl<F: Field> AirBuilder for SymbolicAirBuilder<F> {
         if size == 2 {
             SymbolicExpression::Location(Location::Transition)
         } else {
-            #[cfg(not(tarpaulin_include))]
+            #[cfg(not(coverage))]
             panic!("uni-stark only supports a window size of 2")
         }
     }

@@ -224,7 +224,7 @@ impl<F: PrimeField + Hash> p3Field for FWrap<F> {
         let mut minus_one = if le {
             BigUint::from_bytes_le(minus_one_repr.as_ref())
         } else {
-            #[cfg(not(tarpaulin_include))]
+            #[cfg(not(coverage))]
             BigUint::from_bytes_be(minus_one_repr.as_ref())
         };
         minus_one += 1u64;
@@ -239,7 +239,7 @@ impl<F: PrimeField + Hash + Ord> p3PrimeField for FWrap<F> {
         if le {
             BigUint::from_bytes_le(self.0.to_repr().as_ref())
         } else {
-            #[cfg(not(tarpaulin_include))]
+            #[cfg(not(coverage))]
             BigUint::from_bytes_be(self.0.to_repr().as_ref())
         }
     }
