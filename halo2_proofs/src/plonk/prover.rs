@@ -1,7 +1,10 @@
 use crate::plonk::{Error, ErrorBack};
 use crate::poly::commitment::{self, CommitmentScheme, Params};
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
+use halo2_backend::helpers::SerdeFormat;
 use halo2_backend::plonk::{prover::Prover, ProvingKey};
+use halo2_backend::poly::VerificationStrategy;
+use halo2_backend::transcript::TranscriptWriterBuffer;
 use halo2_frontend::circuit::WitnessCalculator;
 use halo2_frontend::plonk::{Circuit, ConstraintSystem};
 use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
@@ -11,6 +14,8 @@ use halo2_middleware::zal::{
 };
 use rand_core::RngCore;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufWriter;
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
@@ -97,6 +102,173 @@ where
         engine, params, pk, circuits, instances, rng, transcript,
     )
 }
+
+/// This creates a proof for the provided `circuit` when given the public
+/// parameters `params` and the proving key [`ProvingKey`] that was
+/// generated previously for the same circuit. The provided `instances`
+/// are zero-padded internally. Writes the resulting proof, parameters, verifier key, and instances to files for use in aligned.
+pub fn prove_and_serialize_circuit_ipa<
+    'params,
+    P: commitment::Prover<'params, Scheme>,
+    E: EncodedChallenge<Scheme::Curve>,
+    ConcreteCircuit: Circuit<Scheme::Scalar>,
+>(
+    params: &'params Scheme::ParamsProver,
+    pk: &ProvingKey<Scheme::Curve>,
+    circuits: &[ConcreteCircuit],
+    instances: &[&[&[Scheme::Scalar]]],
+) -> Result<(), Error>
+where
+    Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
+{
+    let vk = pk.get_vk(); 
+    let cs = vk.clone().cs;
+    let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
+
+    let instances: &[&[Fr]] = &[&[circuit.0]];
+    let mut transcript = Blake2bWrite::<_, _, Challenge255<_>>::init(vec![]);
+    create_proof::<
+        IPACommitmentScheme<G1Affine>,
+        ProverIPA<G1Affine>,
+        Challenge255<G1Affine>,
+        _,
+        Blake2bWrite<Vec<u8>, G1Affine, Challenge255<_>>,
+        _,
+    >(
+        &params,
+        &pk,
+        &[circuit.clone()],
+        &[instances],
+        OsRng,
+        &mut transcript,
+    )
+    .expect("prover should not fail");
+    let proof = transcript.finalize();
+
+    assert!(verify_proof::<
+        IPACommitmentScheme<G1Affine>,
+        VerifierIPA<G1Affine>,
+        Challenge255<G1Affine>,
+        Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
+        SingleStrategy<G1Affine>,
+    >(
+        &params,
+        &vk,
+        strategy,
+        &[&[instances]],
+        &mut transcript
+    )
+    .is_ok());
+
+    //write proof
+    std::fs::write("proof_files/proof.bin", &proof[..])
+    .expect("should succeed to write new proof");
+
+    //write instances
+    let f = File::create("proof_files/pub_input.bin").unwrap();
+    let mut writer = BufWriter::new(f);
+    instances.to_vec().into_iter().flatten().for_each(|fp| { writer.write(&fp.to_repr()).unwrap(); });
+    writer.flush().unwrap();
+
+    let mut vk_buf = Vec::new();
+    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
+    let vk_len = vk_buf.len();
+    let mut ipa_params_buf = Vec::new();
+    params.write(&mut ipa_params_buf).unwrap();
+    let ipa_params_len = ipa_params_buf.len();
+
+    //Write everything to parameters file
+    let params_file = File::create("proof_files/params.bin").unwrap();
+    let mut writer = BufWriter::new(params_file);
+    let cs_buf = bincode::serialize(&cs).unwrap();
+    //Write Parameter Lengths as u32
+    writer.write_all(&(cs_buf.len() as u32).to_le_bytes()).unwrap();
+    writer.write_all(&(vk_len as u32).to_le_bytes()).unwrap();
+    writer.write_all(&(ipa_params_len as u32).to_le_bytes()).unwrap();
+    //Write Parameters
+    writer.write_all(&cs_buf).unwrap();
+    writer.write_all(&vk_buf).unwrap();
+    writer.write_all(&ipa_params_buf).unwrap();
+    writer.flush().unwrap();
+    Ok(())
+}
+
+pub fn prove_and_serialize_circuit_kzg<
+    'params,
+    P: commitment::Prover<'params, Scheme>,
+    E: EncodedChallenge<Scheme::Curve>,
+    ConcreteCircuit: Circuit<Scheme::Scalar>,
+>(
+    params: &'params Scheme::ParamsProver,
+    pk: &ProvingKey<Scheme::Curve>,
+    circuits: &[ConcreteCircuit],
+    instances: &[&[&[Scheme::Scalar]]],
+) -> Result<(), Error>
+where
+    Scheme::Scalar: WithSmallOrderMulGroup<3> + FromUniformBytes<64>,
+{
+    let mut transcript = Blake2bWrite::<_, _, Challenge255<_>>::init(vec![]);
+    create_proof::<
+        KZGCommitmentScheme<Bn256>,
+        ProverSHPLONK<'_, Bn256>,
+        Challenge255<G1Affine>,
+        _,
+        Blake2bWrite<Vec<u8>, G1Affine, Challenge255<_>>,
+        _,
+    >(
+        &params,
+        &pk,
+        &[circuit.clone()],
+        &[instances],
+        OsRng,
+        &mut transcript,
+    )
+    .expect("prover should not fail");
+    let proof = transcript.finalize();
+
+    assert!(verify_proof::<
+        KZGCommitmentScheme<Bn256>,
+        VerifierSHPLONK<'_, Bn256>,
+        Challenge255<G1Affine>,
+        Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
+        SingleStrategy<'_, Bn256>,
+    >(&params, &vk, strategy, &[&[instances]], &mut transcript)
+    .is_ok());
+
+    //write proof
+    std::fs::write("proof_files/proof.bin", &proof[..])
+    .expect("should succeed to write new proof");
+
+    //write instances
+    let f = File::create("proof_files/pub_input.bin").unwrap();
+    let mut writer = BufWriter::new(f);
+    instances.to_vec().into_iter().flatten().for_each(|fp| { writer.write(&fp.to_repr()).unwrap(); });
+    writer.flush().unwrap();
+
+    let mut vk_buf = Vec::new();
+    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
+    let vk_len = vk_buf.len();
+    let mut kzg_params_buf = Vec::new();
+    params.write(&mut kzg_params_buf).unwrap();
+    let kzg_params_len = kzg_params_buf.len();
+
+    //Write everything to parameters file
+    let params_file = File::create("proof_files/params.bin").unwrap();
+    let mut writer = BufWriter::new(params_file);
+    let cs_buf = bincode::serialize(&cs).unwrap();
+    //Write Parameter Lengths as u32
+    writer.write_all(&(cs_buf.len() as u32).to_le_bytes()).unwrap();
+    writer.write_all(&(vk_len as u32).to_le_bytes()).unwrap();
+    writer.write_all(&(kzg_params_len as u32).to_le_bytes()).unwrap();
+    //Write Parameters
+    writer.write_all(&cs_buf).unwrap();
+    writer.write_all(&vk_buf).unwrap();
+    writer.write_all(&kzg_params_buf).unwrap();
+    writer.flush().unwrap();
+    Ok(())
+}
+
+
 
 #[test]
 fn test_create_proof() {
