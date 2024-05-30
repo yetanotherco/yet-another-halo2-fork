@@ -1,7 +1,7 @@
 use super::circuit::VarMid;
 use super::expression::{Expression, Variable};
 use ff::Field;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Expressions involved in a lookup argument, with a name as metadata.
 #[derive(Clone, Debug, Serialize, Deserialize)]

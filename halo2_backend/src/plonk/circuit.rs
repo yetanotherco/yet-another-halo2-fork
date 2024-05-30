@@ -3,7 +3,7 @@ use halo2_middleware::circuit::{Any, ChallengeMid, ColumnMid, Gate};
 use halo2_middleware::expression::{Expression, Variable};
 use halo2_middleware::poly::Rotation;
 use halo2_middleware::{lookup, permutation::ArgumentMid, shuffle};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 // TODO: Reuse ColumnMid inside this.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]

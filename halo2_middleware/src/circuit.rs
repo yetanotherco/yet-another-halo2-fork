@@ -2,9 +2,9 @@ use crate::expression::{Expression, Variable};
 use crate::poly::Rotation;
 use crate::{lookup, permutation, shuffle};
 use ff::Field;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
-use serde::{Serialize, Deserialize};
 
 /// A challenge squeezed from transcript after advice columns at the phase have been committed.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]

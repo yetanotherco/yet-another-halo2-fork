@@ -1,8 +1,8 @@
 use core::cmp::max;
 use core::ops::{Add, Mul, Neg, Sub};
 use ff::Field;
+use serde::{Deserialize, Serialize};
 use std::iter::{Product, Sum};
-use serde::{Serialize, Deserialize};
 
 pub trait Variable: Clone + Copy + std::fmt::Debug + std::fmt::Display + Eq + PartialEq {
     /// Degree that an expression would have if it was only this variable.

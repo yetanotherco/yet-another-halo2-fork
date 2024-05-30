@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::circuit::{Cell, ColumnMid};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
 pub struct AssemblyMid {
