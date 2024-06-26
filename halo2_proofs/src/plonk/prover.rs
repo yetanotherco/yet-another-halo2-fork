@@ -124,21 +124,16 @@ where
 
 /// Writes ConstraintSystemBack, VerifyingKey, and ProverParams to a file to be sent to aligned.
 pub fn write_params<'params, Scheme: CommitmentScheme>(
-    params: &'params Scheme::ParamsProver,
+    params_buf: &[u8],
     cs: ConstraintSystemBack<Fr>,
-    vk: &VerifyingKey<Scheme::Curve>,
+    vk_buf: &[u8],
     params_path: &str,
 ) -> Result<(), Error> 
 where
     <Scheme as CommitmentScheme>::Curve: SerdeCurveAffine,
     Scheme::Scalar: SerdePrimeField + FromUniformBytes<64>
 {
-
-    let mut vk_buf = Vec::new();
-    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
     let vk_len = vk_buf.len();
-    let mut params_buf = Vec::new();
-    params.write(&mut params_buf).unwrap();
     let params_len = params_buf.len();
 
     //Write everything to parameters file
@@ -222,7 +217,13 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    write_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin").unwrap();
+    let mut vk_buf = Vec::new();
+    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
+
+    let mut params_buf = Vec::new();
+    params.write(&mut params_buf).unwrap();
+
+    write_params::<IPACommitmentScheme<G1Affine>>(&params_buf, cs, &vk_buf, "proof_files/params.bin").unwrap();
     Ok(())
 }
 
@@ -282,7 +283,13 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    write_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin").unwrap();
+    let mut vk_buf = Vec::new();
+    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
+
+    let mut params_buf = Vec::new();
+    params.write(&mut params_buf).unwrap();
+
+    write_params::<KZGCommitmentScheme<Bn256>>(&params_buf, cs, &vk_buf, "proof_files/params.bin").unwrap();
     Ok(())
 }
 
