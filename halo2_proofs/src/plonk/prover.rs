@@ -122,7 +122,8 @@ where
     )
 }
 
-pub fn serialize_params<'params, Scheme: CommitmentScheme>(
+/// Writes ConstraintSystemBack, VerifyingKey, and ProverParams to a file to be sent to aligned.
+pub fn write_params<'params, Scheme: CommitmentScheme>(
     params: &'params Scheme::ParamsProver,
     cs: ConstraintSystemBack<Fr>,
     vk: &VerifyingKey<Scheme::Curve>,
@@ -221,7 +222,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    serialize_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
+    write_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
     Ok(())
 }
 
@@ -281,7 +282,7 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    serialize_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
+    write_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
     Ok(())
 }
 
