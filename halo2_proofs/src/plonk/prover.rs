@@ -2,9 +2,10 @@ use crate::plonk::{keygen_pk, verify_proof, Error, ErrorBack};
 use crate::poly::commitment::{self, CommitmentScheme, Params};
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
 use group::ff::PrimeField;
-use halo2_backend::helpers::SerdeFormat;
+use halo2_backend::helpers::{SerdeCurveAffine, SerdeFormat, SerdePrimeField};
+use halo2_backend::plonk::circuit::ConstraintSystemBack;
+use halo2_backend::plonk::VerifyingKey;
 use halo2_backend::plonk::{prover::Prover, ProvingKey};
-use halo2_backend::poly::commitment::ParamsProver;
 use halo2_backend::poly::ipa::{
     commitment::{IPACommitmentScheme, ParamsIPA},
     multiopen::{ProverIPA, VerifierIPA},
@@ -21,11 +22,9 @@ use halo2_backend::poly::{
 use halo2_backend::transcript::{
     Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
 };
-use halo2_frontend::circuit::{Layouter, Value, WitnessCalculator};
-use halo2_frontend::plonk::{Advice, Circuit, Column, ConstraintSystem, Fixed, Instance};
-use halo2_middleware::circuit::ColumnMid;
+use halo2_frontend::circuit::WitnessCalculator;
+use halo2_frontend::plonk::{Circuit, ConstraintSystem};
 use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
-use halo2_middleware::poly::Rotation;
 use halo2_middleware::zal::{
     impls::{PlonkEngine, PlonkEngineConfig},
     traits::MsmAccel,
@@ -123,6 +122,44 @@ where
     )
 }
 
+pub fn serialize_params<'params, Scheme: CommitmentScheme>(
+    params: &'params Scheme::ParamsProver,
+    cs: ConstraintSystemBack<Fr>,
+    vk: &VerifyingKey<Scheme::Curve>,
+    params_path: String,
+) -> Result<(), Error> 
+where
+    <Scheme as CommitmentScheme>::Curve: SerdeCurveAffine,
+    Scheme::Scalar: SerdePrimeField + FromUniformBytes<64>
+{
+
+    let mut vk_buf = Vec::new();
+    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
+    let vk_len = vk_buf.len();
+    let mut params_buf = Vec::new();
+    params.write(&mut params_buf).unwrap();
+    let params_len = params_buf.len();
+
+    //Write everything to parameters file
+    let params_file = File::create(params_path).unwrap();
+    let mut writer = BufWriter::new(params_file);
+    let cs_buf = bincode::serialize(&cs).unwrap();
+    //Write Parameter Lengths as u32
+    writer
+        .write_all(&(cs_buf.len() as u32).to_le_bytes())
+        .unwrap();
+    writer.write_all(&(vk_len as u32).to_le_bytes()).unwrap();
+    writer
+        .write_all(&(params_len as u32).to_le_bytes())
+        .unwrap();
+    //Write Parameters
+    writer.write_all(&cs_buf).unwrap();
+    writer.write_all(&vk_buf).unwrap();
+    writer.write_all(&params_buf).unwrap();
+    writer.flush().unwrap();
+    Ok(())
+}
+
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
@@ -131,7 +168,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsIPA<G1Affine>,
     pk: &ProvingKey<G1Affine>,
     circuit: ConcreteCircuit,
-    public_inputs: &[&[&[Fr]]],
+    public_inputs: &[Vec<Vec<Fr>>],
 ) -> Result<(), Error> {
     let vk = pk.get_vk();
     let cs = vk.clone().cs;
@@ -184,30 +221,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    let mut vk_buf = Vec::new();
-    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
-    let vk_len = vk_buf.len();
-    let mut ipa_params_buf = Vec::new();
-    params.write(&mut ipa_params_buf).unwrap();
-    let ipa_params_len = ipa_params_buf.len();
-
-    //Write everything to parameters file
-    let params_file = File::create("proof_files/params.bin").unwrap();
-    let mut writer = BufWriter::new(params_file);
-    let cs_buf = bincode::serialize(&cs).unwrap();
-    //Write Parameter Lengths as u32
-    writer
-        .write_all(&(cs_buf.len() as u32).to_le_bytes())
-        .unwrap();
-    writer.write_all(&(vk_len as u32).to_le_bytes()).unwrap();
-    writer
-        .write_all(&(ipa_params_len as u32).to_le_bytes())
-        .unwrap();
-    //Write Parameters
-    writer.write_all(&cs_buf).unwrap();
-    writer.write_all(&vk_buf).unwrap();
-    writer.write_all(&ipa_params_buf).unwrap();
-    writer.flush().unwrap();
+    serialize_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
     Ok(())
 }
 
@@ -215,7 +229,7 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsKZG<Bn256>,
     pk: &ProvingKey<G1Affine>,
     circuit: ConcreteCircuit,
-    public_inputs: &[&[&[Fr]]],
+    public_inputs: &[Vec<Vec<Fr>>],
 ) -> Result<(), Error> {
     let vk = pk.get_vk();
     let cs = vk.clone().cs;
@@ -238,15 +252,16 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     .expect("prover should not fail");
     let proof = transcript.finalize();
 
-    let strategy = KZGStrategy::new(&params);
+    let verifier_params = params.verifier_params();
+    let strategy = KZGStrategy::new(&verifier_params);
     let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
     assert!(verify_proof::<
         KZGCommitmentScheme<Bn256>,
-        VerifierSHPLONK<'_, Bn256>,
+        VerifierSHPLONK<Bn256>,
         Challenge255<G1Affine>,
         Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
-        KZGStrategy<'_, Bn256>,
-    >(&params, &vk, strategy, public_inputs, &mut transcript)
+        KZGStrategy<Bn256>,
+    >(&verifier_params, &vk, strategy, public_inputs, &mut transcript)
     .is_ok());
 
     if !Path::new("./proof_files").exists() {
@@ -266,30 +281,7 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    let mut vk_buf = Vec::new();
-    vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
-    let vk_len = vk_buf.len();
-    let mut kzg_params_buf = Vec::new();
-    params.write(&mut kzg_params_buf).unwrap();
-    let kzg_params_len = kzg_params_buf.len();
-
-    //Write everything to parameters file
-    let params_file = File::create("proof_files/params.bin").unwrap();
-    let mut writer = BufWriter::new(params_file);
-    let cs_buf = bincode::serialize(&cs).unwrap();
-    //Write Parameter Lengths as u32
-    writer
-        .write_all(&(cs_buf.len() as u32).to_le_bytes())
-        .unwrap();
-    writer.write_all(&(vk_len as u32).to_le_bytes()).unwrap();
-    writer
-        .write_all(&(kzg_params_len as u32).to_le_bytes())
-        .unwrap();
-    //Write Parameters
-    writer.write_all(&cs_buf).unwrap();
-    writer.write_all(&vk_buf).unwrap();
-    writer.write_all(&kzg_params_buf).unwrap();
-    writer.flush().unwrap();
+    serialize_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
     Ok(())
 }
 
@@ -427,16 +419,12 @@ fn test_create_proof_custom() {
 fn test_proof_serialization() {
     use crate::{
         circuit::SimpleFloorPlanner,
-        plonk::{keygen_pk_custom, keygen_vk_custom, ConstraintSystem, ErrorFront},
-        poly::kzg::{
-            commitment::{KZGCommitmentScheme, ParamsKZG},
-            multiopen::ProverSHPLONK,
-        },
-        transcript::{Blake2bWrite, Challenge255, TranscriptWriterBuffer},
+        plonk::{keygen_vk_custom, ConstraintSystem, ErrorFront},
+        poly::kzg::commitment::ParamsKZG,
     };
-    use halo2_middleware::ff::Field;
-    use halo2curves::bn256::Bn256;
-    use rand_core::OsRng;
+    use halo2_frontend::{circuit::{Layouter, Value}, plonk::{Advice,Column, Fixed, Instance}};
+    use halo2_middleware::{ff::Field, poly::Rotation};
+    use halo2_backend::poly::commitment::ParamsProver;
 
     // HALO2 Circuit Example
     #[derive(Clone, Copy)]
@@ -550,13 +538,13 @@ fn test_proof_serialization() {
     let compress_selectors = true;
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
-    let public_inputs: &[&[Fr]] = &[&[circuit.0]];
-    prove_and_serialize_circuit_kzg(&params, &pk, circuit.clone(), &[public_inputs]).unwrap();
+    let public_inputs: Vec<Vec<Fr>> = vec![vec![circuit.0]];
+    prove_and_serialize_circuit_kzg(&params, &pk, circuit.clone(), &vec![public_inputs]).unwrap();
 
     let params = ParamsIPA::<G1Affine>::new(4);
     let compress_selectors = true;
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
-    let public_inputs: &[&[Fr]] = &[&[circuit.0]];
-    prove_and_serialize_circuit_ipa(&params, &pk, circuit, &[public_inputs]).unwrap()
+    let public_inputs: Vec<Vec<Fr>> = vec![vec![circuit.0]];
+    prove_and_serialize_circuit_ipa(&params, &pk, circuit, &vec![public_inputs]).unwrap()
 }
