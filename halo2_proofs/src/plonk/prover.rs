@@ -127,7 +127,7 @@ pub fn write_params<'params, Scheme: CommitmentScheme>(
     params: &'params Scheme::ParamsProver,
     cs: ConstraintSystemBack<Fr>,
     vk: &VerifyingKey<Scheme::Curve>,
-    params_path: String,
+    params_path: &str,
 ) -> Result<(), Error> 
 where
     <Scheme as CommitmentScheme>::Curve: SerdeCurveAffine,
@@ -222,7 +222,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    write_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
+    write_params::<IPACommitmentScheme<G1Affine>>(params, cs, vk, "proof_files/params.bin").unwrap();
     Ok(())
 }
 
@@ -282,7 +282,7 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     });
     writer.flush().unwrap();
 
-    write_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin".to_string()).unwrap();
+    write_params::<KZGCommitmentScheme<Bn256>>(params, cs, vk, "proof_files/params.bin").unwrap();
     Ok(())
 }
 
