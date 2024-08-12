@@ -2,7 +2,7 @@ use crate::plonk::{keygen_pk, verify_proof, Error, ErrorBack};
 use crate::poly::commitment::{self, CommitmentScheme, Params};
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
 use group::ff::PrimeField;
-use halo2_backend::helpers::{SerdeCurveAffine, SerdeFormat, SerdePrimeField};
+use halo2_backend::helpers::SerdeFormat;
 use halo2_backend::plonk::circuit::ConstraintSystemBack;
 use halo2_backend::plonk::VerifyingKey;
 use halo2_backend::plonk::{prover::Prover, ProvingKey};
@@ -33,8 +33,9 @@ use halo2curves::bn256::{Bn256, Fr, G1Affine};
 use rand_core::{OsRng, RngCore};
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::{BufWriter, Write};
+use std::io::{BufReader, BufWriter, ErrorKind, Read, Write};
 use std::path::Path;
+use log::error;
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
@@ -122,6 +123,7 @@ where
     )
 }
 
+// Reads all parameters
 /// Writes ConstraintSystemBack, VerifyingKey, and ProverParams to a file to be sent to aligned.
 pub fn write_params(
     params_buf: &[u8],
@@ -153,6 +155,73 @@ pub fn write_params(
     Ok(())
 }
 
+/// Reads Public inputs values from a data buffer
+pub fn read_fr(mut buf: &[u8]) -> Result<Vec<Fr>, ErrorKind> {
+    let mut instances = Vec::with_capacity(buf.len() / 32);
+    // Buffer to store each 32-byte slice
+    let mut buffer = [0; 32];
+
+    loop {
+        // Read 32 bytes into the buffer
+        match buf.read_exact(&mut buffer) {
+            Ok(_) => {
+                instances.push(Fr::from_bytes(&buffer).unwrap());
+            }
+            Err(ref e) if e.kind() == ErrorKind::UnexpectedEof => {
+                // If end of file reached, break the loop
+                break;
+            }
+            Err(e) => {
+                eprintln!("Error Deserializing Public Inputs: {}", e);
+                return Err(ErrorKind::Other);
+            }
+        }
+    }
+
+    Ok(instances)
+}
+
+/// Reads parameter values from data buffer and splits them into separate buffers for deserialization
+pub fn read_params(buf: &[u8]) -> Result<(&[u8], &[u8], &[u8]), ErrorKind> {
+    // Deserialize
+    let cs_len_buf: [u8; 4] = buf[..4]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let cs_len = u32::from_le_bytes(cs_len_buf) as usize;
+    let vk_len_buf: [u8; 4] = buf[4..8]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let vk_len = u32::from_le_bytes(vk_len_buf) as usize;
+    let params_len_buf: [u8; 4] = buf[8..12]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let params_len = u32::from_le_bytes(params_len_buf) as usize;
+
+    //Verify declared lengths are less than total length.
+    if (12 + cs_len + vk_len + params_len) > buf.len() {
+        error!("Serialized parameter lengths greater than parameter bytes length");
+        return Err(ErrorKind::Other)
+    }
+
+    // Select Constraint System Bytes
+    let cs_offset = 12;
+    let cs_buffer = &buf[cs_offset..(cs_offset + cs_len)];
+
+    // Select Verifier Key Bytes
+    let vk_offset = cs_offset + cs_len;
+    let vk_buffer = &buf[vk_offset..(vk_offset + vk_len)];
+
+    // Select ipa Params Bytes
+    let params_offset = vk_offset + vk_len;
+    let params_buffer = &buf[params_offset..(params_offset + params_len)];
+
+    Ok((cs_buffer, vk_buffer, params_buffer))
+}
+
+//TODO: change to just serialize
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
@@ -224,13 +293,14 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     Ok(())
 }
 
+//TODO: change to just serialize
 pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsKZG<Bn256>,
     pk: &ProvingKey<G1Affine>,
+    vk: &VerifyingKey<G1Affine>,
     circuit: ConcreteCircuit,
     public_inputs: &[Vec<Vec<Fr>>],
 ) -> Result<(), Error> {
-    let vk = pk.get_vk();
     let cs = vk.clone().cs;
     let mut transcript = Blake2bWrite::<_, _, Challenge255<_>>::init(vec![]);
     create_proof::<
@@ -284,7 +354,8 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     vk.write(&mut vk_buf, SerdeFormat::RawBytes).unwrap();
 
     let mut params_buf = Vec::new();
-    params.write(&mut params_buf).unwrap();
+    verifier_params.write(&mut params_buf).unwrap();
+    //params.write(&mut params_buf).unwrap();
 
     write_params(&params_buf, cs, &vk_buf, "proof_files/params.bin").unwrap();
     Ok(())
@@ -430,6 +501,7 @@ fn test_proof_serialization() {
     use halo2_frontend::{circuit::{Layouter, Value}, plonk::{Advice,Column, Fixed, Instance}};
     use halo2_middleware::{ff::Field, poly::Rotation};
     use halo2_backend::poly::commitment::ParamsProver;
+    use halo2_backend::poly::kzg::strategy::SingleStrategy;
 
     // HALO2 Circuit Example
     #[derive(Clone, Copy)]
@@ -543,8 +615,69 @@ fn test_proof_serialization() {
     let compress_selectors = true;
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
-    let public_inputs: Vec<Vec<Fr>> = vec![vec![circuit.0]];
-    prove_and_serialize_circuit_kzg(&params, &pk, circuit.clone(), &vec![public_inputs]).unwrap();
+    let instances: Vec<Vec<Fr>> = vec![vec![circuit.0]];
+    prove_and_serialize_circuit_kzg(&params, &pk, &vk, circuit.clone(), &vec![instances.clone()]).unwrap();
+
+    let proof = std::fs::read("proof_files/proof.bin").expect("should succeed to read proof");
+    let pub_input = std::fs::read("proof_files/pub_input.bin").unwrap();
+    let instances = read_fr(&pub_input).unwrap();
+
+    let mut f = File::open("proof_files/params.bin").unwrap();
+    let mut params_buf = Vec::new();
+    f.read_to_end(&mut params_buf).unwrap();
+    println!("params_buf len: {:?}", params_buf.len());
+
+    // Select Constraint System Bytes
+    let mut cs_buffer = [0u8; 2 * 1024];
+    let cs_len_buf: [u8; 4] = params_buf[..4]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let cs_len = u32::from_le_bytes(cs_len_buf) as usize;
+    let cs_offset = 12;
+    cs_buffer[..cs_len].clone_from_slice(&params_buf[cs_offset..(cs_offset + cs_len)]);
+
+    // Select Verifier Key Bytes
+    let mut vk_buffer = [0u8; 1024];
+    let vk_len_buf: [u8; 4] = params_buf[4..8]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let vk_len = u32::from_le_bytes(vk_len_buf) as usize;
+    let vk_offset = cs_offset + cs_len;
+    vk_buffer[..vk_len].clone_from_slice(&params_buf[vk_offset..(vk_offset + vk_len)]);
+
+    // Select KZG Params Bytes
+    let mut kzg_params_buffer = [0u8; 4 * 1024];
+    let kzg_len_buf: [u8; 4] = params_buf[8..12]
+        .try_into()
+        .map_err(|_| "Failed to convert slice to [u8; 4]")
+        .unwrap();
+    let kzg_params_len = u32::from_le_bytes(kzg_len_buf) as usize;
+    let kzg_offset = vk_offset + vk_len;
+    kzg_params_buffer[..kzg_params_len].clone_from_slice(&params_buf[kzg_offset..]);
+
+    let cs = bincode::deserialize(&cs_buffer[..cs_len]).unwrap();
+    let vk = VerifyingKey::<G1Affine>::read(
+        &mut BufReader::new(&vk_buffer[..vk_len]),
+        SerdeFormat::RawBytes,
+        cs,
+    )
+    .unwrap();
+    let vk_params =
+        Params::read::<_>(&mut BufReader::new(&kzg_params_buffer[..kzg_params_len])).unwrap();
+
+    //let vk_params = params.verifier_params();
+    let strategy = SingleStrategy::new(&vk_params);
+    let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
+    assert!(verify_proof::<
+        KZGCommitmentScheme<Bn256>,
+        VerifierSHPLONK<Bn256>,
+        Challenge255<G1Affine>,
+        Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
+        SingleStrategy<Bn256>,
+    >(&vk_params, &vk, strategy, &[vec![instances]], &mut transcript)
+    .is_ok());
 
     let params = ParamsIPA::<G1Affine>::new(4);
     let compress_selectors = true;

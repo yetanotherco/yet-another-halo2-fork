@@ -15,7 +15,7 @@ mod verifier {
 use halo2_frontend::circuit::compile_circuit;
 pub use keygen::{keygen_pk, keygen_pk_custom, keygen_vk, keygen_vk_custom};
 
-pub use prover::{create_proof, write_params, create_proof_with_engine};
+pub use prover::{create_proof, write_params, read_params, read_fr, create_proof_with_engine};
 pub use verifier::verify_proof;
 
 pub use error::Error;
