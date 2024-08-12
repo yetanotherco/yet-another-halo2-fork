@@ -1,4 +1,4 @@
-use crate::plonk::{keygen_pk, verify_proof, Error, ErrorBack};
+use crate::plonk::{keygen_pk, verify_proof, Error, ErrorBack, ErrorFront};
 use crate::poly::commitment::{self, CommitmentScheme, Params};
 use crate::transcript::{EncodedChallenge, TranscriptWrite};
 use group::ff::PrimeField;
@@ -22,20 +22,26 @@ use halo2_backend::poly::{
 use halo2_backend::transcript::{
     Blake2bRead, Blake2bWrite, Challenge255, TranscriptReadBuffer, TranscriptWriterBuffer,
 };
-use halo2_frontend::circuit::WitnessCalculator;
 use halo2_frontend::plonk::{Circuit, ConstraintSystem};
-use halo2_middleware::ff::{FromUniformBytes, WithSmallOrderMulGroup};
-use halo2_middleware::zal::{
-    impls::{PlonkEngine, PlonkEngineConfig},
-    traits::MsmAccel,
+use halo2_frontend::{
+    circuit::{Layouter, SimpleFloorPlanner, Value, WitnessCalculator},
+    plonk::{Advice, Column, Fixed, Instance},
+};
+use halo2_middleware::{
+    ff::{FromUniformBytes, WithSmallOrderMulGroup},
+    poly::Rotation,
+    zal::{
+        impls::{PlonkEngine, PlonkEngineConfig},
+        traits::MsmAccel,
+    },
 };
 use halo2curves::bn256::{Bn256, Fr, G1Affine};
+use log::error;
 use rand_core::{OsRng, RngCore};
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::{BufReader, BufWriter, ErrorKind, Read, Write};
+use std::io::{BufWriter, ErrorKind, Read, Write};
 use std::path::Path;
-use log::error;
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
@@ -130,8 +136,7 @@ pub fn write_params(
     cs: ConstraintSystemBack<Fr>,
     vk_buf: &[u8],
     params_path: &str,
-) -> Result<(), Error> 
-{
+) -> Result<(), Error> {
     let vk_len = vk_buf.len();
     let params_len = params_buf.len();
 
@@ -149,8 +154,8 @@ pub fn write_params(
         .unwrap();
     //Write Parameters
     writer.write_all(&cs_buf).unwrap();
-    writer.write_all(&vk_buf).unwrap();
-    writer.write_all(&params_buf).unwrap();
+    writer.write_all(vk_buf).unwrap();
+    writer.write_all(params_buf).unwrap();
     writer.flush().unwrap();
     Ok(())
 }
@@ -203,7 +208,7 @@ pub fn read_params(buf: &[u8]) -> Result<(&[u8], &[u8], &[u8]), ErrorKind> {
     //Verify declared lengths are less than total length.
     if (12 + cs_len + vk_len + params_len) > buf.len() {
         error!("Serialized parameter lengths greater than parameter bytes length");
-        return Err(ErrorKind::Other)
+        return Err(ErrorKind::Other);
     }
 
     // Select Constraint System Bytes
@@ -226,7 +231,7 @@ pub fn read_params(buf: &[u8]) -> Result<(&[u8], &[u8], &[u8]), ErrorKind> {
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
 /// are zero-padded internally. Writes the resulting proof, parameters, verifier key, and instances to files for use in aligned.
-pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
+pub fn prove_and_serialize_circuit_ipa<ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsIPA<G1Affine>,
     pk: &ProvingKey<G1Affine>,
     circuit: ConcreteCircuit,
@@ -245,7 +250,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
         Blake2bWrite<Vec<u8>, G1Affine, Challenge255<_>>,
         _,
     >(
-        &params,
+        params,
         &pk,
         &[circuit],
         public_inputs,
@@ -255,7 +260,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     .expect("prover should not fail");
     let proof = transcript.finalize();
 
-    let strategy = IPAStrategy::new(&params);
+    let strategy = IPAStrategy::new(params);
     let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
     assert!(verify_proof::<
         IPACommitmentScheme<G1Affine>,
@@ -263,7 +268,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
         Challenge255<G1Affine>,
         Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
         IPAStrategy<G1Affine>,
-    >(&params, vk, strategy, public_inputs, &mut transcript)
+    >(params, vk, strategy, public_inputs, &mut transcript)
     .is_ok());
 
     if !Path::new("./proof_files").exists() {
@@ -276,9 +281,9 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
     //write instances
     let f = File::create("proof_files/pub_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
-    public_inputs.to_vec().into_iter().flatten().for_each(|f| {
+    public_inputs.iter().flatten().cloned().for_each(|f| {
         f.into_iter().for_each(|fp| {
-            writer.write(&fp.to_repr()).unwrap();
+            writer.write_all(&fp.to_repr()).unwrap();
         })
     });
     writer.flush().unwrap();
@@ -294,7 +299,7 @@ pub fn prove_and_serialize_circuit_ipa<'params, ConcreteCircuit: Circuit<Fr>>(
 }
 
 //TODO: change to just serialize
-pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
+pub fn prove_and_serialize_circuit_kzg<ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsKZG<Bn256>,
     pk: &ProvingKey<G1Affine>,
     vk: &VerifyingKey<G1Affine>,
@@ -311,8 +316,8 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
         Blake2bWrite<Vec<u8>, G1Affine, Challenge255<_>>,
         _,
     >(
-        &params,
-        &pk,
+        params,
+        pk,
         &[circuit],
         public_inputs,
         OsRng,
@@ -330,7 +335,13 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
         Challenge255<G1Affine>,
         Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
         KZGStrategy<Bn256>,
-    >(&verifier_params, &vk, strategy, public_inputs, &mut transcript)
+    >(
+        &verifier_params,
+        vk,
+        strategy,
+        public_inputs,
+        &mut transcript
+    )
     .is_ok());
 
     if !Path::new("./proof_files").exists() {
@@ -343,9 +354,9 @@ pub fn prove_and_serialize_circuit_kzg<'params, ConcreteCircuit: Circuit<Fr>>(
     //write instances
     let f = File::create("proof_files/pub_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
-    public_inputs.to_vec().into_iter().flatten().for_each(|f| {
+    public_inputs.iter().flatten().cloned().for_each(|f| {
         f.into_iter().for_each(|fp| {
-            writer.write(&fp.to_repr()).unwrap();
+            writer.write_all(&fp.to_repr()).unwrap();
         })
     });
     writer.flush().unwrap();
@@ -491,124 +502,116 @@ fn test_create_proof_custom() {
     .expect("proof generation should not fail");
 }
 
+// HALO2 Circuit Example
+/// StandardPlonk Circuit Configuration
+#[derive(Clone, Copy, Debug)]
+pub struct StandardPlonkConfig {
+    a: Column<Advice>,
+    b: Column<Advice>,
+    c: Column<Advice>,
+    q_a: Column<Fixed>,
+    q_b: Column<Fixed>,
+    q_c: Column<Fixed>,
+    q_ab: Column<Fixed>,
+    constant: Column<Fixed>,
+    #[allow(dead_code)]
+    instance: Column<Instance>,
+}
+
+impl StandardPlonkConfig {
+    fn configure(meta: &mut ConstraintSystem<Fr>) -> Self {
+        let [a, b, c] = [(); 3].map(|_| meta.advice_column());
+        let [q_a, q_b, q_c, q_ab, constant] = [(); 5].map(|_| meta.fixed_column());
+        let instance = meta.instance_column();
+
+        [a, b, c].map(|column| meta.enable_equality(column));
+
+        meta.create_gate(
+            "q_a·a + q_b·b + q_c·c + q_ab·a·b + constant + instance = 0",
+            |meta| {
+                let [a, b, c] = [a, b, c].map(|column| meta.query_advice(column, Rotation::cur()));
+                let [q_a, q_b, q_c, q_ab, constant] = [q_a, q_b, q_c, q_ab, constant]
+                    .map(|column| meta.query_fixed(column, Rotation::cur()));
+                let instance = meta.query_instance(instance, Rotation::cur());
+                Some(
+                    q_a * a.clone()
+                        + q_b * b.clone()
+                        + q_c * c
+                        + q_ab * a * b
+                        + constant
+                        + instance,
+                )
+            },
+        );
+
+        StandardPlonkConfig {
+            a,
+            b,
+            c,
+            q_a,
+            q_b,
+            q_c,
+            q_ab,
+            constant,
+            instance,
+        }
+    }
+}
+
+/// StandardPlonk Circuit for testing
+#[derive(Clone, Default, Debug)]
+pub struct StandardPlonk(pub Fr);
+
+impl Circuit<Fr> for StandardPlonk {
+    type Config = StandardPlonkConfig;
+    type FloorPlanner = SimpleFloorPlanner;
+
+    fn without_witnesses(&self) -> Self {
+        Self::default()
+    }
+
+    fn configure(meta: &mut ConstraintSystem<Fr>) -> Self::Config {
+        StandardPlonkConfig::configure(meta)
+    }
+
+    fn synthesize(
+        &self,
+        config: Self::Config,
+        mut layouter: impl Layouter<Fr>,
+    ) -> Result<(), ErrorFront> {
+        layouter.assign_region(
+            || "",
+            |mut region| {
+                region.assign_advice(|| "", config.a, 0, || Value::known(self.0))?;
+                region.assign_fixed(|| "", config.q_a, 0, || Value::known(-Fr::one()))?;
+
+                region.assign_advice(|| "", config.a, 1, || Value::known(-Fr::from(5u64)))?;
+                for (idx, column) in (1..).zip([
+                    config.q_a,
+                    config.q_b,
+                    config.q_c,
+                    config.q_ab,
+                    config.constant,
+                ]) {
+                    region.assign_fixed(|| "", column, 1, || Value::known(Fr::from(idx as u64)))?;
+                }
+
+                let a = region.assign_advice(|| "", config.a, 2, || Value::known(Fr::one()))?;
+                a.copy_advice(|| "", &mut region, config.b, 3)?;
+                a.copy_advice(|| "", &mut region, config.c, 4)?;
+                Ok(())
+            },
+        )
+    }
+}
+
 #[test]
 fn test_proof_serialization() {
-    use crate::{
-        circuit::SimpleFloorPlanner,
-        plonk::{keygen_vk_custom, ConstraintSystem, ErrorFront},
-        poly::kzg::commitment::ParamsKZG,
-    };
-    use halo2_frontend::{circuit::{Layouter, Value}, plonk::{Advice,Column, Fixed, Instance}};
-    use halo2_middleware::{ff::Field, poly::Rotation};
+    use crate::{plonk::keygen_vk_custom, poly::kzg::commitment::ParamsKZG};
     use halo2_backend::poly::commitment::ParamsProver;
     use halo2_backend::poly::kzg::strategy::SingleStrategy;
-
-    // HALO2 Circuit Example
-    #[derive(Clone, Copy)]
-    struct StandardPlonkConfig {
-        a: Column<Advice>,
-        b: Column<Advice>,
-        c: Column<Advice>,
-        q_a: Column<Fixed>,
-        q_b: Column<Fixed>,
-        q_c: Column<Fixed>,
-        q_ab: Column<Fixed>,
-        constant: Column<Fixed>,
-        #[allow(dead_code)]
-        instance: Column<Instance>,
-    }
-
-    impl StandardPlonkConfig {
-        fn configure(meta: &mut ConstraintSystem<Fr>) -> Self {
-            let [a, b, c] = [(); 3].map(|_| meta.advice_column());
-            let [q_a, q_b, q_c, q_ab, constant] = [(); 5].map(|_| meta.fixed_column());
-            let instance = meta.instance_column();
-
-            [a, b, c].map(|column| meta.enable_equality(column));
-
-            meta.create_gate(
-                "q_a·a + q_b·b + q_c·c + q_ab·a·b + constant + instance = 0",
-                |meta| {
-                    let [a, b, c] =
-                        [a, b, c].map(|column| meta.query_advice(column, Rotation::cur()));
-                    let [q_a, q_b, q_c, q_ab, constant] = [q_a, q_b, q_c, q_ab, constant]
-                        .map(|column| meta.query_fixed(column, Rotation::cur()));
-                    let instance = meta.query_instance(instance, Rotation::cur());
-                    Some(
-                        q_a * a.clone()
-                            + q_b * b.clone()
-                            + q_c * c
-                            + q_ab * a * b
-                            + constant
-                            + instance,
-                    )
-                },
-            );
-
-            StandardPlonkConfig {
-                a,
-                b,
-                c,
-                q_a,
-                q_b,
-                q_c,
-                q_ab,
-                constant,
-                instance,
-            }
-        }
-    }
-
-    #[derive(Clone, Default)]
-    struct StandardPlonk(Fr);
-
-    impl Circuit<Fr> for StandardPlonk {
-        type Config = StandardPlonkConfig;
-        type FloorPlanner = SimpleFloorPlanner;
-
-        fn without_witnesses(&self) -> Self {
-            Self::default()
-        }
-
-        fn configure(meta: &mut ConstraintSystem<Fr>) -> Self::Config {
-            StandardPlonkConfig::configure(meta)
-        }
-
-        fn synthesize(
-            &self,
-            config: Self::Config,
-            mut layouter: impl Layouter<Fr>,
-        ) -> Result<(), ErrorFront> {
-            layouter.assign_region(
-                || "",
-                |mut region| {
-                    region.assign_advice(|| "", config.a, 0, || Value::known(self.0))?;
-                    region.assign_fixed(|| "", config.q_a, 0, || Value::known(-Fr::one()))?;
-
-                    region.assign_advice(|| "", config.a, 1, || Value::known(-Fr::from(5u64)))?;
-                    for (idx, column) in (1..).zip([
-                        config.q_a,
-                        config.q_b,
-                        config.q_c,
-                        config.q_ab,
-                        config.constant,
-                    ]) {
-                        region.assign_fixed(
-                            || "",
-                            column,
-                            1,
-                            || Value::known(Fr::from(idx as u64)),
-                        )?;
-                    }
-
-                    let a = region.assign_advice(|| "", config.a, 2, || Value::known(Fr::one()))?;
-                    a.copy_advice(|| "", &mut region, config.b, 3)?;
-                    a.copy_advice(|| "", &mut region, config.c, 4)?;
-                    Ok(())
-                },
-            )
-        }
-    }
+    use halo2_middleware::ff::Field;
+    use std::io::BufReader;
 
     let circuit = StandardPlonk(Fr::random(OsRng));
     let params = ParamsKZG::setup(4, OsRng);
@@ -616,7 +619,8 @@ fn test_proof_serialization() {
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
     let instances: Vec<Vec<Fr>> = vec![vec![circuit.0]];
-    prove_and_serialize_circuit_kzg(&params, &pk, &vk, circuit.clone(), &vec![instances.clone()]).unwrap();
+    prove_and_serialize_circuit_kzg(&params, &pk, &vk, circuit.clone(), &vec![instances.clone()])
+        .unwrap();
 
     let proof = std::fs::read("proof_files/proof.bin").expect("should succeed to read proof");
     let pub_input = std::fs::read("proof_files/pub_input.bin").unwrap();
@@ -676,7 +680,13 @@ fn test_proof_serialization() {
         Challenge255<G1Affine>,
         Blake2bRead<&[u8], G1Affine, Challenge255<G1Affine>>,
         SingleStrategy<Bn256>,
-    >(&vk_params, &vk, strategy, &[vec![instances]], &mut transcript)
+    >(
+        &vk_params,
+        &vk,
+        strategy,
+        &[vec![instances]],
+        &mut transcript
+    )
     .is_ok());
 
     let params = ParamsIPA::<G1Affine>::new(4);
