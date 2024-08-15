@@ -206,7 +206,7 @@ pub fn read_params(buf: &[u8]) -> Result<(&[u8], &[u8], &[u8]), ErrorKind> {
     let params_len = u32::from_le_bytes(params_len_buf) as usize;
 
     //Verify declared lengths are less than total length.
-    if (12 + cs_len + vk_len + params_len) > buf.len() {
+    if (12 + cs_len + vk_len + params_len) != buf.len() {
         error!("Serialized parameter lengths greater than parameter bytes length");
         return Err(ErrorKind::Other);
     }
