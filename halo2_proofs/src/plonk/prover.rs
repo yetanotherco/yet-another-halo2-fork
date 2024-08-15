@@ -226,12 +226,8 @@ pub fn read_params(buf: &[u8]) -> Result<(&[u8], &[u8], &[u8]), ErrorKind> {
     Ok((cs_buffer, vk_buffer, params_buffer))
 }
 
-//TODO: change to just serialize
-/// This creates a proof for the provided `circuit` when given the public
-/// parameters `params` and the proving key [`ProvingKey`] that was
-/// generated previously for the same circuit. The provided `instances`
-/// are zero-padded internally. Writes the resulting proof, parameters, verifier key, and instances to files for use in aligned.
-pub fn prove_and_serialize_circuit_ipa<ConcreteCircuit: Circuit<Fr>>(
+/// Proves, serializes, and writes the resulting proof, parameters, verifier key, and instances to local files to be sent to Aligned.
+pub fn prove_and_serialize_ipa_circuit<ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsIPA<G1Affine>,
     pk: &ProvingKey<G1Affine>,
     circuit: ConcreteCircuit,
@@ -275,10 +271,8 @@ pub fn prove_and_serialize_circuit_ipa<ConcreteCircuit: Circuit<Fr>>(
         fs::create_dir_all("./proof_files").unwrap();
     }
 
-    //write proof
     std::fs::write("proof_files/proof.bin", &proof[..]).expect("should succeed to write new proof");
 
-    //write instances
     let f = File::create("proof_files/pub_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
     public_inputs.iter().flatten().cloned().for_each(|f| {
@@ -298,8 +292,8 @@ pub fn prove_and_serialize_circuit_ipa<ConcreteCircuit: Circuit<Fr>>(
     Ok(())
 }
 
-//TODO: change to just serialize
-pub fn prove_and_serialize_circuit_kzg<ConcreteCircuit: Circuit<Fr>>(
+/// Proves, serializes, and writes the resulting proof, parameters, verifier key, and instances to local files to be sent to Aligned.
+pub fn serialize_kzg_circuit<ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsKZG<Bn256>,
     pk: &ProvingKey<G1Affine>,
     vk: &VerifyingKey<G1Affine>,
@@ -348,10 +342,8 @@ pub fn prove_and_serialize_circuit_kzg<ConcreteCircuit: Circuit<Fr>>(
         fs::create_dir_all("./proof_files").unwrap();
     }
 
-    //write proof
     std::fs::write("proof_files/proof.bin", &proof[..]).expect("should succeed to write new proof");
 
-    //write instances
     let f = File::create("proof_files/pub_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
     public_inputs.iter().flatten().cloned().for_each(|f| {
@@ -366,7 +358,6 @@ pub fn prove_and_serialize_circuit_kzg<ConcreteCircuit: Circuit<Fr>>(
 
     let mut params_buf = Vec::new();
     verifier_params.write(&mut params_buf).unwrap();
-    //params.write(&mut params_buf).unwrap();
 
     write_params(&params_buf, cs, &vk_buf, "proof_files/params.bin").unwrap();
     Ok(())
