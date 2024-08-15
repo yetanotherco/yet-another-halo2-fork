@@ -273,7 +273,7 @@ pub fn prove_and_serialize_ipa_circuit<ConcreteCircuit: Circuit<Fr>>(
 
     std::fs::write("proof_files/proof.bin", &proof[..]).expect("should succeed to write new proof");
 
-    let f = File::create("proof_files/pub_input.bin").unwrap();
+    let f = File::create("proof_files/public_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
     public_inputs.iter().flatten().cloned().for_each(|f| {
         f.into_iter().for_each(|fp| {
@@ -344,7 +344,7 @@ pub fn prove_and_serialize_kzg_circuit<ConcreteCircuit: Circuit<Fr>>(
 
     std::fs::write("proof_files/proof.bin", &proof[..]).expect("should succeed to write new proof");
 
-    let f = File::create("proof_files/pub_input.bin").unwrap();
+    let f = File::create("proof_files/public_input.bin").unwrap();
     let mut writer = BufWriter::new(f);
     public_inputs.iter().flatten().cloned().for_each(|f| {
         f.into_iter().for_each(|fp| {
@@ -614,7 +614,7 @@ fn test_proof_serialization() {
         .unwrap();
 
     let proof = std::fs::read("proof_files/proof.bin").expect("should succeed to read proof");
-    let pub_input = std::fs::read("proof_files/pub_input.bin").unwrap();
+    let pub_input = std::fs::read("proof_files/public_input.bin").unwrap();
     let instances = read_fr(&pub_input).unwrap();
 
     let mut f = File::open("proof_files/params.bin").unwrap();
