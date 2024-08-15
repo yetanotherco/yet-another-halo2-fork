@@ -293,7 +293,7 @@ pub fn prove_and_serialize_ipa_circuit<ConcreteCircuit: Circuit<Fr>>(
 }
 
 /// Proves, serializes, and writes the resulting proof, parameters, verifier key, and instances to local files to be sent to Aligned.
-pub fn serialize_kzg_circuit<ConcreteCircuit: Circuit<Fr>>(
+pub fn prove_and_serialize_kzg_circuit<ConcreteCircuit: Circuit<Fr>>(
     params: &ParamsKZG<Bn256>,
     pk: &ProvingKey<G1Affine>,
     vk: &VerifyingKey<G1Affine>,
@@ -610,7 +610,7 @@ fn test_proof_serialization() {
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
     let instances: Vec<Vec<Fr>> = vec![vec![circuit.0]];
-    prove_and_serialize_circuit_kzg(&params, &pk, &vk, circuit.clone(), &vec![instances.clone()])
+    prove_and_serialize_kzg_circuit(&params, &pk, &vk, circuit.clone(), &vec![instances.clone()])
         .unwrap();
 
     let proof = std::fs::read("proof_files/proof.bin").expect("should succeed to read proof");
@@ -620,49 +620,19 @@ fn test_proof_serialization() {
     let mut f = File::open("proof_files/params.bin").unwrap();
     let mut params_buf = Vec::new();
     f.read_to_end(&mut params_buf).unwrap();
-    println!("params_buf len: {:?}", params_buf.len());
 
-    // Select Constraint System Bytes
-    let mut cs_buffer = [0u8; 2 * 1024];
-    let cs_len_buf: [u8; 4] = params_buf[..4]
-        .try_into()
-        .map_err(|_| "Failed to convert slice to [u8; 4]")
-        .unwrap();
-    let cs_len = u32::from_le_bytes(cs_len_buf) as usize;
-    let cs_offset = 12;
-    cs_buffer[..cs_len].clone_from_slice(&params_buf[cs_offset..(cs_offset + cs_len)]);
+    let (cs_bytes, vk_bytes, vk_params_bytes) = read_params(&params_buf).unwrap();
 
-    // Select Verifier Key Bytes
-    let mut vk_buffer = [0u8; 1024];
-    let vk_len_buf: [u8; 4] = params_buf[4..8]
-        .try_into()
-        .map_err(|_| "Failed to convert slice to [u8; 4]")
-        .unwrap();
-    let vk_len = u32::from_le_bytes(vk_len_buf) as usize;
-    let vk_offset = cs_offset + cs_len;
-    vk_buffer[..vk_len].clone_from_slice(&params_buf[vk_offset..(vk_offset + vk_len)]);
-
-    // Select KZG Params Bytes
-    let mut kzg_params_buffer = [0u8; 4 * 1024];
-    let kzg_len_buf: [u8; 4] = params_buf[8..12]
-        .try_into()
-        .map_err(|_| "Failed to convert slice to [u8; 4]")
-        .unwrap();
-    let kzg_params_len = u32::from_le_bytes(kzg_len_buf) as usize;
-    let kzg_offset = vk_offset + vk_len;
-    kzg_params_buffer[..kzg_params_len].clone_from_slice(&params_buf[kzg_offset..]);
-
-    let cs = bincode::deserialize(&cs_buffer[..cs_len]).unwrap();
+    let cs = bincode::deserialize(&cs_bytes).unwrap();
     let vk = VerifyingKey::<G1Affine>::read(
-        &mut BufReader::new(&vk_buffer[..vk_len]),
+        &mut BufReader::new(vk_bytes),
         SerdeFormat::RawBytes,
         cs,
     )
     .unwrap();
     let vk_params =
-        Params::read::<_>(&mut BufReader::new(&kzg_params_buffer[..kzg_params_len])).unwrap();
+        Params::read::<_>(&mut BufReader::new(vk_params_bytes)).unwrap();
 
-    //let vk_params = params.verifier_params();
     let strategy = SingleStrategy::new(&vk_params);
     let mut transcript = Blake2bRead::<_, _, Challenge255<_>>::init(&proof[..]);
     assert!(verify_proof::<
@@ -685,5 +655,5 @@ fn test_proof_serialization() {
     let vk = keygen_vk_custom(&params, &circuit, compress_selectors).expect("vk should not fail");
     let pk = keygen_pk(&params, vk.clone(), &circuit).expect("pk should not fail");
     let public_inputs: Vec<Vec<Fr>> = vec![vec![circuit.0]];
-    prove_and_serialize_circuit_ipa(&params, &pk, circuit, &vec![public_inputs]).unwrap()
+    prove_and_serialize_ipa_circuit(&params, &pk, circuit, &vec![public_inputs]).unwrap()
 }
